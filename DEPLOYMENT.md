@@ -13,6 +13,10 @@ Target shape, at **https://vocacic-roadmap.voca.cloud**:
 Running cost: the Static Web App is on the **Free** plan; the storage account
 holds a few hundred KB and costs cents per month.
 
+The resources this was deployed to — names, hostnames, app settings and where
+published content lives — are recorded in **`INFRASTRUCTURE.md`**. This file is
+the build procedure; that one is the operating reference.
+
 Do the steps in order. The custom domain comes before handing out editor
 access on purpose — an invitation link embeds whichever hostname you pick when
 you generate it, so adding the domain first saves re-issuing them.
@@ -64,8 +68,8 @@ Once created: **Overview → Manage deployment token** → copy it. In GitHub go
 Then re-run the workflow (**Actions** tab → latest run → **Re-run all jobs**),
 or push any commit. The site deploys in about two minutes.
 
-From the **Overview** page, copy the generated URL — something like
-`happy-sand-0a1b2c3d4.azurestaticapps.net`. You need it in step 5. Open it: the
+From the **Overview** page, copy the generated URL — for this deployment it is
+`delightful-river-06a551903.1.azurestaticapps.net`. You need it in step 5. Open it: the
 roadmap loads, showing the content **as originally supplied**, because the API
 falls back to `api/shared/seed.json` until the first publish.
 
@@ -108,8 +112,11 @@ record you may have seen in Azure's documentation applies only to apex
 | --- | --- |
 | Type | `CNAME` |
 | Host / Name | `VocaCIC-Roadmap` |
-| Value / Points to | the `…azurestaticapps.net` hostname from step 3 |
+| **Alias** | the `…azurestaticapps.net` hostname from step 3 |
 | TTL | leave at the default |
+
+The target field is labelled **Alias** in our DNS tooling. Other providers
+call the same field *Value* or *Points to*.
 
 Hostnames are case-insensitive, so `VocaCIC-Roadmap` and `vocacic-roadmap`
 are the same record. Azure displays it lowercase.
@@ -135,17 +142,43 @@ Sign-in itself is open — on the Free plan Microsoft's pre-configured provider
 lets any Microsoft account complete a login. Access is decided by the `editor`
 role, which you grant per person:
 
+> ### Invite the UPN, not the email address
+>
+> **In our tenant a person's email address is not their UPN.** Static Web Apps
+> matches an invitation against the identity claim Entra returns, which is the
+> UPN, so inviting an email address produces a link that fails on use with:
+>
+> ```
+> 400: Bad Request
+> This invitation link is invalid. Please contact the site admin for a valid invitation.
+> ```
+>
+> To get the exact string for someone, have them open
+> https://vocacic-roadmap.voca.cloud, click **Sign in**, then visit
+> **`/.auth/me`** and read `userDetails`. Invite that, character for
+> character. Anyone can sign in without an invitation, so this costs nothing
+> and removes the guesswork.
+
 1. Static Web App → **Settings → Role management** → **Invite**
 2. Authorization provider: **Microsoft Entra ID** (`aad`)
-3. Invitee: the person's **email address**
+3. Invitee: the person's **UPN** — see the note above
 4. Domain: **vocacic-roadmap.voca.cloud**
 5. Role: `editor` — spelled exactly, lowercase
 6. Validity: up to 168 hours (7 days)
 7. **Generate**, then send the invite link to that person
 
-They open the link, sign in once, and the role sticks. Someone who signs in
-without the role sees a page explaining they are not an editor; `/edit` and
-the publish API both refuse them.
+They open the link, sign in once, and the role sticks. Confirm it worked by
+reloading `/.auth/me`: `userRoles` should now list `editor` alongside
+`anonymous` and `authenticated`. Someone who signs in without the role sees a
+page explaining they are not an editor; `/edit` and the publish API both
+refuse them.
+
+If an invitation link is rejected, work through these in order: the invitee
+string is the UPN and matches `userDetails` exactly; the **Domain** on the
+invite is the custom domain, not the `azurestaticapps.net` one; the provider
+is **Microsoft Entra ID** and not GitHub, which is deliberately blocked by a
+404 route rule and so can never accept an invitation; and the link is under
+seven days old and was copied whole.
 
 Removing someone: same screen, select their row, **Delete**. Access is revoked
 within a few minutes.

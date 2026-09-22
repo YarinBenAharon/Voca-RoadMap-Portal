@@ -10,7 +10,10 @@ framework, no bundler, no transpilation — plain browser JavaScript plus three
 Node Azure Functions. Python appears only in `tools/` (build helpers); the
 `.venv` and `.idea` folders are leftover PyCharm scaffolding.
 
-See `DEPLOYMENT.md` for the Azure and GitHub setup.
+See `DEPLOYMENT.md` for the Azure and GitHub setup procedure,
+`INFRASTRUCTURE.md` for the resources it was actually deployed to, and
+`USING-THE-PORTAL.md` for the non-technical guide given to editors — keep that
+one accurate if you change the editor's wording or publishing behavior.
 
 ## Standing constraint: the design does not change
 
