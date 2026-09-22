@@ -63,7 +63,7 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/shared/*", "/api/*", "/*.{png,jpg,svg,ico,css,js,json}"]
+    "exclude": ["/.auth/*", "/shared/*", "/api/*", "/*.{png,jpg,svg,ico,css,js,json}"]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
