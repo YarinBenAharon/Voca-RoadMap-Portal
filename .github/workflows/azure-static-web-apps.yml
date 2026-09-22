@@ -11,7 +11,7 @@ jobs:
   build_and_deploy:
     name: Build and deploy
     if: github.event_name == 'push' || github.event.action != 'closed'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +42,7 @@ jobs:
   close_pull_request:
     name: Close preview environment
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Close
         uses: Azure/static-web-apps-deploy@v1
