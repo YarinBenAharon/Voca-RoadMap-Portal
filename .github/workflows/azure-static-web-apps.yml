@@ -42,7 +42,7 @@ jobs:
   close_pull_request:
     name: Close preview environment
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Close
         uses: Azure/static-web-apps-deploy@v1
