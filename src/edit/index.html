@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voca CIC Roadmap — Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/base.css">
+<style>
+/* ══ EDITOR CHROME ══════════════════════════════════════════════════ */
+.ed-bar{position:sticky;top:0;z-index:90;background:#0E1020;color:#fff;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.09)}
+.ed-bar .wrap{display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.ed-bar .wrap::-webkit-scrollbar{display:none}
+.ed-btn{white-space:nowrap;flex-shrink:0}
+.ed-brand,.ed-right{flex-shrink:0}
+/* keep the primary action in view while the rest of the bar scrolls */
+.ed-bar .wrap{padding-right:0}
+.ed-right{padding-right:var(--gutter)}
+.ed-brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-right:8px}
+.ed-brand .mark{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6C5CE0,#2FAECE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.ed-brand span{color:#8B94B4;font-weight:400}
+.ed-btn{font-size:12.5px;color:#DCE4EC;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:6px 14px;cursor:pointer}
+.ed-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.ed-btn.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
+.ed-btn.pri:hover{filter:brightness(1.12)}
+.ed-btn.danger:hover{background:#C4553A;border-color:#C4553A;color:#fff}
+.ed-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.ed-save{font-size:12px;color:#6FD2B4}
+.ed-save.dirty{color:#F0C06A}
+.tgl{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#B9C6D2;cursor:pointer;user-select:none}
+.tgl input{accent-color:#6C5CE0;width:14px;height:14px;cursor:pointer}
+.filterbar{top:53px}
+
+/* lane + tile edit affordances */
+.ed-tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.tbtn{font-family:inherit;font-size:11.5px;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:100px;padding:4px 11px;cursor:pointer;transition:border-color .12s,color .12s}
+.tbtn:hover{border-color:#A9B8CC;color:var(--ink)}
+.tbtn.add{border-style:dashed}
+.tbtn.del:hover{border-color:var(--warn);color:var(--warn)}
+.iconb{font-size:11px;line-height:1;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:50%;width:24px;height:24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.iconb:hover{border-color:#A9B8CC;color:var(--ink)}
+.internal{font-size:10px;font-weight:600;color:var(--warn);background:var(--warn-bg);border-radius:100px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.tile-br{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line-soft);border-radius:4px;padding:1px 5px}
+.lane-add{border-style:dashed;background:transparent;align-items:center;justify-content:center;display:flex}
+
+/* drawer edit footer */
+.dedit{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap}
+.dedit .tbtn{padding:7px 15px;font-size:12.5px}
+
+/* modal */
+.ovl{position:fixed;inset:0;background:rgba(14,16,32,.5);z-index:120;display:none;align-items:flex-start;justify-content:center;padding:52px 20px;overflow:auto}
+.ovl.open{display:flex}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:600px;box-shadow:0 20px 60px rgba(14,16,32,.3)}
+.modal header{padding:22px 28px 16px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.modal header h3{font-size:17px;font-weight:600;color:var(--ink)}
+.modal .mbody{padding:22px 28px}
+.modal footer{padding:16px 28px 22px;border-top:1px solid var(--line-soft);display:flex;gap:8px;justify-content:flex-end;background:transparent}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:6px}
+.field .hint{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.field input,.field textarea,.field select{font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.field textarea{min-height:78px;resize:vertical;line-height:1.55}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);outline:none;background:#fff}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mbtn{font-family:inherit;font-size:13.5px;border-radius:100px;padding:9px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--text)}
+.mbtn:hover{border-color:#A9B8CC;color:var(--ink)}
+.mbtn.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
+.mbtn.pri:hover{filter:brightness(1.1)}
+
+/* customer preview strips internal chrome */
+body.preview .ed-tools,body.preview .iconb,body.preview .tile-br,
+body.preview .internal,body.preview .dedit,body.preview .lane-add{display:none!important}
+body.preview .region.is-internal{display:none!important}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E1020;color:#fff;font-size:13px;padding:11px 20px;border-radius:100px;z-index:200;opacity:0;pointer-events:none;transition:opacity .18s;max-width:80vw;text-align:center}
+.toast.show{opacity:1}
+@media(max-width:900px){
+  .ed-bar{padding:8px 0}
+  .ed-brand span{display:none}
+  .filterbar{top:49px}
+}
+@media(max-width:640px){
+  /* primary action becomes a floating button so it is always reachable */
+  #bPublish{position:fixed;bottom:16px;right:16px;z-index:95;padding:12px 20px;font-size:13px;
+    box-shadow:0 8px 26px rgba(14,16,32,.4)}
+  .ed-bar .ed-right{margin-left:14px}
+  .ed-brand{margin-right:2px}
+  .filterbar{top:47px}
+  .modal{border-radius:16px}
+  .modal header,.modal .mbody,.modal footer{padding-left:18px;padding-right:18px}
+  .frow{grid-template-columns:1fr;gap:0}
+  .ovl{padding:20px 12px}
+}
+/* ══ PORTAL CHROME ═══════════════════════════════════════ */
+.ed-pub{font-size:12px;color:#8B94B4;white-space:nowrap}
+.ed-link{font-family:inherit;font-size:12px;color:#8FC7FF;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.ed-link:hover{color:#fff}
+.sess{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#B9C6D2;white-space:nowrap}
+.sess a{color:#8FC7FF;text-decoration:none}
+.sess a:hover{color:#fff;text-decoration:underline}
+.sess .sess-in{color:#fff;background:rgba(108,92,224,.32);border:1px solid rgba(150,136,240,.42);border-radius:100px;padding:4px 12px;text-decoration:none}
+.sess .sess-in:hover{background:rgba(108,92,224,.55);text-decoration:none}
+.sess .sess-who{max-width:18ch;overflow:hidden;text-overflow:ellipsis}
+.boot-err{max-width:540px;margin:90px auto;padding:0 24px;text-align:center;color:var(--text)}
+.boot-err h2{font-size:19px;font-weight:600;color:var(--ink);margin-bottom:10px}
+@media(max-width:900px){.ed-pub{display:none}}
+</style>
+</head>
+<body>
+
+<div class="ed-bar">
+  <div class="wrap">
+    <span class="ed-brand"><span class="mark">ac</span>Roadmap editor <span>Voca CIC</span></span>
+    <button class="ed-btn" id="bAddTrain">Add train</button>
+    <button class="ed-btn" id="bMeta">Header</button>
+    <button class="ed-btn" id="bEval">Under evaluation</button>
+    <button class="ed-btn" id="bJsonOut">Export JSON</button>
+    <button class="ed-btn" id="bJsonIn">Import JSON</button>
+    <button class="ed-btn danger" id="bReset">Reset</button>
+    <div class="ed-right">
+      <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
+      <span class="ed-pub" id="pubState"></span>
+      <span class="ed-save" id="saveState">Saved</span>
+      <button class="ed-btn pri" id="bPublish">Publish</button>
+      <span class="sess" id="session"></span>
+    </div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Capability detail">
+  <button class="dclose" aria-label="Close">&#10005;</button>
+  <div class="drawer-head"><div class="eyebrow"></div><h3></h3></div>
+  <div class="drawer-body"></div>
+</aside>
+
+<div class="ovl" id="ovl"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+
+<script src="/shared/render.js"></script>
+<script src="/shared/board.js"></script>
+<script src="/shared/session.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   EDITOR APP
+   ══════════════════════════════════════════════════════════════════════ */
+
+const LS_KEY   = 'voca_roadmap_editor_v2';
+const DRAFT_AT = 'voca_roadmap_editor_v2_at';
+
+let data = null;         /* the working copy, filled by boot() before first render */
+let seed = null;         /* pristine roadmap as originally supplied, for Reset */
+let publishedAt = null;  /* ISO timestamp of the copy currently live on the portal */
+let dirty = false;
+let scrollMemo = 0;
+
+/* fill the customer-facing flag on older saved copies, matching by feature name */
+function withCf(d){
+  const def = {};
+  ((seed && seed.trains) || []).forEach(t => t.items.forEach(i => { def[i.name] = !!i.cf; }));
+  (d.trains||[]).forEach(t => (t.items||[]).forEach(i => { if (i.cf === undefined) i.cf = !!def[i.name]; }));
+  return d;
+}
+function loadDraft(){
+  try { const raw = localStorage.getItem(LS_KEY); if (raw) return withCf(JSON.parse(raw)); }
+  catch(e){}
+  return null;
+}
+function draftSavedAt(){
+  try { return localStorage.getItem(DRAFT_AT) || ''; } catch(e){ return ''; }
+}
+function save(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    localStorage.setItem(DRAFT_AT, new Date().toISOString());
+    dirty = false; setSaveState('Saved');
+  }
+  catch(e){ setSaveState('Could not save locally'); }
+}
+async function api(path, opts){
+  const r = await fetch(path, opts);
+  const t = await r.text();
+  if (!r.ok) throw new Error(t || ('HTTP ' + r.status));
+  return t ? JSON.parse(t) : null;
+}
+function setSaveState(t){
+  const el = document.getElementById('saveState');
+  el.textContent = t; el.classList.toggle('dirty', t !== 'Saved');
+}
+function touch(){
+  const sc = document.getElementById('scroller');
+  scrollMemo = sc ? sc.scrollLeft : 0;
+  dirty = true; setSaveState('Saving…'); save(); render();
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function uid(){ return 't' + Math.random().toString(36).slice(2,8); }
+
+/* ── modal plumbing ─────────────────────────────────────────────────── */
+function openModal(title, bodyHTML, onSave, extraFooter){
+  const m = document.getElementById('modal');
+  m.innerHTML =
+    '<header><h3>' + esc(title) + '</h3><button class="mbtn" data-x>Close</button></header>' +
+    '<div class="mbody">' + bodyHTML + '</div>' +
+    '<footer>' + (extraFooter||'') + '<button class="mbtn" data-x>Cancel</button><button class="mbtn pri" data-ok>Save</button></footer>';
+  document.getElementById('ovl').classList.add('open');
+  m.querySelectorAll('[data-x]').forEach(b => b.onclick = closeModal);
+  m.querySelector('[data-ok]').onclick = () => { if (onSave(m) !== false) closeModal(); };
+  const f = m.querySelector('input,textarea,select'); if (f) f.focus();
+}
+function closeModal(){ document.getElementById('ovl').classList.remove('open'); }
+document.getElementById('ovl').addEventListener('click', e => { if (e.target.id === 'ovl') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+function val(m, n){ const el = m.querySelector('[name="'+n+'"]'); return el ? el.value.trim() : ''; }
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+}
+
+/* ── item edit ──────────────────────────────────────────────────────── */
+function editItem(trainId, idx){
+  const t = data.trains.find(x => x.id === trainId);
+  const isNew = idx == null;
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false } : t.items[idx];
+  const cats = data.categories.map(c =>
+    '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
+  const trainOpts = data.trains.map(x =>
+    '<option value="'+esc(x.id)+'"'+(x.id===trainId?' selected':'')+'>'+esc(x.ver)+' — '+esc(x.quarter)+'</option>').join('');
+
+  openModal(isNew ? 'Add capability' : 'Edit capability',
+    '<div class="field"><label>Name, as the customer reads it</label>' +
+      '<input name="name" value="'+esc(it.name)+'" placeholder="Phonebook search"></div>' +
+    '<div class="field"><label>Description</label>' +
+      '<textarea name="desc" placeholder="One or two plain sentences on what it does for them.">'+esc(it.desc)+'</textarea></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Area</label><select name="cat">'+cats+'</select></div>' +
+      '<div class="field"><label>Release train</label><select name="train">'+trainOpts+'</select></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Delivered in build</label><input name="patch" value="'+esc(it.patch)+'" placeholder="12.2.0.700">' +
+        '<div class="hint">Only for items already shipped in a maintenance build.</div></div>' +
+      '<div class="field"><label>Jira reference</label><input name="br" value="'+esc(it.br)+'" placeholder="BR-6963">' +
+        '<div class="hint">Internal only. Never reaches the published file.</div></div>' +
+    '</div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="cf" style="width:auto"'+(it.cf?' checked':'')+'>Customer facing feature</label>' +
+      '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>',
+    m => {
+      const name = val(m,'name');
+      if (!name){ toast('Give the capability a name'); return false; }
+      const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
+                    cf:m.querySelector('[name="cf"]').checked };
+      const dest = val(m,'train');
+      if (!isNew) t.items.splice(idx,1);
+      data.trains.find(x => x.id === dest).items.push(rec);
+      closeDrawer(); touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delItem" style="margin-right:auto">Delete</button>');
+
+  const d = document.getElementById('delItem');
+  if (d) d.onclick = () => {
+    if (confirm('Delete "' + it.name + '"?')){ t.items.splice(idx,1); closeModal(); closeDrawer(); touch(); }
+  };
+}
+
+/* ── train edit ─────────────────────────────────────────────────────── */
+function editTrain(trainId){
+  const isNew = !trainId;
+  const t = isNew
+    ? { id:uid(), ver:'', quarter:'', phase:'later', status:'Planned', head:'', note:'', maint:null, items:[] }
+    : data.trains.find(x => x.id === trainId);
+  const ph = [['now','Available now'],['next','Committed, in development'],['later','Planned or direction']]
+    .map(p => '<option value="'+p[0]+'"'+(p[0]===t.phase?' selected':'')+'>'+p[1]+'</option>').join('');
+
+  openModal(isNew ? 'Add release train' : 'Release train ' + t.ver,
+    '<div class="frow">' +
+      '<div class="field"><label>Version</label><input name="ver" value="'+esc(t.ver)+'" placeholder="12.5"></div>' +
+      '<div class="field"><label>Target quarter</label><input name="quarter" value="'+esc(t.quarter)+'" placeholder="Q2 2027">' +
+        '<div class="hint">Quarter only. The year drives the ruler above the board.</div></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Confidence</label><select name="phase">'+ph+'</select></div>' +
+      '<div class="field"><label>Status label</label><input name="status" value="'+esc(t.status)+'" placeholder="In development">' +
+        '<div class="hint">Use the word Direction to grey the lane out.</div></div>' +
+    '</div>' +
+    '<div class="field"><label>Theme</label><input name="head" value="'+esc(t.head)+'" placeholder="What ties this train together"></div>' +
+    '<div class="field"><label>Note</label><textarea name="note">'+esc(t.note)+'</textarea>' +
+      '<div class="hint">Shown in the train detail, not on the lane card.</div></div>',
+    m => {
+      const ver = val(m,'ver');
+      if (!ver){ toast('Give the train a version'); return false; }
+      Object.assign(t, { ver, quarter:val(m,'quarter'), phase:val(m,'phase'),
+                         status:val(m,'status'), head:val(m,'head'), note:val(m,'note') });
+      if (isNew) data.trains.push(t);
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delTrain" style="margin-right:auto">Delete train</button>');
+
+  const d = document.getElementById('delTrain');
+  if (d) d.onclick = () => {
+    if (t.items.length && !confirm('This train holds ' + t.items.length + ' capabilities. Delete all of them?')) return;
+    data.trains = data.trains.filter(x => x.id !== t.id);
+    closeModal(); touch();
+  };
+}
+
+/* ── maintenance builds ─────────────────────────────────────────────── */
+function editMaint(trainId){
+  const t = data.trains.find(x => x.id === trainId);
+  const mt = t.maint || { title:'Maintenance builds in the ' + t.ver + ' train', note:'', drops:[] };
+  const rows = mt.drops.map((d,i) =>
+    '<div class="frow" style="grid-template-columns:1fr 1fr auto;align-items:end">' +
+      '<div class="field"><label>Build</label><input name="dv'+i+'" value="'+esc(d.ver)+'"></div>' +
+      '<div class="field"><label>When</label><input name="dw'+i+'" value="'+esc(d.when)+'"></div>' +
+      '<div class="field"><button class="mbtn" data-rmdrop="'+i+'">Remove</button></div></div>').join('');
+
+  openModal('Maintenance builds — ' + t.ver,
+    '<div class="field"><label>Heading</label><input name="title" value="'+esc(mt.title)+'"></div>' +
+    '<div class="field"><label>Note</label><textarea name="note">'+esc(mt.note)+'</textarea></div>' +
+    '<div>'+(rows || '<p class="hint" style="margin-bottom:14px;color:var(--muted);font-size:12.5px">No builds listed yet.</p>')+'</div>' +
+    '<button class="mbtn" id="addDrop">Add a build</button>',
+    m => {
+      const drops = [];
+      mt.drops.forEach((_,i) => {
+        const v = m.querySelector('[name="dv'+i+'"]');
+        if (v && v.value.trim()) drops.push({ ver:v.value.trim(), when:m.querySelector('[name="dw'+i+'"]').value.trim() });
+      });
+      t.maint = (drops.length || val(m,'note')) ? { title:val(m,'title'), note:val(m,'note'), drops } : null;
+      touch();
+    },
+    t.maint ? '<button class="mbtn" id="rmMaint" style="margin-right:auto">Remove strip</button>' : '');
+
+  document.getElementById('addDrop').onclick = () => {
+    mt.drops.push({ ver:'', when:'' }); t.maint = mt; closeModal(); editMaint(trainId);
+  };
+  document.querySelectorAll('[data-rmdrop]').forEach(b => b.onclick = () => {
+    mt.drops.splice(+b.dataset.rmdrop,1); t.maint = mt; closeModal(); editMaint(trainId);
+  });
+  const rm = document.getElementById('rmMaint');
+  if (rm) rm.onclick = () => { t.maint = null; closeModal(); touch(); };
+}
+
+/* ── under evaluation ───────────────────────────────────────────────── */
+function editEval(idx){
+  const isNew = idx == null;
+  const e = isNew ? { t:'', d:'' } : data.evaluation[idx];
+  openModal(isNew ? 'Add to under evaluation' : 'Edit',
+    '<div class="field"><label>Capability</label><input name="t" value="'+esc(e.t)+'"></div>' +
+    '<div class="field"><label>Why it is not scheduled</label><textarea name="d">'+esc(e.d)+'</textarea>' +
+      '<div class="hint">Describe the dependency without naming the third party.</div></div>',
+    m => {
+      const tt = val(m,'t'); if (!tt){ toast('Name the capability'); return false; }
+      const rec = { t:tt, d:val(m,'d') };
+      if (isNew) data.evaluation.push(rec); else data.evaluation[idx] = rec;
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delEval" style="margin-right:auto">Delete</button>');
+  const d = document.getElementById('delEval');
+  if (d) d.onclick = () => { data.evaluation.splice(idx,1); closeModal(); touch(); };
+}
+
+/* ── region edit ────────────────────────────────────────────────────── */
+function editRegion(idx){
+  const isNew = idx == null;
+  const r = isNew
+    ? { id:uid(), name:'', flag:'🌐', version:'', lastDeploy:'', nextVersion:'', nextDate:'', publish:true }
+    : data.cloud.regions[idx];
+  openModal(isNew ? 'Add region' : r.name,
+    '<div class="frow">' +
+      '<div class="field"><label>Region name</label><input name="name" value="'+esc(r.name)+'"></div>' +
+      '<div class="field"><label>Flag or symbol</label><input name="flag" value="'+esc(r.flag)+'"></div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Running build</label><input name="version" value="'+esc(r.version)+'" placeholder="12.2.0.954"></div>' +
+      '<div class="field"><label>Last deployed</label><input name="lastDeploy" type="date" value="'+esc(r.lastDeploy)+'"></div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Next build</label><input name="nextVersion" value="'+esc(r.nextVersion)+'"></div>' +
+      '<div class="field"><label>Next deploy date</label><input name="nextDate" type="date" value="'+esc(r.nextDate)+'"></div></div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="publish" style="width:auto"'+(r.publish!==false?' checked':'')+'>Show in the published customer file</label>' +
+      '<div class="hint">Leave unticked for dedicated or customer-named environments.</div></div>',
+    m => {
+      const name = val(m,'name'); if (!name){ toast('Name the region'); return false; }
+      Object.assign(r, { name, flag:val(m,'flag'), version:val(m,'version'), lastDeploy:val(m,'lastDeploy'),
+                         nextVersion:val(m,'nextVersion'), nextDate:val(m,'nextDate'),
+                         publish:m.querySelector('[name="publish"]').checked });
+      if (isNew) data.cloud.regions.push(r);
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delReg" style="margin-right:auto">Delete</button>');
+  const d = document.getElementById('delReg');
+  if (d) d.onclick = () => { data.cloud.regions.splice(idx,1); closeModal(); touch(); };
+}
+
+/* ── header meta ────────────────────────────────────────────────────── */
+function editMeta(){
+  const m0 = data.meta;
+  openModal('Header details',
+    '<div class="frow"><div class="field"><label>Vendor</label><input name="vendor" value="'+esc(m0.vendor)+'"></div>' +
+      '<div class="field"><label>Product</label><input name="product" value="'+esc(m0.product)+'"></div></div>' +
+    '<div class="field"><label>Page title</label><input name="title" value="'+esc(m0.title)+'"></div>' +
+    '<div class="field"><label>Opening paragraph</label><textarea name="lede">'+esc(m0.lede)+'</textarea></div>' +
+    '<div class="frow"><div class="field"><label>Current release</label><input name="currentRelease" value="'+esc(m0.currentRelease)+'"></div>' +
+      '<div class="field"><label>Latest build</label><input name="latestBuild" value="'+esc(m0.latestBuild)+'"></div></div>' +
+    '<div class="frow"><div class="field"><label>Next train</label><input name="nextTrain" value="'+esc(m0.nextTrain)+'"></div>' +
+      '<div class="field"><label>Roadmap updated</label><input name="updated" value="'+esc(m0.updated)+'"></div></div>',
+    m => {
+      ['vendor','product','title','lede','currentRelease','latestBuild','nextTrain','updated']
+        .forEach(k => m0[k] = val(m,k));
+      touch();
+    });
+}
+function manageEvals(){
+  const list = data.evaluation.map((e,i) =>
+    '<div style="display:flex;justify-content:space-between;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft)">' +
+      '<span style="font-size:13.5px;color:var(--ink)">'+esc(e.t)+'</span>' +
+      '<button class="tbtn" data-ev="'+i+'">Edit</button></div>').join('');
+  openModal('Under evaluation',
+    (list || '<p style="color:var(--muted);font-size:13px">Nothing here yet.</p>') +
+    '<div style="margin-top:18px"><button class="mbtn" id="addEv">Add item</button></div>',
+    () => true);
+  document.getElementById('addEv').onclick = () => { closeModal(); editEval(null); };
+  document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { closeModal(); editEval(+b.dataset.ev); });
+}
+
+/* ── moves ──────────────────────────────────────────────────────────── */
+function moveItem(trainId, idx, dir){
+  const t = data.trains.find(x => x.id === trainId);
+  const j = idx + dir; if (j < 0 || j >= t.items.length) return;
+  const [x] = t.items.splice(idx,1); t.items.splice(j,0,x); closeDrawer(); touch();
+}
+function moveTrain(trainId, dir){
+  const i = data.trains.findIndex(x => x.id === trainId);
+  const j = i + dir; if (j < 0 || j >= data.trains.length) return;
+  const [x] = data.trains.splice(i,1); data.trains.splice(j,0,x); touch();
+}
+
+/* ══ RENDER ═════════════════════════════════════════════════════════ */
+function render(){
+  const m = data.meta;
+  const segs = ['<button data-cat="all">All</button>']
+    .concat(data.categories.map(c =>
+      '<button data-cat="'+esc(c.id)+'" title="'+esc(c.label)+'">'+esc(c.short||c.label)+'</button>')).join('');
+
+  const lanes = data.trains.map(t => laneHTML(data, t, { editable:true })).join('')
+    + '<section class="lane lane-add"><button class="tbtn add" id="laneAdd">Add release train</button></section>';
+
+  const evals = data.evaluation.map((e,i) =>
+    '<div class="ev"><div class="t">'+esc(e.t)+'</div><div class="d">'+esc(e.d)+'</div>' +
+    '<div class="ed-tools"><button class="tbtn" data-act="eedit" data-i="'+i+'">Edit</button></div></div>').join('')
+    + '<div class="ev" style="border-style:dashed;display:flex;align-items:center;justify-content:center">' +
+      '<button class="tbtn add" data-act="eadd">Add item</button></div>';
+
+  document.getElementById('app').innerHTML =
+  '<header class="hero"><div class="wrap">' +
+    '<h1>'+esc(m.product)+' release roadmap</h1>' +
+    '<p class="lede">'+esc(m.lede)+'</p>' +
+    '<div class="hero-facts">' +
+      '<div class="hfact"><div class="k">Current release</div><div class="v">'+esc(m.currentRelease)+'</div></div>' +
+      '<div class="hfact"><div class="k">Latest build</div><div class="v">'+esc(m.latestBuild)+'</div></div>' +
+      '<div class="hfact"><div class="k">Next train</div><div class="v">'+esc(m.nextTrain)+'</div></div>' +
+      '<div class="hfact"><div class="k">Updated</div><div class="v plain">'+esc(m.updated)+'</div></div>' +
+    '</div></div></header>' +
+
+  '<div class="filterbar"><div class="wrap">' +
+    '<div class="seg" role="group" aria-label="Filter by area">'+segs+'</div>' +
+    '<button class="cf-toggle" id="cfToggle" aria-pressed="false" title="Show only customer-facing features"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing <span class="cf-n"></span></button>' +
+    '<div class="finder">' +
+      '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>' +
+      '<input type="search" id="finder" placeholder="Search name or BR number" aria-label="Search">' +
+    '</div></div></div>' +
+
+  '<section class="boardsec">' +
+    '<div class="bleed">' +
+      '<button class="navb prev" aria-label="Earlier">&lsaquo;</button>' +
+      '<button class="navb next" aria-label="Later">&rsaquo;</button>' +
+      '<div class="scroller" id="scroller" tabindex="0"><div>' +
+        '<div class="axis">'+axisHTML(data.trains)+'</div>' +
+        '<div class="board" id="board">'+lanes+'</div>' +
+      '</div></div>' +
+    '</div>' +
+    '<div class="progress"><i></i></div>' +
+    '<p class="boardhint">Scroll sideways or swipe.<span class="kbd-only"> Arrow keys work too.</span> Select a capability to view, edit or move it.</p>' +
+    '<p class="noresult" id="noresult">Nothing matches that filter.</p>' +
+  '</section>' +
+
+  '<section class="section alt"><div class="wrap">'+regionsHTML(data, { showAll:true, editable:true })+'</div></section>' +
+
+  '<section class="section"><div class="wrap">' +
+    '<div class="sec-head"><div><h2>Under evaluation</h2>' +
+    '<p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p></div></div>' +
+    '<div class="evals">'+evals+'</div></div></section>' +
+
+  '<footer><div class="wrap"><p>This roadmap describes our current plans and is provided for planning ' +
+    'purposes only. It is not a commitment, promise or legal obligation, and it does not form part of any ' +
+    'contract. Content, sequencing and timing can change without notice.</p>' +
+    '<div class="stamp">'+esc(m.product)+' '+esc(m.title)+'<br>Updated '+esc(m.updated)+'</div></div></footer>';
+
+  // mark internal regions so customer preview can hide them
+  const cards = document.querySelectorAll('.region');
+  data.cloud.regions.forEach((r,i) => { if (r.publish === false && cards[i]) cards[i].classList.add('is-internal'); });
+
+  initBoard();
+  const sc = document.getElementById('scroller');
+  if (sc && scrollMemo){ sc.style.scrollBehavior = 'auto'; sc.scrollLeft = scrollMemo; sc.style.scrollBehavior = ''; }
+  document.getElementById('laneAdd').onclick = () => editTrain(null);
+}
+
+/* ── drawer with edit actions ───────────────────────────────────────── */
+initDrawer({
+  showBr: true,
+  editFooter: d =>
+    '<div class="dedit">' +
+      '<button class="tbtn" data-act="iedit" data-t="'+d.t+'" data-i="'+d.i+'">Edit</button>' +
+      '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark as internal':'Mark customer facing')+'</button>' +
+      '<button class="tbtn" data-act="iup" data-t="'+d.t+'" data-i="'+d.i+'">Move up</button>' +
+      '<button class="tbtn" data-act="idown" data-t="'+d.t+'" data-i="'+d.i+'">Move down</button>' +
+      '<button class="tbtn del" data-act="idel" data-t="'+d.t+'" data-i="'+d.i+'">Delete</button>' +
+    '</div>'
+});
+
+/* ── delegated actions ──────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, t = b.dataset.t, i = b.dataset.i != null ? +b.dataset.i : null;
+  if (a === 'iedit')  editItem(t, i);
+  if (a === 'iadd')   editItem(t, null);
+  if (a === 'iup')    moveItem(t, i, -1);
+  if (a === 'idown')  moveItem(t, i, 1);
+  if (a === 'icf'){
+    const tr = data.trains.find(x => x.id === t);
+    if (tr){ tr.items[i].cf = !tr.items[i].cf; closeDrawer(); touch();
+      toast(tr.items[i].cf ? 'Marked customer facing' : 'Marked internal'); }
+  }
+  if (a === 'idel'){
+    const tr = data.trains.find(x => x.id === t);
+    if (tr && confirm('Delete "' + tr.items[i].name + '"?')){ tr.items.splice(i,1); closeDrawer(); touch(); }
+  }
+  if (a === 'tedit')  editTrain(t);
+  if (a === 'tup')    moveTrain(t, -1);
+  if (a === 'tdown')  moveTrain(t, 1);
+  if (a === 'maint')  editMaint(t);
+  if (a === 'eedit')  editEval(i);
+  if (a === 'eadd')   editEval(null);
+  if (a === 'redit')  editRegion(i);
+  if (a === 'radd')   editRegion(null);
+});
+
+/* ── toolbar ────────────────────────────────────────────────────────── */
+function download(name, text, type){
+  const blob = new Blob([text], { type: type || 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function stamp(){ return new Date().toISOString().slice(0,10); }
+
+document.getElementById('bPublish').onclick = async () => {
+  const b = document.getElementById('bPublish');
+  if (b.disabled) return;
+  const label = b.textContent;
+  b.disabled = true; b.textContent = 'Publishing…';
+  try {
+    const res = await api('/api/publish', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data)
+    });
+    publishedAt = res.publishedAt;
+    save();
+    setPubState('Published ' + fmtStamp(res.publishedAt) + (res.publishedBy ? ' by ' + res.publishedBy : ''));
+    toast('Published. Everyone visiting the portal sees this now.');
+  } catch(err){
+    toast('Could not publish: ' + err.message);
+  } finally {
+    b.disabled = false; b.textContent = label;
+  }
+};
+document.getElementById('bJsonOut').onclick = () => {
+  download('Voca_Roadmap_Data_' + stamp() + '.json', JSON.stringify(data, null, 2), 'application/json');
+  toast('Roadmap data exported');
+};
+document.getElementById('bJsonIn').onclick = () => document.getElementById('fileIn').click();
+document.getElementById('fileIn').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const p = JSON.parse(fr.result);
+      if (!p.trains || !p.meta) throw new Error('shape');
+      data = withCf(p); scrollMemo = 0; save(); render(); toast('Roadmap data loaded');
+    } catch(err){ toast('That file is not a roadmap export'); }
+  };
+  fr.readAsText(f); e.target.value = '';
+};
+document.getElementById('bAddTrain').onclick = () => editTrain(null);
+document.getElementById('bMeta').onclick = editMeta;
+document.getElementById('bEval').onclick = manageEvals;
+document.getElementById('bReset').onclick = () => {
+  if (confirm('Discard every change and reload the roadmap as originally supplied?')){
+    data = JSON.parse(JSON.stringify(seed)); scrollMemo = 0; save(); render(); toast('Reset to the supplied roadmap');
+  }
+};
+document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
+window.addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ── boot ──────────────────────────────────────────────
+   The published roadmap is the starting point. A local draft, if there is
+   one, still wins so work in progress survives a reload - but if the live
+   copy moved on since that draft was saved, say so and offer to load it.
+   ──────────────────────────────────────────────────────── */
+function fmtStamp(iso){
+  try { return new Date(iso).toLocaleString(); } catch(e){ return iso || ''; }
+}
+function setPubState(msg, action, onAction){
+  const el = document.getElementById('pubState');
+  if (!el) return;
+  el.textContent = msg;
+  if (action){
+    const b = document.createElement('button');
+    b.className = 'ed-link'; b.textContent = action; b.onclick = onAction;
+    el.appendChild(document.createTextNode(' ')); el.appendChild(b);
+  }
+}
+async function boot(){
+  let res;
+  try {
+    res = await api('/api/roadmap?withSeed=1');
+  } catch(err){
+    document.getElementById('app').innerHTML =
+      '<div class="boot-err"><h2>Could not reach the roadmap service</h2><p>' +
+      esc(err.message) + '</p></div>';
+    setSaveState('Offline');
+    return;
+  }
+  seed        = res.seed;
+  publishedAt = res.publishedAt || null;
+
+  const draft   = loadDraft();
+  const savedAt = draftSavedAt();
+  data = draft || JSON.parse(JSON.stringify(res.data));
+
+  render();
+  setSaveState('Saved');
+
+  if (!draft){
+    setPubState(publishedAt ? 'Showing the published roadmap' : 'Showing the roadmap as supplied');
+  } else if (publishedAt && savedAt && publishedAt > savedAt){
+    setPubState('Newer version published' + (res.publishedBy ? ' by ' + res.publishedBy : '') + '.',
+      'Load it', () => {
+        if (!confirm('Replace your local draft with the published roadmap?')) return;
+        data = JSON.parse(JSON.stringify(res.data)); scrollMemo = 0; save(); render();
+        setPubState('Showing the published roadmap');
+        toast('Loaded the published roadmap');
+      });
+  } else {
+    setPubState(publishedAt ? 'Local draft, not published yet' : 'Local draft');
+  }
+}
+boot();
+</script>
+</body>
+</html>

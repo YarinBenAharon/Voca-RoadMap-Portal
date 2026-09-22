@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voca CIC Roadmap — Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style id="base-css"></style>
+<style>
+/* ══ EDITOR CHROME ══════════════════════════════════════════════════ */
+.ed-bar{position:sticky;top:0;z-index:90;background:#0E1020;color:#fff;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.09)}
+.ed-bar .wrap{display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.ed-bar .wrap::-webkit-scrollbar{display:none}
+.ed-btn{white-space:nowrap;flex-shrink:0}
+.ed-brand,.ed-right{flex-shrink:0}
+/* keep the primary action in view while the rest of the bar scrolls */
+.ed-bar .wrap{padding-right:0}
+.ed-right{padding-right:var(--gutter)}
+.ed-brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-right:8px}
+.ed-brand .mark{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6C5CE0,#2FAECE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.ed-brand span{color:#8B94B4;font-weight:400}
+.ed-btn{font-size:12.5px;color:#DCE4EC;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:6px 14px;cursor:pointer}
+.ed-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.ed-btn.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
+.ed-btn.pri:hover{filter:brightness(1.12)}
+.ed-btn.danger:hover{background:#C4553A;border-color:#C4553A;color:#fff}
+.ed-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.ed-save{font-size:12px;color:#6FD2B4}
+.ed-save.dirty{color:#F0C06A}
+.tgl{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#B9C6D2;cursor:pointer;user-select:none}
+.tgl input{accent-color:#6C5CE0;width:14px;height:14px;cursor:pointer}
+.filterbar{top:53px}
+
+/* lane + tile edit affordances */
+.ed-tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.tbtn{font-family:inherit;font-size:11.5px;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:100px;padding:4px 11px;cursor:pointer;transition:border-color .12s,color .12s}
+.tbtn:hover{border-color:#A9B8CC;color:var(--ink)}
+.tbtn.add{border-style:dashed}
+.tbtn.del:hover{border-color:var(--warn);color:var(--warn)}
+.iconb{font-size:11px;line-height:1;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:50%;width:24px;height:24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.iconb:hover{border-color:#A9B8CC;color:var(--ink)}
+.internal{font-size:10px;font-weight:600;color:var(--warn);background:var(--warn-bg);border-radius:100px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.tile-br{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line-soft);border-radius:4px;padding:1px 5px}
+.lane-add{border-style:dashed;background:transparent;align-items:center;justify-content:center;display:flex}
+
+/* drawer edit footer */
+.dedit{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap}
+.dedit .tbtn{padding:7px 15px;font-size:12.5px}
+
+/* modal */
+.ovl{position:fixed;inset:0;background:rgba(14,16,32,.5);z-index:120;display:none;align-items:flex-start;justify-content:center;padding:52px 20px;overflow:auto}
+.ovl.open{display:flex}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:600px;box-shadow:0 20px 60px rgba(14,16,32,.3)}
+.modal header{padding:22px 28px 16px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.modal header h3{font-size:17px;font-weight:600;color:var(--ink)}
+.modal .mbody{padding:22px 28px}
+.modal footer{padding:16px 28px 22px;border-top:1px solid var(--line-soft);display:flex;gap:8px;justify-content:flex-end;background:transparent}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:6px}
+.field .hint{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.field input,.field textarea,.field select{font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.field textarea{min-height:78px;resize:vertical;line-height:1.55}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);outline:none;background:#fff}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mbtn{font-family:inherit;font-size:13.5px;border-radius:100px;padding:9px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--text)}
+.mbtn:hover{border-color:#A9B8CC;color:var(--ink)}
+.mbtn.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
+.mbtn.pri:hover{filter:brightness(1.1)}
+
+/* customer preview strips internal chrome */
+body.preview .ed-tools,body.preview .iconb,body.preview .tile-br,
+body.preview .internal,body.preview .dedit,body.preview .lane-add{display:none!important}
+body.preview .region.is-internal{display:none!important}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E1020;color:#fff;font-size:13px;padding:11px 20px;border-radius:100px;z-index:200;opacity:0;pointer-events:none;transition:opacity .18s;max-width:80vw;text-align:center}
+.toast.show{opacity:1}
+@media(max-width:900px){
+  .ed-bar{padding:8px 0}
+  .ed-brand span{display:none}
+  .filterbar{top:49px}
+}
+@media(max-width:640px){
+  /* primary action becomes a floating button so it is always reachable */
+  #bPublish{position:fixed;bottom:16px;right:16px;z-index:95;padding:12px 20px;font-size:13px;
+    box-shadow:0 8px 26px rgba(14,16,32,.4)}
+  .ed-bar .ed-right{margin-left:14px}
+  .ed-brand{margin-right:2px}
+  .filterbar{top:47px}
+  .modal{border-radius:16px}
+  .modal header,.modal .mbody,.modal footer{padding-left:18px;padding-right:18px}
+  .frow{grid-template-columns:1fr;gap:0}
+  .ovl{padding:20px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="ed-bar">
+  <div class="wrap">
+    <span class="ed-brand"><span class="mark">ac</span>Roadmap editor <span>Voca CIC</span></span>
+    <button class="ed-btn" id="bAddTrain">Add train</button>
+    <button class="ed-btn" id="bMeta">Header</button>
+    <button class="ed-btn" id="bEval">Under evaluation</button>
+    <button class="ed-btn" id="bJsonOut">Export JSON</button>
+    <button class="ed-btn" id="bJsonIn">Import JSON</button>
+    <button class="ed-btn danger" id="bReset">Reset</button>
+    <div class="ed-right">
+      <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
+      <span class="ed-save" id="saveState">Saved</span>
+      <button class="ed-btn pri" id="bPublish">Export published file</button>
+    </div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Capability detail">
+  <button class="dclose" aria-label="Close">&#10005;</button>
+  <div class="drawer-head"><div class="eyebrow"></div><h3></h3></div>
+  <div class="drawer-body"></div>
+</aside>
+
+<div class="ovl" id="ovl"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+
+<script>/* =========================================================================
+   Voca CIC Roadmap - shared layer  (v2: AudioCodes brand, horizontal board)
+   BASE_CSS + buildPublishHTML() are consumed by BOTH the editor and the
+   published view-only file, so the two can never drift apart.
+   ========================================================================= */
+
+const BASE_CSS = `
+:root{
+  --bg:#FFFFFF;
+  --surface:#F4F6FA;
+  --ink:#0E1020;
+  --text:#464C61;
+  --muted:#7C8397;
+  --line:#E3E8F0;
+  --line-soft:#EEF2F7;
+
+  --brand:#1E7FD4;
+  --cyan:#2FAECE;
+  --violet:#6C5CE0;
+  --pill-bg:#E4E0FA;
+  --pill-fg:#3B2E92;
+
+  --ship:#0E9E86;   --ship-bg:#E1F4F0;
+  --dev:#1E7FD4;    --dev-bg:#E4EFFA;
+  --plan:#6C5CE0;   --plan-bg:#EAE7FA;
+  --dir:#7C8397;    --dir-bg:#EEF1F6;
+  --warn:#C4553A;   --warn-bg:#FAEBE7;
+
+  --font:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Consolas,monospace;
+
+  --lane-w:308px;
+  --lane-gap:18px;
+  --lane-h:clamp(400px, 68vh, 680px);
+  --gutter:40px;
+  --edge:max(var(--gutter), calc((100vw - 1280px) / 2 + var(--gutter)));
+  --r-lg:20px;
+  --r-md:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--gutter)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* TOP BAR */
+.topbar{background:var(--ink);color:#fff}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.logo .mark{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:-.04em}
+.topbar nav{margin-left:auto;display:flex;gap:26px;font-size:13.5px;color:#B9C0D4}
+.topbar nav a{color:inherit;text-decoration:none}
+.topbar nav a:hover{color:#fff}
+.nda{font-size:11.5px;font-weight:500;color:#CFC7F5;background:rgba(108,92,224,.28);border:1px solid rgba(150,136,240,.42);border-radius:100px;padding:4px 12px;white-space:nowrap;margin-left:22px}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:linear-gradient(104deg,#241A52 0%,#3A2C88 30%,#2159AE 66%,#1E8FC4 100%);color:#fff}
+.hero::after{content:"";position:absolute;right:-140px;top:-160px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(88,206,232,.34),transparent 66%)}
+.hero .wrap{position:relative;z-index:1;padding-top:52px;padding-bottom:46px}
+.hero h1{font-size:clamp(27px,4.2vw,42px);line-height:1.14;font-weight:600;letter-spacing:-.025em;max-width:19ch}
+.hero .lede{margin-top:16px;max-width:60ch;font-size:16px;color:#DCE4F5;font-weight:300}
+.hero-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.hfact{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.19);border-radius:var(--r-md);padding:12px 18px;backdrop-filter:blur(6px);min-width:150px}
+.hfact .k{font-size:11.5px;color:#BFC9E4;font-weight:300}
+.hfact .v{font-family:var(--mono);font-size:20px;font-weight:600;letter-spacing:-.02em;margin-top:1px}
+.hfact .v.plain{font-family:var(--font);font-size:16px;font-weight:500}
+
+/* SEGMENTED PILL CONTROL */
+.filterbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+.filterbar .wrap{display:flex;align-items:center;gap:14px;padding-top:16px;padding-bottom:16px}
+.seg{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:100px;padding:5px;box-shadow:0 3px 14px rgba(20,28,54,.07);overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg.overflowing{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.seg button{border:0;background:transparent;border-radius:100px;padding:8px 18px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--pill-bg);color:var(--pill-fg);font-weight:600}
+.finder{margin-left:auto;position:relative;flex-shrink:0}
+.finder input{font-family:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line);border-radius:100px;background:#fff;padding:9px 16px 9px 36px;width:238px}
+.finder input::placeholder{color:var(--muted)}
+.finder svg{position:absolute;left:14px;top:11px;color:var(--muted)}
+
+/* HORIZONTAL BOARD */
+.boardsec{padding:30px 0 12px}
+.bleed{position:relative;max-width:1280px;margin:0 auto;padding:0 var(--gutter)}
+.axis{display:flex;gap:var(--lane-gap);margin-bottom:12px;min-width:min-content}
+.axis-cell{flex:0 0 auto;border-top:2px solid var(--line);padding-top:8px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.axis-cell b{color:var(--ink);font-weight:600}
+.scroller{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scroll-snap-type:x proximity;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.scroller::-webkit-scrollbar{display:none}
+.scroller.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent);mask-image:linear-gradient(90deg,#000 94%,transparent)}
+.scroller.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%);mask-image:linear-gradient(90deg,transparent,#000 6%)}
+.scroller.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.board{display:flex;gap:var(--lane-gap);min-width:min-content;align-items:stretch}
+.lane{flex:0 0 var(--lane-w);width:var(--lane-w);scroll-snap-align:start;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;height:var(--lane-h)}
+.lane.hidden{display:none}
+.lane-head{padding:20px 20px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.lane-topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.lane-ver{font-family:var(--mono);font-size:clamp(25px,2.4vw,30px);font-weight:600;letter-spacing:-.035em;color:var(--ink);line-height:1}
+.lane-q{font-size:12.5px;color:var(--muted);font-weight:500;white-space:nowrap}
+.lane-pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 11px;border-radius:100px;margin-top:12px}
+.p-now .lane-pill{background:var(--ship-bg);color:var(--ship)}
+.p-next .lane-pill{background:var(--dev-bg);color:var(--dev)}
+.p-later .lane-pill{background:var(--plan-bg);color:var(--plan)}
+.p-dir .lane-pill{background:var(--dir-bg);color:var(--dir)}
+.lane-theme{font-size:13.5px;font-weight:500;color:var(--ink);margin-top:10px;line-height:1.45}
+.lane-count{font-size:11.5px;color:var(--muted);margin-top:6px}
+.lane.p-now{border-color:#BFE6DD}
+.lane.p-now .lane-head{box-shadow:inset 0 3px 0 var(--ship)}
+.lane.p-next .lane-head{box-shadow:inset 0 3px 0 var(--dev)}
+.lane.p-later .lane-head{box-shadow:inset 0 3px 0 var(--plan)}
+.lane.p-dir .lane-head{box-shadow:inset 0 3px 0 var(--dir)}
+.lane-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:8px}
+.lane-body::-webkit-scrollbar{width:8px}
+.lane-body::-webkit-scrollbar-thumb{background:#CFD7E2;border-radius:100px;border:2px solid var(--surface)}
+.lane-body::-webkit-scrollbar-track{background:transparent}
+.tile{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:border-color .14s,box-shadow .14s,transform .14s}
+.tile:hover{border-color:#B9C7DC;box-shadow:0 4px 14px rgba(20,28,54,.08);transform:translateY(-1px)}
+.tile.hidden{display:none}
+.tile-name{display:block;font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.42}
+.tile-meta{display:flex;align-items:center;gap:7px;margin-top:8px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.tile-cat{font-size:11px;color:var(--muted)}
+.tile-cf{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--pill-fg);background:var(--pill-bg);border-radius:100px;padding:2px 8px 2px 6px;white-space:nowrap}
+.tile-cf svg{width:10px;height:10px}
+.tile-area{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.cf-toggle{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:100px;padding:9px 14px 9px 16px;font-size:13.5px;font-weight:500;color:var(--text);cursor:pointer;box-shadow:0 3px 14px rgba(20,28,54,.07);transition:background .15s,color .15s,border-color .15s}
+.cf-toggle:hover{border-color:#B9C7DC;color:var(--ink)}
+.cf-toggle svg{color:var(--violet)}
+.cf-toggle .cf-n{font-size:11.5px;font-weight:600;background:var(--pill-bg);color:var(--pill-fg);border-radius:100px;padding:1px 8px;min-width:26px;text-align:center}
+.cf-toggle[aria-pressed="true"]{background:var(--pill-fg);border-color:var(--pill-fg);color:#fff}
+.cf-toggle[aria-pressed="true"] svg{color:#fff}
+.cf-toggle[aria-pressed="true"] .cf-n{background:rgba(255,255,255,.22);color:#fff}
+.tile-build{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--ship);background:var(--ship-bg);border-radius:4px;padding:2px 6px;margin-left:auto}
+.c-agent{background:#1E7FD4}.c-routing{background:#2FAECE}.c-ai{background:#6C5CE0}
+.c-channels{background:#0E9E86}.c-reporting{background:#D48A1E}.c-platform{background:#8A8FA8}
+.lane-maint{margin-top:4px;background:#fff;border:1px dashed var(--line);border-radius:var(--r-md);padding:12px 14px}
+.lane-maint h4{font-size:12px;font-weight:600;color:var(--ink)}
+.lane-maint p{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.drops{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.drop{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);background:var(--surface);border-radius:5px;padding:3px 8px}
+.lane-empty{font-size:12.5px;color:var(--muted);padding:14px 4px;text-align:center}
+.navb{position:absolute;top:calc(50% - 8px);z-index:12;width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 5px 18px rgba(20,28,54,.14);color:var(--ink);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .15s}
+.navb:hover{transform:scale(1.06)}
+.navb[disabled]{opacity:0;pointer-events:none}
+.navb.prev{left:calc(var(--gutter) - 21px)}
+.navb.next{right:calc(var(--gutter) - 21px)}
+.boardsec .boardhint,.boardsec .noresult{max-width:1280px;margin-left:auto;margin-right:auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+.boardsec .progress{width:calc(100% - 2 * var(--gutter));max-width:calc(1280px - 2 * var(--gutter));margin:14px auto 0}
+.progress{height:4px;background:var(--line-soft);border-radius:100px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:100px;width:30%;transition:width .12s,margin-left .12s}
+.boardhint{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:10px}
+
+/* DRAWER */
+.scrim{position:fixed;inset:0;background:rgba(14,16,32,.42);z-index:70;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:92vw;background:#fff;z-index:80;transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(14,16,32,.18)}
+.drawer.open{transform:none}
+.drawer-head{padding:26px 28px 20px;border-bottom:1px solid var(--line-soft)}
+.drawer-head .eyebrow{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.drawer-head h3{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.015em;line-height:1.28;margin-top:10px}
+.drawer-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:24px 28px 30px}
+.drawer-body p.desc{font-size:15px;color:var(--text);line-height:1.68}
+.dmeta{margin-top:24px;border-top:1px solid var(--line-soft)}
+.dmeta div{display:flex;justify-content:space-between;gap:18px;padding:12px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.dmeta .k{color:var(--muted)}
+.dmeta .v{color:var(--ink);font-weight:500;text-align:right}
+.dmeta .v.mono{font-family:var(--mono)}
+.dclose{position:absolute;top:22px;right:24px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.dclose:hover{color:var(--ink);border-color:#B9C7DC}
+.dnote{margin-top:22px;background:var(--surface);border-radius:var(--r-md);padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.6}
+
+/* SECTIONS */
+.section{padding:56px 0;scroll-margin-top:84px}
+.boardsec{scroll-margin-top:84px}
+.section.alt{background:var(--surface)}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;flex-wrap:wrap}
+.sec-head h2{font-size:clamp(21px,2.4vw,26px);font-weight:600;color:var(--ink);letter-spacing:-.02em}
+.sec-head .sub{font-size:14.5px;color:var(--muted);margin-top:8px;max-width:60ch;font-weight:300}
+.latest{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 18px;text-align:right}
+.latest .k{font-size:11.5px;color:var(--muted)}
+.latest b{display:block;font-family:var(--mono);font-size:19px;color:var(--ink);font-weight:600;letter-spacing:-.02em}
+.regions{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;margin-top:28px}
+.region{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px}
+.region-top{display:flex;align-items:center;gap:10px}
+.region-top .flag{font-size:19px;line-height:1}
+.region-top .nm{font-size:14.5px;font-weight:600;color:var(--ink)}
+.region-build{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.02em;margin-top:14px}
+.region-when{font-size:12px;color:var(--muted);margin-top:2px}
+.region-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.st{font-size:11.5px;font-weight:600;padding:3px 11px;border-radius:100px;white-space:nowrap}
+.st.cur{background:var(--ship-bg);color:var(--ship)}
+.st.roll{background:var(--dev-bg);color:var(--dev)}
+.st.old{background:var(--warn-bg);color:var(--warn)}
+.region-next{font-size:11.5px;color:var(--muted);text-align:right}
+.region-next b{display:block;font-family:var(--mono);color:var(--text);font-weight:500}
+.evals{display:grid;grid-template-columns:repeat(auto-fill,minmax(276px,1fr));gap:14px;margin-top:28px}
+.ev{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.ev .t{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.4}
+.ev .d{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6}
+footer{background:var(--ink);color:#9AA3BD;padding:38px 0 46px}
+footer .wrap{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap}
+footer p{font-size:12.5px;max-width:62ch;line-height:1.7;font-weight:300}
+footer .stamp{font-size:12.5px;text-align:right;white-space:nowrap;color:#6E7899}
+.noresult{display:none;padding:60px 0;text-align:center;color:var(--muted);font-size:15px}
+.noresult.show{display:block}
+
+/* ── laptop: tighten lanes so a 3rd is always in view ── */
+@media(max-width:1180px){
+  :root{--lane-w:292px}
+}
+/* ── tablet landscape / small laptop ── */
+@media(max-width:1024px){
+  :root{--gutter:32px}
+  .topbar nav{gap:18px;font-size:13px}
+}
+/* ── tablet portrait ── */
+@media(max-width:900px){
+  :root{--lane-w:300px;--gutter:26px;--lane-h:clamp(400px,64vh,620px)}
+  .topbar nav{display:none}
+  .nda{margin-left:auto}
+  .navb{display:none}
+  .hero .wrap{padding-top:40px;padding-bottom:36px}
+  .section{padding:44px 0}
+  .hfact{flex:1 1 168px;min-width:0}
+  .filterbar .wrap{flex-wrap:wrap}
+  .seg{flex:1 1 100%}
+  .cf-toggle{order:2}
+  .finder{order:3;flex:1 1 200px;margin-left:0;width:auto}
+  .finder input{width:100%}
+}
+/* ── phones ── */
+@media(max-width:640px){
+  :root{--lane-w:calc(100vw - 80px);--gutter:20px;--lane-h:clamp(360px,62vh,560px);--r-lg:16px}
+  .topbar .wrap{height:56px;gap:10px}
+  .logo{font-size:17px}
+  .hero .wrap{padding-top:30px;padding-bottom:28px}
+  .hero .lede{font-size:15px;margin-top:12px}
+  .hero-facts{gap:8px;margin-top:22px}
+  .hfact{padding:10px 14px}
+  .hfact .v{font-size:17px}
+  .filterbar .wrap{flex-wrap:wrap;gap:10px;padding-top:12px;padding-bottom:12px}
+  .seg{width:100%;padding:4px}
+  .seg button{padding:7px 15px;font-size:13px}
+  .finder{margin-left:0;order:3}
+  .finder input{width:100%}
+  .cf-toggle{padding:8px 12px;font-size:13px}
+  .finder{flex:1 1 110px}
+  .finder input{padding-left:32px;font-size:13px}
+  .boardsec{padding:20px 0 8px}
+  .lane-head{padding:16px 16px 14px}
+  .lane-body{padding:12px}
+  .boardhint{font-size:11.5px}
+  .kbd-only{display:none}
+  .section{padding:36px 0}
+  .sec-head{align-items:flex-start}
+  .latest{text-align:left}
+  .regions,.evals{gap:10px;margin-top:20px}
+  .region,.ev{padding:16px}
+  footer{padding:30px 0 36px}
+  footer .wrap{gap:18px}
+  footer .stamp{text-align:left}
+
+  /* drawer becomes a bottom sheet, reachable by thumb */
+  .drawer{top:auto;left:0;right:0;bottom:0;width:100%;max-width:none;height:88vh;
+          transform:translateY(100%);border-radius:22px 22px 0 0}
+  .drawer.open{transform:none}
+  .drawer::before{content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);
+                  width:38px;height:4px;border-radius:100px;background:var(--line)}
+  .drawer-head{padding:26px 22px 18px}
+  .drawer-body{padding:20px 22px 34px}
+  .dclose{top:20px;right:18px}
+}
+@media(max-width:380px){
+  .seg button{padding:7px 12px;font-size:12.5px}
+  .hfact{flex:1 1 100%}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{
+  .filterbar,.navb,.progress,.boardhint,.scrim,.drawer,.topbar nav{display:none!important}
+  body{font-size:10.5pt}
+  .scroller{overflow:visible}
+  .board{display:block}
+  .lane{width:100%;height:auto;break-inside:avoid;margin-bottom:14px}
+  .lane-body{overflow:visible}
+  .axis{display:none}
+}
+`;
+
+/* ── helpers ──────────────────────────────────────────────────────────── */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function phaseClass(p, status){
+  if (p === 'now') return 'p-now';
+  if (p === 'next') return 'p-next';
+  return /direction/i.test(status || '') ? 'p-dir' : 'p-later';
+}
+function cmpVer(a, b){
+  const A = String(a||'').split('.').map(Number), B = String(b||'').split('.').map(Number);
+  for (let i = 0; i < Math.max(A.length, B.length); i++){
+    const x = A[i]||0, y = B[i]||0;
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  return 0;
+}
+function regionStatus(r, latest){
+  if (cmpVer(r.version, latest) >= 0) return { cls:'cur', label:'Current' };
+  const a = String(r.version||'').split('.'), b = String(latest||'').split('.');
+  if (a[0] !== b[0] || a[1] !== b[1]) return { cls:'old', label:'Major update due' };
+  return { cls:'roll', label:'Update scheduled' };
+}
+function fmtDate(iso){
+  if (!iso) return '—';
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p = String(iso).split('-');
+  return p.length === 3 ? `${Number(p[2])} ${M[Number(p[1])-1]} ${p[0]}` : iso;
+}
+function catLabel(data, id){
+  const c = (data.categories||[]).find(c => c.id === id);
+  return c ? c.label : id;
+}
+function yearOf(q){ const m = String(q||'').match(/(\d{4})/); return m ? m[1] : ''; }
+
+/* Year ruler above the lanes: one cell per run of same-year trains */
+function axisHTML(trains){
+  const groups = [];
+  (trains||[]).forEach(t => {
+    const y = yearOf(t.quarter);
+    const last = groups[groups.length-1];
+    if (last && last.y === y) last.n++; else groups.push({ y, n:1 });
+  });
+  return groups.map(g =>
+    `<div class="axis-cell" style="width:calc(${g.n} * var(--lane-w) + ${g.n-1} * var(--lane-gap))"><b>${esc(g.y)}</b></div>`
+  ).join('');
+}
+
+/* ── one lane ─────────────────────────────────────────────────────────── */
+function laneHTML(data, t, opts){
+  const editable = !!(opts && opts.editable);
+  const tiles = (t.items||[]).map((it, ii) => {
+    const key = (it.name + ' ' + it.desc + ' ' + catLabel(data, it.cat) + (it.cf ? ' customer facing' : '') + ' ' + (editable ? (it.br||'') : '')).toLowerCase();
+    return `<button class="tile" data-cat="${esc(it.cat)}" data-k="${esc(key)}"
+      data-t="${esc(t.id)}" data-i="${ii}"
+      data-name="${esc(it.name)}" data-desc="${esc(it.desc)}"
+      data-catlabel="${esc(catLabel(data, it.cat))}"
+      data-train="${esc(t.ver)}" data-q="${esc(t.quarter)}"
+      data-status="${esc(t.status)}" data-build="${esc(it.patch||'')}" data-cf="${it.cf ? '1' : '0'}"
+      ${editable ? `data-br="${esc(it.br||'')}"` : ''}>
+      <span class="tile-name">${esc(it.name)}</span>
+      <span class="tile-meta">
+        ${it.cf ? '<span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>' : ''}
+        <span class="tile-area"><span class="dot c-${esc(it.cat)}"></span><span class="tile-cat">${esc(catLabel(data, it.cat))}</span></span>
+        ${it.patch ? '<span class="tile-build">'+esc(it.patch)+'</span>' : ''}
+      </span>
+    </button>`;
+  }).join('');
+
+  const maint = t.maint ? `<div class="lane-maint">
+      <h4>${esc(t.maint.title)}</h4>
+      <p>${esc(t.maint.note)}</p>
+      <div class="drops">${(t.maint.drops||[]).map(d => `<div class="drop">${esc(d.ver)}</div>`).join('')}</div>
+    </div>` : '';
+
+  return `<section class="lane ${phaseClass(t.phase, t.status)}" data-lane="${esc(t.id)}">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">${esc(t.ver)}</span>
+        <span class="lane-q">${esc(t.quarter)}</span>
+      </div>
+      <span class="lane-pill">${esc(t.status)}</span>
+      <div class="lane-theme">${esc(t.head)}</div>
+      <div class="lane-count"><span data-count>${(t.items||[]).length}</span> capabilities</div>
+      ${editable ? `<div class="ed-tools">
+        <button class="tbtn" data-act="tup" data-t="${esc(t.id)}" title="Move earlier">←</button>
+        <button class="tbtn" data-act="tdown" data-t="${esc(t.id)}" title="Move later">→</button>
+        <button class="tbtn" data-act="tedit" data-t="${esc(t.id)}">Edit train</button>
+      </div>` : ''}
+    </div>
+    <div class="lane-body">
+      ${tiles}
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      ${maint}
+      ${editable ? `<div class="ed-tools">
+        <button class="tbtn add" data-act="iadd" data-t="${esc(t.id)}">Add capability</button>
+        <button class="tbtn add" data-act="maint" data-t="${esc(t.id)}">${t.maint ? 'Maintenance builds' : 'Add builds'}</button>
+      </div>` : ''}
+    </div>
+  </section>`;
+}
+
+/* ── regions ──────────────────────────────────────────────────────────── */
+function regionsHTML(data, opts){
+  const showAll = !!(opts && opts.showAll);
+  const editable = !!(opts && opts.editable);
+  const latest = data.cloud.latestVersion;
+  const cards = (data.cloud.regions||[])
+    .filter(r => showAll || r.publish !== false)
+    .map(r => {
+      const s = regionStatus(r, latest);
+      const idx = data.cloud.regions.indexOf(r);
+      return `<div class="region">
+        <div class="region-top">
+          <span class="flag">${esc(r.flag||'')}</span>
+          <span class="nm">${esc(r.name)}</span>
+          ${r.publish === false ? '<span class="internal">internal</span>' : ''}
+          ${editable ? `<button class="iconb" data-act="redit" data-i="${idx}" style="margin-left:auto">✎</button>` : ''}
+        </div>
+        <div class="region-build">${esc(r.version)}</div>
+        <div class="region-when">Deployed ${esc(fmtDate(r.lastDeploy))}</div>
+        <div class="region-foot">
+          <span class="st ${s.cls}">${s.label}</span>
+          ${r.nextVersion ? `<span class="region-next">next<b>${esc(r.nextVersion)}</b>${r.nextDate ? esc(fmtDate(r.nextDate)) : ''}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+  return `<div class="sec-head">
+      <div>
+        <h2>Where each region is today</h2>
+        <p class="sub">${esc(data.cloud.note||'')}</p>
+      </div>
+      <div class="latest"><span class="k">Latest build</span><b>${esc(latest)}</b></div>
+    </div>
+    <div class="regions">${cards}${editable ? '<div class="region" style="border-style:dashed;display:flex;align-items:center;justify-content:center"><button class="tbtn add" data-act="radd">Add region</button></div>' : ''}</div>`;
+}
+
+/* ── shared board runtime ─────────────────────────────────────────────── */
+const BOARD_JS = `
+function initBoard(){
+  var scroller = document.getElementById('scroller');
+  var board    = document.getElementById('board');
+  if(!board) return null;
+  var segs   = [].slice.call(document.querySelectorAll('.seg button'));
+  var tiles  = [].slice.call(board.querySelectorAll('.tile'));
+  var lanes  = [].slice.call(board.querySelectorAll('.lane'));
+  var finder = document.getElementById('finder');
+  var none   = document.getElementById('noresult');
+  var bar    = document.querySelector('.progress i');
+  var prev   = document.querySelector('.navb.prev');
+  var next   = document.querySelector('.navb.next');
+  var cat = window.__cat || 'all';
+  var cfBtn = document.getElementById('cfToggle');
+  var cfOnly = !!window.__cfOnly;
+
+  function apply(){
+    var term = finder ? finder.value.trim().toLowerCase() : '';
+    var any = false, cfCount = 0;
+    tiles.forEach(function(t){
+      var base = (cat==='all' || t.dataset.cat===cat) && (!term || (t.dataset.k||'').indexOf(term)!==-1);
+      var isCf = t.dataset.cf === '1';
+      if(base && isCf) cfCount++;
+      var ok = base && (!cfOnly || isCf);
+      t.classList.toggle('hidden', !ok);
+      if(ok) any = true;
+    });
+    if(cfBtn){
+      var cn = cfBtn.querySelector('.cf-n'); if(cn) cn.textContent = cfCount;
+      cfBtn.setAttribute('aria-pressed', String(cfOnly));
+    }
+    lanes.forEach(function(l){
+      var n = l.querySelectorAll('.tile:not(.hidden)').length;
+      var c = l.querySelector('[data-count]'); if(c) c.textContent = n;
+      var e = l.querySelector('.lane-empty'); if(e) e.hidden = n !== 0;
+      var m = l.querySelector('.lane-maint'); if(m) m.style.display = (cat==='all' && !term && !cfOnly) ? '' : 'none';
+    });
+    if(none) none.classList.toggle('show', !any);
+    sync();
+  }
+  segs.forEach(function(b){
+    b.setAttribute('aria-pressed', String(b.dataset.cat === cat));
+    b.addEventListener('click', function(){
+      cat = b.dataset.cat; window.__cat = cat;
+      segs.forEach(function(o){ o.setAttribute('aria-pressed', String(o===b)); });
+      apply();
+    });
+  });
+  if(finder) finder.addEventListener('input', apply);
+  if(cfBtn) cfBtn.addEventListener('click', function(){
+    cfOnly = !cfOnly; window.__cfOnly = cfOnly; apply();
+  });
+
+  function step(){
+    var l = board.querySelector('.lane:not(.hidden)');
+    return l ? l.getBoundingClientRect().width + 18 : 320;
+  }
+  function sync(){
+    if(!scroller) return;
+    var max = scroller.scrollWidth - scroller.clientWidth;
+    if(bar){
+      var frac = scroller.clientWidth / Math.max(scroller.scrollWidth, 1);
+      bar.style.width = Math.min(100, frac*100) + '%';
+      bar.style.marginLeft = (max > 0 ? (scroller.scrollLeft/max)*(100 - frac*100) : 0) + '%';
+    }
+    if(prev) prev.disabled = scroller.scrollLeft <= 4;
+    if(next) next.disabled = scroller.scrollLeft >= max - 4;
+    scroller.classList.toggle('fade-l', scroller.scrollLeft > 4);
+    scroller.classList.toggle('fade-r', scroller.scrollLeft < max - 4);
+  }
+  if(prev) prev.addEventListener('click', function(){ scroller.scrollLeft -= step(); });
+  if(next) next.addEventListener('click', function(){ scroller.scrollLeft += step(); });
+  if(scroller){
+    scroller.addEventListener('scroll', sync, { passive:true });
+    scroller.addEventListener('keydown', function(e){
+      if(e.key==='ArrowRight'){ scroller.scrollLeft += step(); e.preventDefault(); }
+      if(e.key==='ArrowLeft'){ scroller.scrollLeft -= step(); e.preventDefault(); }
+    });
+  }
+  var seg = document.querySelector('.seg');
+  function segFade(){
+    if(seg) seg.classList.toggle('overflowing', seg.scrollWidth > seg.clientWidth + 2);
+  }
+  if(seg) seg.addEventListener('scroll', function(){
+    if(seg.scrollLeft + seg.clientWidth >= seg.scrollWidth - 2) seg.classList.remove('overflowing');
+    else segFade();
+  }, { passive:true });
+  window.addEventListener('resize', function(){ sync(); segFade(); });
+  if(window.ResizeObserver && seg) new ResizeObserver(segFade).observe(seg);
+  segFade();
+  apply();
+  return { apply: apply, sync: sync };
+}
+
+function initDrawer(opts){
+  var scrim = document.getElementById('scrim');
+  var dr    = document.getElementById('drawer');
+  if(!dr) return null;
+  function close(){
+    dr.classList.remove('open'); scrim.classList.remove('open');
+    dr.style.transition = ''; dr.style.transform = '';
+  }
+  scrim.addEventListener('click', close);
+
+  /* bottom-sheet: drag down to dismiss (phones only) */
+  var sy = null, dy = 0;
+  function isSheet(){ return window.matchMedia('(max-width:640px)').matches; }
+  dr.addEventListener('touchstart', function(e){
+    if(!isSheet()) return;
+    var body = dr.querySelector('.drawer-body');
+    if(body && body.scrollTop > 0) return;
+    sy = e.touches[0].clientY; dy = 0;
+  }, { passive:true });
+  dr.addEventListener('touchmove', function(e){
+    if(sy === null) return;
+    dy = e.touches[0].clientY - sy;
+    if(dy > 0){ dr.style.transition = 'none'; dr.style.transform = 'translateY(' + dy + 'px)'; }
+  }, { passive:true });
+  dr.addEventListener('touchend', function(){
+    if(sy === null) return;
+    dr.style.transition = ''; dr.style.transform = '';
+    if(dy > 110) close();
+    sy = null; dy = 0;
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+  var cl = dr.querySelector('.dclose'); if(cl) cl.addEventListener('click', close);
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-act]')) return;
+    var t = e.target.closest('.tile');
+    if(!t) return;
+    var d = t.dataset;
+    var rows = [['Area', d.catlabel, ''], ['Release train', d.train, 'mono'],
+                ['Target', d.q, ''], ['Confidence', d.status, '']];
+    if(d.build) rows.push(['Delivered in build', d.build, 'mono']);
+    if(d.cf === '1') rows.push(['Customer facing', 'Yes', '']);
+    else if(opts && opts.showBr) rows.push(['Customer facing', 'No, internal', '']);
+    if(opts && opts.showBr && d.br) rows.push(['Jira', d.br, 'mono']);
+    dr.querySelector('.drawer-body').innerHTML =
+      '<p class="desc">' + (d.desc || 'No description yet.') + '</p>' +
+      '<div class="dmeta">' + rows.map(function(r){
+        return '<div><span class="k">'+r[0]+'</span><span class="v '+r[2]+'">'+r[1]+'</span></div>';
+      }).join('') + '</div>' +
+      '<p class="dnote">Target quarters are planning intentions, not commitments. Sequencing can change.</p>' +
+      ((opts && opts.editFooter) ? opts.editFooter(d) : '');
+    dr.querySelector('.eyebrow').innerHTML =
+      '<span class="dot c-'+d.cat+'"></span>' + d.catlabel + ' &nbsp;&middot;&nbsp; ' + d.train;
+    dr.querySelector('h3').textContent = d.name;
+    dr.classList.add('open'); scrim.classList.add('open');
+  });
+  return { close: close };
+}
+`;
+
+/* ── full published (view-only) document ──────────────────────────────── */
+function buildPublishHTML(data){
+  const m = data.meta;
+  const segs = ['<button data-cat="all" aria-pressed="true">All</button>']
+    .concat((data.categories||[]).map(c =>
+      `<button data-cat="${esc(c.id)}" aria-pressed="false" title="${esc(c.label)}">${esc(c.short||c.label)}</button>`)).join('');
+  const lanes = (data.trains||[]).map(t => laneHTML(data, t, { editable:false })).join('\n');
+  const evals = (data.evaluation||[]).map(e =>
+    `<div class="ev"><div class="t">${esc(e.t)}</div><div class="d">${esc(e.d)}</div></div>`).join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(m.product)} ${esc(m.title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>${BASE_CSS}</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="logo"><span class="mark">ac</span>${esc(m.vendor)}</span>
+    <nav><a href="#board-section">Roadmap</a><a href="#regions">Regions</a><a href="#evaluation">Under evaluation</a></nav>
+    <span class="nda">Confidential &middot; NDA</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>${esc(m.product)} release roadmap</h1>
+    <p class="lede">${esc(m.lede)}</p>
+    <div class="hero-facts">
+      <div class="hfact"><div class="k">Current release</div><div class="v">${esc(m.currentRelease)}</div></div>
+      <div class="hfact"><div class="k">Latest build</div><div class="v">${esc(m.latestBuild)}</div></div>
+      <div class="hfact"><div class="k">Next train</div><div class="v">${esc(m.nextTrain)}</div></div>
+      <div class="hfact"><div class="k">Updated</div><div class="v plain">${esc(m.updated)}</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="filterbar">
+  <div class="wrap">
+    <div class="seg" role="group" aria-label="Filter by area">${segs}</div>
+    <button class="cf-toggle" id="cfToggle" aria-pressed="false" title="Show only customer-facing features"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing <span class="cf-n">${(data.trains||[]).reduce((a,t)=>a+(t.items||[]).filter(i=>i.cf).length,0)}</span></button>
+    <div class="finder">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
+      <input type="search" id="finder" placeholder="Search capabilities" aria-label="Search capabilities">
+    </div>
+  </div>
+</div>
+
+<section class="boardsec" id="board-section">
+  <div class="bleed">
+    <button class="navb prev" aria-label="Earlier releases">&lsaquo;</button>
+    <button class="navb next" aria-label="Later releases">&rsaquo;</button>
+    <div class="scroller" id="scroller" tabindex="0" aria-label="Release timeline, scrolls horizontally">
+      <div>
+        <div class="axis">${axisHTML(data.trains||[])}</div>
+        <div class="board" id="board">${lanes}</div>
+      </div>
+    </div>
+  </div>
+  <div class="progress"><i></i></div>
+  <p class="boardhint">Scroll sideways or swipe.<span class="kbd-only"> The left and right arrow keys work too.</span> Select any capability for detail.</p>
+  <p class="noresult" id="noresult">Nothing matches that filter. Clear the search or choose another area.</p>
+</section>
+
+<section class="section alt" id="regions">
+  <div class="wrap">${regionsHTML(data, { showAll:false, editable:false })}</div>
+</section>
+
+<section class="section" id="evaluation">
+  <div class="wrap">
+    <div class="sec-head"><div>
+      <h2>Under evaluation</h2>
+      <p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p>
+    </div></div>
+    <div class="evals">${evals}</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>This roadmap describes our current plans and is provided for planning purposes only. It is
+      not a commitment, promise or legal obligation, and it does not form part of any contract.
+      Content, sequencing and timing can change without notice. Do not base purchasing decisions
+      on capabilities that have not yet been released.</p>
+    <div class="stamp">${esc(m.product)} ${esc(m.title)}<br>Updated ${esc(m.updated)}</div>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Capability detail">
+  <button class="dclose" aria-label="Close">&#10005;</button>
+  <div class="drawer-head"><div class="eyebrow"></div><h3></h3></div>
+  <div class="drawer-body"></div>
+</aside>
+
+<script>
+${BOARD_JS}
+initBoard();
+initDrawer({ showBr:false });
+<\/script>
+
+</body>
+</html>`;
+}
+
+</script>
+<script>
+function initBoard(){
+  var scroller = document.getElementById('scroller');
+  var board    = document.getElementById('board');
+  if(!board) return null;
+  var segs   = [].slice.call(document.querySelectorAll('.seg button'));
+  var tiles  = [].slice.call(board.querySelectorAll('.tile'));
+  var lanes  = [].slice.call(board.querySelectorAll('.lane'));
+  var finder = document.getElementById('finder');
+  var none   = document.getElementById('noresult');
+  var bar    = document.querySelector('.progress i');
+  var prev   = document.querySelector('.navb.prev');
+  var next   = document.querySelector('.navb.next');
+  var cat = window.__cat || 'all';
+  var cfBtn = document.getElementById('cfToggle');
+  var cfOnly = !!window.__cfOnly;
+
+  function apply(){
+    var term = finder ? finder.value.trim().toLowerCase() : '';
+    var any = false, cfCount = 0;
+    tiles.forEach(function(t){
+      var base = (cat==='all' || t.dataset.cat===cat) && (!term || (t.dataset.k||'').indexOf(term)!==-1);
+      var isCf = t.dataset.cf === '1';
+      if(base && isCf) cfCount++;
+      var ok = base && (!cfOnly || isCf);
+      t.classList.toggle('hidden', !ok);
+      if(ok) any = true;
+    });
+    if(cfBtn){
+      var cn = cfBtn.querySelector('.cf-n'); if(cn) cn.textContent = cfCount;
+      cfBtn.setAttribute('aria-pressed', String(cfOnly));
+    }
+    lanes.forEach(function(l){
+      var n = l.querySelectorAll('.tile:not(.hidden)').length;
+      var c = l.querySelector('[data-count]'); if(c) c.textContent = n;
+      var e = l.querySelector('.lane-empty'); if(e) e.hidden = n !== 0;
+      var m = l.querySelector('.lane-maint'); if(m) m.style.display = (cat==='all' && !term && !cfOnly) ? '' : 'none';
+    });
+    if(none) none.classList.toggle('show', !any);
+    sync();
+  }
+  segs.forEach(function(b){
+    b.setAttribute('aria-pressed', String(b.dataset.cat === cat));
+    b.addEventListener('click', function(){
+      cat = b.dataset.cat; window.__cat = cat;
+      segs.forEach(function(o){ o.setAttribute('aria-pressed', String(o===b)); });
+      apply();
+    });
+  });
+  if(finder) finder.addEventListener('input', apply);
+  if(cfBtn) cfBtn.addEventListener('click', function(){
+    cfOnly = !cfOnly; window.__cfOnly = cfOnly; apply();
+  });
+
+  function step(){
+    var l = board.querySelector('.lane:not(.hidden)');
+    return l ? l.getBoundingClientRect().width + 18 : 320;
+  }
+  function sync(){
+    if(!scroller) return;
+    var max = scroller.scrollWidth - scroller.clientWidth;
+    if(bar){
+      var frac = scroller.clientWidth / Math.max(scroller.scrollWidth, 1);
+      bar.style.width = Math.min(100, frac*100) + '%';
+      bar.style.marginLeft = (max > 0 ? (scroller.scrollLeft/max)*(100 - frac*100) : 0) + '%';
+    }
+    if(prev) prev.disabled = scroller.scrollLeft <= 4;
+    if(next) next.disabled = scroller.scrollLeft >= max - 4;
+    scroller.classList.toggle('fade-l', scroller.scrollLeft > 4);
+    scroller.classList.toggle('fade-r', scroller.scrollLeft < max - 4);
+  }
+  if(prev) prev.addEventListener('click', function(){ scroller.scrollLeft -= step(); });
+  if(next) next.addEventListener('click', function(){ scroller.scrollLeft += step(); });
+  if(scroller){
+    scroller.addEventListener('scroll', sync, { passive:true });
+    scroller.addEventListener('keydown', function(e){
+      if(e.key==='ArrowRight'){ scroller.scrollLeft += step(); e.preventDefault(); }
+      if(e.key==='ArrowLeft'){ scroller.scrollLeft -= step(); e.preventDefault(); }
+    });
+  }
+  var seg = document.querySelector('.seg');
+  function segFade(){
+    if(seg) seg.classList.toggle('overflowing', seg.scrollWidth > seg.clientWidth + 2);
+  }
+  if(seg) seg.addEventListener('scroll', function(){
+    if(seg.scrollLeft + seg.clientWidth >= seg.scrollWidth - 2) seg.classList.remove('overflowing');
+    else segFade();
+  }, { passive:true });
+  window.addEventListener('resize', function(){ sync(); segFade(); });
+  if(window.ResizeObserver && seg) new ResizeObserver(segFade).observe(seg);
+  segFade();
+  apply();
+  return { apply: apply, sync: sync };
+}
+
+function initDrawer(opts){
+  var scrim = document.getElementById('scrim');
+  var dr    = document.getElementById('drawer');
+  if(!dr) return null;
+  function close(){
+    dr.classList.remove('open'); scrim.classList.remove('open');
+    dr.style.transition = ''; dr.style.transform = '';
+  }
+  scrim.addEventListener('click', close);
+
+  /* bottom-sheet: drag down to dismiss (phones only) */
+  var sy = null, dy = 0;
+  function isSheet(){ return window.matchMedia('(max-width:640px)').matches; }
+  dr.addEventListener('touchstart', function(e){
+    if(!isSheet()) return;
+    var body = dr.querySelector('.drawer-body');
+    if(body && body.scrollTop > 0) return;
+    sy = e.touches[0].clientY; dy = 0;
+  }, { passive:true });
+  dr.addEventListener('touchmove', function(e){
+    if(sy === null) return;
+    dy = e.touches[0].clientY - sy;
+    if(dy > 0){ dr.style.transition = 'none'; dr.style.transform = 'translateY(' + dy + 'px)'; }
+  }, { passive:true });
+  dr.addEventListener('touchend', function(){
+    if(sy === null) return;
+    dr.style.transition = ''; dr.style.transform = '';
+    if(dy > 110) close();
+    sy = null; dy = 0;
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+  var cl = dr.querySelector('.dclose'); if(cl) cl.addEventListener('click', close);
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-act]')) return;
+    var t = e.target.closest('.tile');
+    if(!t) return;
+    var d = t.dataset;
+    var rows = [['Area', d.catlabel, ''], ['Release train', d.train, 'mono'],
+                ['Target', d.q, ''], ['Confidence', d.status, '']];
+    if(d.build) rows.push(['Delivered in build', d.build, 'mono']);
+    if(d.cf === '1') rows.push(['Customer facing', 'Yes', '']);
+    else if(opts && opts.showBr) rows.push(['Customer facing', 'No, internal', '']);
+    if(opts && opts.showBr && d.br) rows.push(['Jira', d.br, 'mono']);
+    dr.querySelector('.drawer-body').innerHTML =
+      '<p class="desc">' + (d.desc || 'No description yet.') + '</p>' +
+      '<div class="dmeta">' + rows.map(function(r){
+        return '<div><span class="k">'+r[0]+'</span><span class="v '+r[2]+'">'+r[1]+'</span></div>';
+      }).join('') + '</div>' +
+      '<p class="dnote">Target quarters are planning intentions, not commitments. Sequencing can change.</p>' +
+      ((opts && opts.editFooter) ? opts.editFooter(d) : '');
+    dr.querySelector('.eyebrow').innerHTML =
+      '<span class="dot c-'+d.cat+'"></span>' + d.catlabel + ' &nbsp;&middot;&nbsp; ' + d.train;
+    dr.querySelector('h3').textContent = d.name;
+    dr.classList.add('open'); scrim.classList.add('open');
+  });
+  return { close: close };
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   EDITOR APP
+   ══════════════════════════════════════════════════════════════════════ */
+document.getElementById('base-css').textContent = BASE_CSS;
+
+const DEFAULT_DATA = {
+  "meta": {
+    "product": "Voca CIC",
+    "vendor": "AudioCodes",
+    "title": "Release roadmap",
+    "lede": "What is shipping, what is next, and what we are working toward. Organised by release train, with a target quarter for each. Quarters are planning targets and can move.",
+    "updated": "2 September 2026",
+    "currentRelease": "12.2",
+    "latestBuild": "12.2.0.954",
+    "nextTrain": "12.3"
+  },
+  "categories": [
+    {
+      "id": "agent",
+      "label": "Agent experience",
+      "short": "Agent"
+    },
+    {
+      "id": "routing",
+      "label": "Routing and queues",
+      "short": "Routing"
+    },
+    {
+      "id": "ai",
+      "label": "AI and automation",
+      "short": "AI"
+    },
+    {
+      "id": "channels",
+      "label": "Channels and integrations",
+      "short": "Channels"
+    },
+    {
+      "id": "reporting",
+      "label": "Reporting",
+      "short": "Reporting"
+    },
+    {
+      "id": "platform",
+      "label": "Administration and platform",
+      "short": "Platform"
+    }
+  ],
+  "trains": [
+    {
+      "id": "t122",
+      "ver": "12.2",
+      "quarter": "Q3 2026",
+      "phase": "now",
+      "status": "Available",
+      "head": "Speech, queue behaviour and agent experience",
+      "note": "The 12.2 train is generally available and has been extended through three maintenance builds. Items marked with a build number reached customers in that build rather than at the initial release.",
+      "maint": {
+        "title": "Maintenance builds in the 12.2 train",
+        "note": "Maintenance builds carry the capabilities tagged above alongside quality and stability fixes. Builds roll out per region on a staged schedule.",
+        "drops": [
+          {
+            "ver": "12.2.0.500",
+            "when": "July 2026"
+          },
+          {
+            "ver": "12.2.0.700",
+            "when": "July 2026"
+          },
+          {
+            "ver": "12.2.0.954",
+            "when": "August 2026"
+          }
+        ]
+      },
+      "items": [
+        {
+          "name": "Bring your own Azure speech-to-text",
+          "desc": "Use your own Azure Speech resource for transcription, with your own keys, region and billing.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Jabra device selection in the Worker app",
+          "desc": "Select and control Jabra headsets from within the Worker app.",
+          "cat": "agent",
+          "patch": "12.2.0.700",
+          "br": "BR-6715",
+          "cf": true
+        },
+        {
+          "name": "Configurable default landing page",
+          "desc": "Choose which page agents see when they sign in to the agent apps.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6704",
+          "cf": false
+        },
+        {
+          "name": "Automatic focus on the live call page",
+          "desc": "The live call view comes forward as soon as an agent answers, without a manual click.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6705",
+          "cf": false
+        },
+        {
+          "name": "Time range filter in call history",
+          "desc": "Filter recent and missed calls by a chosen time range.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6707",
+          "cf": false
+        },
+        {
+          "name": "Recording retention policies",
+          "desc": "Define how long recordings are kept and when they are removed automatically.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6543",
+          "cf": false
+        },
+        {
+          "name": "Anytime Queue Menu Access",
+          "desc": "Callers can reach the in-queue menu at any time rather than only at cycle boundaries.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6167",
+          "cf": false
+        },
+        {
+          "name": "Automatic detection of not-ready agents",
+          "desc": "Queue overflow that identifies agents left in a not-ready state",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "FlexApp presence status change",
+          "desc": "Agents set their own availability status directly from the Flex app.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "In-queue cycle time in seconds",
+          "desc": "Configure the in-queue announcement cycle at second-level .",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6168",
+          "cf": false
+        },
+        {
+          "name": "Agent custom view",
+          "desc": "allowing opt-in/out and queue states view per Agent in worker group setting",
+          "cat": "agent",
+          "patch": "12.2.0.700",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "Text-to-speech in Journey Manager",
+          "desc": "present TTS prompts in Journey manager report",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t1221",
+      "ver": "12.2.1",
+      "quarter": "Q4 2026",
+      "phase": "next",
+      "status": "In development",
+      "head": "Interim maintenance train",
+      "note": "A short train between 12.2 and 12.3 carrying targeted queue behaviour changes. Target date 11 October 2026.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Immediate start for in-queue announcement cycles",
+          "desc": "Begin the in-queue announcement cycle at the start of the wait rather than after the first cycle interval elapses.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6962",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t123",
+      "ver": "12.3",
+      "quarter": "Q4 2026",
+      "phase": "next",
+      "status": "In development",
+      "head": "Omnichannel, workforce management and the new Teams experience",
+      "note": "The largest train of the cycle. It adds WhatsApp as a channel, workforce management integration, post-call surveys, scheduled-report controls and a rebuilt Teams app experience.",
+      "maint": null,
+      "items": [
+        {
+          "name": "New Teams app experience for Worker and Supervisor",
+          "desc": "Rebuilt agent and supervisor apps inside Microsoft Teams, with a refreshed layout and faster navigation.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "In-queue overflow routing",
+          "desc": "Move waiting callers to an alternate queue or destination when thresholds are exceeded.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6605",
+          "cf": true
+        },
+        {
+          "name": "Callback outside business hours",
+          "desc": "Offer a callback when the contact centre is closed, queued for the next open period.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6604",
+          "cf": true
+        },
+        {
+          "name": "Barge-in during text-to-speech prompts",
+          "desc": "Callers can speak or press a key over a synthesised prompt instead of waiting for it to finish.",
+          "cat": "ai",
+          "patch": "",
+          "br": "BR-6684",
+          "cf": true
+        },
+        {
+          "name": "Post-call survey",
+          "desc": "Collect caller feedback at the end of an interaction and report on the results alongside call data.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "AI processing without recording retention",
+          "desc": "Run transcription, summaries and insights on a call without retaining the audio, for environments with strict retention rules.",
+          "cat": "ai",
+          "patch": "",
+          "br": "BR-6963",
+          "cf": true
+        },
+        {
+          "name": "Queue performance metrics",
+          "desc": "Average speed of answer and agent hunt time reported per queue.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6969",
+          "cf": true
+        },
+        {
+          "name": "Custom daily time window for scheduled reports",
+          "desc": "Set the daily start and end time a scheduled report covers, instead of a fixed calendar day.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6965",
+          "cf": true
+        },
+        {
+          "name": "Clone a report schedule",
+          "desc": "Duplicate an existing scheduled report and adjust it, rather than rebuilding from scratch.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6966",
+          "cf": true
+        },
+        {
+          "name": "omnichannel - WhatsApp",
+          "desc": "Handle WhatsApp conversations in the same queues and agent workspace as voice.",
+          "cat": "channels",
+          "patch": "",
+          "br": "BR-6728",
+          "cf": true
+        },
+        {
+          "name": "BYO Workforce management",
+          "desc": "Export interaction and adherence data to workforce management platforms for forecasting and scheduling.",
+          "cat": "channels",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Agent insights - Prebuilt CRM connectors for wrap up events",
+          "desc": "More control over what call and wrap-up data is written back to the CRM record, and when.",
+          "cat": "channels",
+          "patch": "",
+          "br": "BR-6749",
+          "cf": true
+        },
+        {
+          "name": "Agent Phonebook search enhancements",
+          "desc": "Search the organisation directory from the agent app before transferring or dialling.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6624",
+          "cf": true
+        },
+        {
+          "name": "Caller name in missed and recent calls tab",
+          "desc": "Resolved contact names appear in call history rather than numbers alone.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6702",
+          "cf": false
+        },
+        {
+          "name": "Wrap-up events on outbound calls",
+          "desc": "Apply the same Wrap-up events to outbound calls that are already available on inbound.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6606",
+          "cf": false
+        },
+        {
+          "name": "Flex Queue members recording",
+          "desc": "allowing Teams clients and PSTN/3rd party ext. recording capabilities",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6189",
+          "cf": true
+        },
+        {
+          "name": "Voca AIR setup wizard",
+          "desc": "Guided setup for the AI receptionist, taking a new tenant from empty to answering calls.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t124",
+      "ver": "12.4",
+      "quarter": "Q1 2027",
+      "phase": "later",
+      "status": "Planned",
+      "head": "Outbound parity and supervisor reach",
+      "note": "Closes the gaps between inbound and outbound handling, extends supervisor monitoring to Operator Connect, and deepens the reporting set.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Immediate data export on configuration save",
+          "desc": "Trigger the initial data export as soon as an export configuration is saved, without waiting for the next scheduled run.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6970",
+          "cf": false
+        },
+        {
+          "name": "Global variables in flows and queues",
+          "desc": "Define a value once and reference it across call flows and queues instead of repeating it.",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Live monitoring for outbound calls",
+          "desc": "Supervisors can monitor outbound interactions, not only inbound.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6682",
+          "cf": true
+        },
+        {
+          "name": "SLA metrics in Voca Reports",
+          "desc": "Service level attainment reported per queue and per period, against configurable targets.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6453",
+          "cf": true
+        },
+        {
+          "name": "Agent hunt timer in Voca Reports",
+          "desc": "Reporting on how long calls ring at each agent before moving on.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6580",
+          "cf": true
+        },
+        {
+          "name": "Outbound conference in the Worker app",
+          "desc": "Add a third party to an outbound call from the Worker app.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6681",
+          "cf": true
+        },
+        {
+          "name": "Live monitoring on Operator Connect",
+          "desc": "Extends supervisor monitoring to tenants running Operator Connect.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Worker profiles, second phase",
+          "desc": "Extends profiles with additional attributes and broader use across routing and reporting.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6625",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t130",
+      "ver": "13.0",
+      "quarter": "Q2 2027",
+      "phase": "later",
+      "status": "Planned",
+      "head": "Openness, custom reporting and the new routing engine",
+      "note": "Opens the platform up: public provisioning APIs, dashboards you build yourself, and a move to the AudioCodes routing engine.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Licensing model enhancements",
+          "desc": "Second phase of the updated licensing model, including how usage is measured and reported.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6006",
+          "cf": false
+        },
+        {
+          "name": "Custom dashboards",
+          "desc": "Assemble your own dashboard from available metrics rather than using fixed views.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Common and provisioning APIs",
+          "desc": "Public APIs for provisioning and configuration, so tenant setup can be automated.",
+          "cat": "platform",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Conversational AI enhancements",
+          "desc": "Improvements to intent handling, containment and tuning in the conversational layer.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "AudioCodes Job Router",
+          "desc": "Voca moves to an AudioCodes routing engine, giving more control over routing logic and behaviour.",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t131",
+      "ver": "13.1",
+      "quarter": "Q3 2027",
+      "phase": "later",
+      "status": "Direction",
+      "head": "Assistive AI at the point of the call",
+      "note": "Moves AI from post-call analysis into the live interaction, and brings existing chatbots into the voice queue. From here the roadmap describes direction rather than committed scope.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Real-time agent assist",
+          "desc": "Suggested answers and next steps surfaced to the agent while the call is still in progress.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Third-party chatbot integration with escalation to voice",
+          "desc": "Hand a conversation from an existing chatbot to a Voca voice queue, carrying context across.",
+          "cat": "channels",
+          "patch": "",
+          "br": "",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t132",
+      "ver": "13.2",
+      "quarter": "Q4 2027",
+      "phase": "later",
+      "status": "Direction",
+      "head": "Agentic tooling and platform consolidation",
+      "note": "Longer-horizon work. Listed to show intent, not to set expectations on timing.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Model Context Protocol support",
+          "desc": "Expose Voca capabilities to AI agents and assistants through MCP.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "FreeSwitch migration",
+          "desc": "",
+          "cat": "platform",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    }
+  ],
+  "evaluation": [
+    {
+      "t": "Agent overview on the home page",
+      "d": "A live team availability summary on the landing page of the agent apps."
+    },
+    {
+      "t": "Agent-to-agent transfer view",
+      "d": "Visibility of which colleague a call was transferred to, and its outcome."
+    },
+    {
+      "t": "Extended fields on contact import",
+      "d": "Import additional contact attributes beyond the current field set."
+    },
+    {
+      "t": "Caller name on the incoming call popup",
+      "d": "Under assessment. Depends on directory lookup behaviour in the underlying platform."
+    },
+    {
+      "t": "Teams presence without additional authentication",
+      "d": "Under assessment. Depends on platform authentication capabilities outside Voca."
+    },
+    {
+      "t": "Report scheduler Unique call id DTMF report",
+      "d": "There is automation and reports behind it on their end with report scheduler and they need UID to be added on the dtmf reporting."
+    }
+  ],
+  "cloud": {
+    "latestVersion": "12.2.0.954",
+    "note": "Builds roll out region by region on a staged schedule. Your account team can confirm the build running in your environment.",
+    "regions": [
+      {
+        "id": "emea",
+        "name": "EMEA",
+        "flag": "🇪🇺",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-16",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "us",
+        "name": "United States",
+        "flag": "🇺🇸",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-24",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "sg",
+        "name": "Singapore",
+        "flag": "🇸🇬",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-09",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "io",
+        "name": "Global (IO)",
+        "flag": "🌐",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-23",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "india",
+        "name": "India",
+        "flag": "🇮🇳",
+        "version": "12.2.0.902",
+        "lastDeploy": "2026-08-10",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-14",
+        "publish": true
+      },
+      {
+        "id": "au",
+        "name": "Australia",
+        "flag": "🇦🇺",
+        "version": "12.2.0.902",
+        "lastDeploy": "2026-08-10",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-14",
+        "publish": true
+      },
+      {
+        "id": "swiss",
+        "name": "Switzerland",
+        "flag": "🇨🇭",
+        "version": "12.2.0.707",
+        "lastDeploy": "2026-08-02",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-07",
+        "publish": true
+      },
+      {
+        "id": "suny",
+        "name": "SUNY (dedicated)",
+        "flag": "🏛",
+        "version": "12.1.0.83",
+        "lastDeploy": "",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "",
+        "publish": false
+      }
+    ]
+  }
+};
+const LS_KEY = 'voca_roadmap_editor_v2';
+
+let data = load();
+let dirty = false;
+let scrollMemo = 0;
+
+/* fill the customer-facing flag on older saved copies, matching by feature name */
+function withCf(d){
+  const def = {};
+  DEFAULT_DATA.trains.forEach(t => t.items.forEach(i => { def[i.name] = !!i.cf; }));
+  (d.trains||[]).forEach(t => (t.items||[]).forEach(i => { if (i.cf === undefined) i.cf = !!def[i.name]; }));
+  return d;
+}
+function load(){
+  try { const raw = localStorage.getItem(LS_KEY); if (raw) return withCf(JSON.parse(raw)); }
+  catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); dirty = false; setSaveState('Saved'); }
+  catch(e){ setSaveState('Could not save locally'); }
+}
+function setSaveState(t){
+  const el = document.getElementById('saveState');
+  el.textContent = t; el.classList.toggle('dirty', t !== 'Saved');
+}
+function touch(){
+  const sc = document.getElementById('scroller');
+  scrollMemo = sc ? sc.scrollLeft : 0;
+  dirty = true; setSaveState('Saving…'); save(); render();
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function uid(){ return 't' + Math.random().toString(36).slice(2,8); }
+
+/* ── modal plumbing ─────────────────────────────────────────────────── */
+function openModal(title, bodyHTML, onSave, extraFooter){
+  const m = document.getElementById('modal');
+  m.innerHTML =
+    '<header><h3>' + esc(title) + '</h3><button class="mbtn" data-x>Close</button></header>' +
+    '<div class="mbody">' + bodyHTML + '</div>' +
+    '<footer>' + (extraFooter||'') + '<button class="mbtn" data-x>Cancel</button><button class="mbtn pri" data-ok>Save</button></footer>';
+  document.getElementById('ovl').classList.add('open');
+  m.querySelectorAll('[data-x]').forEach(b => b.onclick = closeModal);
+  m.querySelector('[data-ok]').onclick = () => { if (onSave(m) !== false) closeModal(); };
+  const f = m.querySelector('input,textarea,select'); if (f) f.focus();
+}
+function closeModal(){ document.getElementById('ovl').classList.remove('open'); }
+document.getElementById('ovl').addEventListener('click', e => { if (e.target.id === 'ovl') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+function val(m, n){ const el = m.querySelector('[name="'+n+'"]'); return el ? el.value.trim() : ''; }
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+}
+
+/* ── item edit ──────────────────────────────────────────────────────── */
+function editItem(trainId, idx){
+  const t = data.trains.find(x => x.id === trainId);
+  const isNew = idx == null;
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false } : t.items[idx];
+  const cats = data.categories.map(c =>
+    '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
+  const trainOpts = data.trains.map(x =>
+    '<option value="'+esc(x.id)+'"'+(x.id===trainId?' selected':'')+'>'+esc(x.ver)+' — '+esc(x.quarter)+'</option>').join('');
+
+  openModal(isNew ? 'Add capability' : 'Edit capability',
+    '<div class="field"><label>Name, as the customer reads it</label>' +
+      '<input name="name" value="'+esc(it.name)+'" placeholder="Phonebook search"></div>' +
+    '<div class="field"><label>Description</label>' +
+      '<textarea name="desc" placeholder="One or two plain sentences on what it does for them.">'+esc(it.desc)+'</textarea></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Area</label><select name="cat">'+cats+'</select></div>' +
+      '<div class="field"><label>Release train</label><select name="train">'+trainOpts+'</select></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Delivered in build</label><input name="patch" value="'+esc(it.patch)+'" placeholder="12.2.0.700">' +
+        '<div class="hint">Only for items already shipped in a maintenance build.</div></div>' +
+      '<div class="field"><label>Jira reference</label><input name="br" value="'+esc(it.br)+'" placeholder="BR-6963">' +
+        '<div class="hint">Internal only. Never reaches the published file.</div></div>' +
+    '</div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="cf" style="width:auto"'+(it.cf?' checked':'')+'>Customer facing feature</label>' +
+      '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>',
+    m => {
+      const name = val(m,'name');
+      if (!name){ toast('Give the capability a name'); return false; }
+      const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
+                    cf:m.querySelector('[name="cf"]').checked };
+      const dest = val(m,'train');
+      if (!isNew) t.items.splice(idx,1);
+      data.trains.find(x => x.id === dest).items.push(rec);
+      closeDrawer(); touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delItem" style="margin-right:auto">Delete</button>');
+
+  const d = document.getElementById('delItem');
+  if (d) d.onclick = () => {
+    if (confirm('Delete "' + it.name + '"?')){ t.items.splice(idx,1); closeModal(); closeDrawer(); touch(); }
+  };
+}
+
+/* ── train edit ─────────────────────────────────────────────────────── */
+function editTrain(trainId){
+  const isNew = !trainId;
+  const t = isNew
+    ? { id:uid(), ver:'', quarter:'', phase:'later', status:'Planned', head:'', note:'', maint:null, items:[] }
+    : data.trains.find(x => x.id === trainId);
+  const ph = [['now','Available now'],['next','Committed, in development'],['later','Planned or direction']]
+    .map(p => '<option value="'+p[0]+'"'+(p[0]===t.phase?' selected':'')+'>'+p[1]+'</option>').join('');
+
+  openModal(isNew ? 'Add release train' : 'Release train ' + t.ver,
+    '<div class="frow">' +
+      '<div class="field"><label>Version</label><input name="ver" value="'+esc(t.ver)+'" placeholder="12.5"></div>' +
+      '<div class="field"><label>Target quarter</label><input name="quarter" value="'+esc(t.quarter)+'" placeholder="Q2 2027">' +
+        '<div class="hint">Quarter only. The year drives the ruler above the board.</div></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Confidence</label><select name="phase">'+ph+'</select></div>' +
+      '<div class="field"><label>Status label</label><input name="status" value="'+esc(t.status)+'" placeholder="In development">' +
+        '<div class="hint">Use the word Direction to grey the lane out.</div></div>' +
+    '</div>' +
+    '<div class="field"><label>Theme</label><input name="head" value="'+esc(t.head)+'" placeholder="What ties this train together"></div>' +
+    '<div class="field"><label>Note</label><textarea name="note">'+esc(t.note)+'</textarea>' +
+      '<div class="hint">Shown in the train detail, not on the lane card.</div></div>',
+    m => {
+      const ver = val(m,'ver');
+      if (!ver){ toast('Give the train a version'); return false; }
+      Object.assign(t, { ver, quarter:val(m,'quarter'), phase:val(m,'phase'),
+                         status:val(m,'status'), head:val(m,'head'), note:val(m,'note') });
+      if (isNew) data.trains.push(t);
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delTrain" style="margin-right:auto">Delete train</button>');
+
+  const d = document.getElementById('delTrain');
+  if (d) d.onclick = () => {
+    if (t.items.length && !confirm('This train holds ' + t.items.length + ' capabilities. Delete all of them?')) return;
+    data.trains = data.trains.filter(x => x.id !== t.id);
+    closeModal(); touch();
+  };
+}
+
+/* ── maintenance builds ─────────────────────────────────────────────── */
+function editMaint(trainId){
+  const t = data.trains.find(x => x.id === trainId);
+  const mt = t.maint || { title:'Maintenance builds in the ' + t.ver + ' train', note:'', drops:[] };
+  const rows = mt.drops.map((d,i) =>
+    '<div class="frow" style="grid-template-columns:1fr 1fr auto;align-items:end">' +
+      '<div class="field"><label>Build</label><input name="dv'+i+'" value="'+esc(d.ver)+'"></div>' +
+      '<div class="field"><label>When</label><input name="dw'+i+'" value="'+esc(d.when)+'"></div>' +
+      '<div class="field"><button class="mbtn" data-rmdrop="'+i+'">Remove</button></div></div>').join('');
+
+  openModal('Maintenance builds — ' + t.ver,
+    '<div class="field"><label>Heading</label><input name="title" value="'+esc(mt.title)+'"></div>' +
+    '<div class="field"><label>Note</label><textarea name="note">'+esc(mt.note)+'</textarea></div>' +
+    '<div>'+(rows || '<p class="hint" style="margin-bottom:14px;color:var(--muted);font-size:12.5px">No builds listed yet.</p>')+'</div>' +
+    '<button class="mbtn" id="addDrop">Add a build</button>',
+    m => {
+      const drops = [];
+      mt.drops.forEach((_,i) => {
+        const v = m.querySelector('[name="dv'+i+'"]');
+        if (v && v.value.trim()) drops.push({ ver:v.value.trim(), when:m.querySelector('[name="dw'+i+'"]').value.trim() });
+      });
+      t.maint = (drops.length || val(m,'note')) ? { title:val(m,'title'), note:val(m,'note'), drops } : null;
+      touch();
+    },
+    t.maint ? '<button class="mbtn" id="rmMaint" style="margin-right:auto">Remove strip</button>' : '');
+
+  document.getElementById('addDrop').onclick = () => {
+    mt.drops.push({ ver:'', when:'' }); t.maint = mt; closeModal(); editMaint(trainId);
+  };
+  document.querySelectorAll('[data-rmdrop]').forEach(b => b.onclick = () => {
+    mt.drops.splice(+b.dataset.rmdrop,1); t.maint = mt; closeModal(); editMaint(trainId);
+  });
+  const rm = document.getElementById('rmMaint');
+  if (rm) rm.onclick = () => { t.maint = null; closeModal(); touch(); };
+}
+
+/* ── under evaluation ───────────────────────────────────────────────── */
+function editEval(idx){
+  const isNew = idx == null;
+  const e = isNew ? { t:'', d:'' } : data.evaluation[idx];
+  openModal(isNew ? 'Add to under evaluation' : 'Edit',
+    '<div class="field"><label>Capability</label><input name="t" value="'+esc(e.t)+'"></div>' +
+    '<div class="field"><label>Why it is not scheduled</label><textarea name="d">'+esc(e.d)+'</textarea>' +
+      '<div class="hint">Describe the dependency without naming the third party.</div></div>',
+    m => {
+      const tt = val(m,'t'); if (!tt){ toast('Name the capability'); return false; }
+      const rec = { t:tt, d:val(m,'d') };
+      if (isNew) data.evaluation.push(rec); else data.evaluation[idx] = rec;
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delEval" style="margin-right:auto">Delete</button>');
+  const d = document.getElementById('delEval');
+  if (d) d.onclick = () => { data.evaluation.splice(idx,1); closeModal(); touch(); };
+}
+
+/* ── region edit ────────────────────────────────────────────────────── */
+function editRegion(idx){
+  const isNew = idx == null;
+  const r = isNew
+    ? { id:uid(), name:'', flag:'🌐', version:'', lastDeploy:'', nextVersion:'', nextDate:'', publish:true }
+    : data.cloud.regions[idx];
+  openModal(isNew ? 'Add region' : r.name,
+    '<div class="frow">' +
+      '<div class="field"><label>Region name</label><input name="name" value="'+esc(r.name)+'"></div>' +
+      '<div class="field"><label>Flag or symbol</label><input name="flag" value="'+esc(r.flag)+'"></div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Running build</label><input name="version" value="'+esc(r.version)+'" placeholder="12.2.0.954"></div>' +
+      '<div class="field"><label>Last deployed</label><input name="lastDeploy" type="date" value="'+esc(r.lastDeploy)+'"></div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Next build</label><input name="nextVersion" value="'+esc(r.nextVersion)+'"></div>' +
+      '<div class="field"><label>Next deploy date</label><input name="nextDate" type="date" value="'+esc(r.nextDate)+'"></div></div>' +
+    '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="publish" style="width:auto"'+(r.publish!==false?' checked':'')+'>Show in the published customer file</label>' +
+      '<div class="hint">Leave unticked for dedicated or customer-named environments.</div></div>',
+    m => {
+      const name = val(m,'name'); if (!name){ toast('Name the region'); return false; }
+      Object.assign(r, { name, flag:val(m,'flag'), version:val(m,'version'), lastDeploy:val(m,'lastDeploy'),
+                         nextVersion:val(m,'nextVersion'), nextDate:val(m,'nextDate'),
+                         publish:m.querySelector('[name="publish"]').checked });
+      if (isNew) data.cloud.regions.push(r);
+      touch();
+    },
+    isNew ? '' : '<button class="mbtn" id="delReg" style="margin-right:auto">Delete</button>');
+  const d = document.getElementById('delReg');
+  if (d) d.onclick = () => { data.cloud.regions.splice(idx,1); closeModal(); touch(); };
+}
+
+/* ── header meta ────────────────────────────────────────────────────── */
+function editMeta(){
+  const m0 = data.meta;
+  openModal('Header details',
+    '<div class="frow"><div class="field"><label>Vendor</label><input name="vendor" value="'+esc(m0.vendor)+'"></div>' +
+      '<div class="field"><label>Product</label><input name="product" value="'+esc(m0.product)+'"></div></div>' +
+    '<div class="field"><label>Page title</label><input name="title" value="'+esc(m0.title)+'"></div>' +
+    '<div class="field"><label>Opening paragraph</label><textarea name="lede">'+esc(m0.lede)+'</textarea></div>' +
+    '<div class="frow"><div class="field"><label>Current release</label><input name="currentRelease" value="'+esc(m0.currentRelease)+'"></div>' +
+      '<div class="field"><label>Latest build</label><input name="latestBuild" value="'+esc(m0.latestBuild)+'"></div></div>' +
+    '<div class="frow"><div class="field"><label>Next train</label><input name="nextTrain" value="'+esc(m0.nextTrain)+'"></div>' +
+      '<div class="field"><label>Roadmap updated</label><input name="updated" value="'+esc(m0.updated)+'"></div></div>',
+    m => {
+      ['vendor','product','title','lede','currentRelease','latestBuild','nextTrain','updated']
+        .forEach(k => m0[k] = val(m,k));
+      touch();
+    });
+}
+function manageEvals(){
+  const list = data.evaluation.map((e,i) =>
+    '<div style="display:flex;justify-content:space-between;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft)">' +
+      '<span style="font-size:13.5px;color:var(--ink)">'+esc(e.t)+'</span>' +
+      '<button class="tbtn" data-ev="'+i+'">Edit</button></div>').join('');
+  openModal('Under evaluation',
+    (list || '<p style="color:var(--muted);font-size:13px">Nothing here yet.</p>') +
+    '<div style="margin-top:18px"><button class="mbtn" id="addEv">Add item</button></div>',
+    () => true);
+  document.getElementById('addEv').onclick = () => { closeModal(); editEval(null); };
+  document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { closeModal(); editEval(+b.dataset.ev); });
+}
+
+/* ── moves ──────────────────────────────────────────────────────────── */
+function moveItem(trainId, idx, dir){
+  const t = data.trains.find(x => x.id === trainId);
+  const j = idx + dir; if (j < 0 || j >= t.items.length) return;
+  const [x] = t.items.splice(idx,1); t.items.splice(j,0,x); closeDrawer(); touch();
+}
+function moveTrain(trainId, dir){
+  const i = data.trains.findIndex(x => x.id === trainId);
+  const j = i + dir; if (j < 0 || j >= data.trains.length) return;
+  const [x] = data.trains.splice(i,1); data.trains.splice(j,0,x); touch();
+}
+
+/* ══ RENDER ═════════════════════════════════════════════════════════ */
+function render(){
+  const m = data.meta;
+  const segs = ['<button data-cat="all">All</button>']
+    .concat(data.categories.map(c =>
+      '<button data-cat="'+esc(c.id)+'" title="'+esc(c.label)+'">'+esc(c.short||c.label)+'</button>')).join('');
+
+  const lanes = data.trains.map(t => laneHTML(data, t, { editable:true })).join('')
+    + '<section class="lane lane-add"><button class="tbtn add" id="laneAdd">Add release train</button></section>';
+
+  const evals = data.evaluation.map((e,i) =>
+    '<div class="ev"><div class="t">'+esc(e.t)+'</div><div class="d">'+esc(e.d)+'</div>' +
+    '<div class="ed-tools"><button class="tbtn" data-act="eedit" data-i="'+i+'">Edit</button></div></div>').join('')
+    + '<div class="ev" style="border-style:dashed;display:flex;align-items:center;justify-content:center">' +
+      '<button class="tbtn add" data-act="eadd">Add item</button></div>';
+
+  document.getElementById('app').innerHTML =
+  '<header class="hero"><div class="wrap">' +
+    '<h1>'+esc(m.product)+' release roadmap</h1>' +
+    '<p class="lede">'+esc(m.lede)+'</p>' +
+    '<div class="hero-facts">' +
+      '<div class="hfact"><div class="k">Current release</div><div class="v">'+esc(m.currentRelease)+'</div></div>' +
+      '<div class="hfact"><div class="k">Latest build</div><div class="v">'+esc(m.latestBuild)+'</div></div>' +
+      '<div class="hfact"><div class="k">Next train</div><div class="v">'+esc(m.nextTrain)+'</div></div>' +
+      '<div class="hfact"><div class="k">Updated</div><div class="v plain">'+esc(m.updated)+'</div></div>' +
+    '</div></div></header>' +
+
+  '<div class="filterbar"><div class="wrap">' +
+    '<div class="seg" role="group" aria-label="Filter by area">'+segs+'</div>' +
+    '<button class="cf-toggle" id="cfToggle" aria-pressed="false" title="Show only customer-facing features"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing <span class="cf-n"></span></button>' +
+    '<div class="finder">' +
+      '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>' +
+      '<input type="search" id="finder" placeholder="Search name or BR number" aria-label="Search">' +
+    '</div></div></div>' +
+
+  '<section class="boardsec">' +
+    '<div class="bleed">' +
+      '<button class="navb prev" aria-label="Earlier">&lsaquo;</button>' +
+      '<button class="navb next" aria-label="Later">&rsaquo;</button>' +
+      '<div class="scroller" id="scroller" tabindex="0"><div>' +
+        '<div class="axis">'+axisHTML(data.trains)+'</div>' +
+        '<div class="board" id="board">'+lanes+'</div>' +
+      '</div></div>' +
+    '</div>' +
+    '<div class="progress"><i></i></div>' +
+    '<p class="boardhint">Scroll sideways or swipe.<span class="kbd-only"> Arrow keys work too.</span> Select a capability to view, edit or move it.</p>' +
+    '<p class="noresult" id="noresult">Nothing matches that filter.</p>' +
+  '</section>' +
+
+  '<section class="section alt"><div class="wrap">'+regionsHTML(data, { showAll:true, editable:true })+'</div></section>' +
+
+  '<section class="section"><div class="wrap">' +
+    '<div class="sec-head"><div><h2>Under evaluation</h2>' +
+    '<p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p></div></div>' +
+    '<div class="evals">'+evals+'</div></div></section>' +
+
+  '<footer><div class="wrap"><p>This roadmap describes our current plans and is provided for planning ' +
+    'purposes only. It is not a commitment, promise or legal obligation, and it does not form part of any ' +
+    'contract. Content, sequencing and timing can change without notice.</p>' +
+    '<div class="stamp">'+esc(m.product)+' '+esc(m.title)+'<br>Updated '+esc(m.updated)+'</div></div></footer>';
+
+  // mark internal regions so customer preview can hide them
+  const cards = document.querySelectorAll('.region');
+  data.cloud.regions.forEach((r,i) => { if (r.publish === false && cards[i]) cards[i].classList.add('is-internal'); });
+
+  initBoard();
+  const sc = document.getElementById('scroller');
+  if (sc && scrollMemo){ sc.style.scrollBehavior = 'auto'; sc.scrollLeft = scrollMemo; sc.style.scrollBehavior = ''; }
+  document.getElementById('laneAdd').onclick = () => editTrain(null);
+}
+
+/* ── drawer with edit actions ───────────────────────────────────────── */
+initDrawer({
+  showBr: true,
+  editFooter: d =>
+    '<div class="dedit">' +
+      '<button class="tbtn" data-act="iedit" data-t="'+d.t+'" data-i="'+d.i+'">Edit</button>' +
+      '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark as internal':'Mark customer facing')+'</button>' +
+      '<button class="tbtn" data-act="iup" data-t="'+d.t+'" data-i="'+d.i+'">Move up</button>' +
+      '<button class="tbtn" data-act="idown" data-t="'+d.t+'" data-i="'+d.i+'">Move down</button>' +
+      '<button class="tbtn del" data-act="idel" data-t="'+d.t+'" data-i="'+d.i+'">Delete</button>' +
+    '</div>'
+});
+
+/* ── delegated actions ──────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, t = b.dataset.t, i = b.dataset.i != null ? +b.dataset.i : null;
+  if (a === 'iedit')  editItem(t, i);
+  if (a === 'iadd')   editItem(t, null);
+  if (a === 'iup')    moveItem(t, i, -1);
+  if (a === 'idown')  moveItem(t, i, 1);
+  if (a === 'icf'){
+    const tr = data.trains.find(x => x.id === t);
+    if (tr){ tr.items[i].cf = !tr.items[i].cf; closeDrawer(); touch();
+      toast(tr.items[i].cf ? 'Marked customer facing' : 'Marked internal'); }
+  }
+  if (a === 'idel'){
+    const tr = data.trains.find(x => x.id === t);
+    if (tr && confirm('Delete "' + tr.items[i].name + '"?')){ tr.items.splice(i,1); closeDrawer(); touch(); }
+  }
+  if (a === 'tedit')  editTrain(t);
+  if (a === 'tup')    moveTrain(t, -1);
+  if (a === 'tdown')  moveTrain(t, 1);
+  if (a === 'maint')  editMaint(t);
+  if (a === 'eedit')  editEval(i);
+  if (a === 'eadd')   editEval(null);
+  if (a === 'redit')  editRegion(i);
+  if (a === 'radd')   editRegion(null);
+});
+
+/* ── toolbar ────────────────────────────────────────────────────────── */
+function download(name, text, type){
+  const blob = new Blob([text], { type: type || 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function stamp(){ return new Date().toISOString().slice(0,10); }
+
+document.getElementById('bPublish').onclick = () => {
+  download('Voca_CIC_Release_Roadmap_' + stamp() + '.html', buildPublishHTML(data), 'text/html;charset=utf-8');
+  toast('Published file downloaded. Jira references and internal-only regions stripped.');
+};
+document.getElementById('bJsonOut').onclick = () => {
+  download('Voca_Roadmap_Data_' + stamp() + '.json', JSON.stringify(data, null, 2), 'application/json');
+  toast('Roadmap data exported');
+};
+document.getElementById('bJsonIn').onclick = () => document.getElementById('fileIn').click();
+document.getElementById('fileIn').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const p = JSON.parse(fr.result);
+      if (!p.trains || !p.meta) throw new Error('shape');
+      data = withCf(p); scrollMemo = 0; save(); render(); toast('Roadmap data loaded');
+    } catch(err){ toast('That file is not a roadmap export'); }
+  };
+  fr.readAsText(f); e.target.value = '';
+};
+document.getElementById('bAddTrain').onclick = () => editTrain(null);
+document.getElementById('bMeta').onclick = editMeta;
+document.getElementById('bEval').onclick = manageEvals;
+document.getElementById('bReset').onclick = () => {
+  if (confirm('Discard every change and reload the roadmap as originally supplied?')){
+    data = JSON.parse(JSON.stringify(DEFAULT_DATA)); scrollMemo = 0; save(); render(); toast('Reset to the supplied roadmap');
+  }
+};
+document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
+window.addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
+
+render();
+setSaveState('Saved');
+</script>
+</body>
+</html>

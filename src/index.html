@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voca CIC Release roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/base.css">
+<style>
+/* ══ SESSION CONTROL ═════════════════════════════════════
+   Sits in the top bar beside the NDA badge. Deliberately quiet: the portal
+   is a read-only board for almost everyone who opens it.                    */
+.sess{display:flex;align-items:center;gap:12px;margin-left:16px;font-size:12px;color:#B9C0D4;white-space:nowrap}
+.sess a{color:#CFC7F5;text-decoration:none}
+.sess a:hover{color:#fff}
+.sess .sess-in{font-weight:500;color:#fff;background:rgba(108,92,224,.28);border:1px solid rgba(150,136,240,.42);border-radius:100px;padding:4px 13px}
+.sess .sess-in:hover{background:rgba(108,92,224,.5)}
+.sess .sess-who{max-width:19ch;overflow:hidden;text-overflow:ellipsis}
+
+/* ══ FIRST PAINT ═════════════════════════════════════════ */
+.boot{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:70vh;gap:16px;padding:0 24px;text-align:center;color:var(--muted)}
+.boot .mark{width:38px;height:38px;border-radius:50%;
+      background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:700;letter-spacing:-.04em}
+.boot p{font-size:13.5px}
+.boot h2{font-size:19px;font-weight:600;color:var(--ink)}
+.boot .retry{font-family:inherit;font-size:13px;color:var(--text);background:#fff;
+      border:1px solid var(--line);border-radius:100px;padding:8px 18px;cursor:pointer}
+.boot .retry:hover{border-color:#A9B8CC;color:var(--ink)}
+@media(max-width:760px){
+  .sess{margin-left:12px}
+  .sess .sess-who{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="boot">
+    <span class="mark">ac</span>
+    <p>Loading the roadmap…</p>
+  </div>
+</div>
+
+<script src="/shared/render.js"></script>
+<script src="/shared/board.js"></script>
+<script src="/shared/session.js"></script>
+<script>
+/* The board markup, stylesheet and runtime here are the same ones the editor
+   uses and the same ones baked into the exported standalone file, so the page
+   a visitor sees and the file an editor downloads cannot drift apart. */
+(function(){
+  const app = document.getElementById('app');
+
+  function failed(msg){
+    app.innerHTML =
+      '<div class="boot">' +
+        '<h2>The roadmap could not be loaded</h2>' +
+        '<p>' + esc(msg) + '</p>' +
+        '<button class="retry" onclick="location.reload()">Try again</button>' +
+      '</div>';
+  }
+
+  async function load(){
+    let res;
+    try {
+      const r = await fetch('/api/roadmap', { headers: { 'Accept': 'application/json' } });
+      if (!r.ok) throw new Error('The roadmap service returned HTTP ' + r.status + '.');
+      res = await r.json();
+    } catch(err){
+      failed(err.message || 'The roadmap service is not reachable right now.');
+      return;
+    }
+
+    const data = res && res.data;
+    if (!data || !data.meta || !data.trains){
+      failed('The roadmap service returned an unexpected response.');
+      return;
+    }
+
+    document.title = data.meta.product + ' ' + data.meta.title;
+    app.innerHTML  = buildBodyHTML(data, { session: true });
+    initBoard();
+    initDrawer({ showBr: false });
+    mountSession();
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

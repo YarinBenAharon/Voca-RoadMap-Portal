@@ -1,0 +1,51 @@
+name: Deploy roadmap portal
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+
+jobs:
+  build_and_deploy:
+    name: Build and deploy
+    if: github.event_name == 'push' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # src/shared is the one copy of the design. The API is deployed as a
+      # separate unit and cannot read it, so the assets are copied in here.
+      - name: Sync shared design assets into the API
+        run: python tools/sync_api_assets.py
+
+      # Refuses to deploy if the stylesheet, board runtime or markup helpers
+      # have drifted from the original single-file editor.
+      - name: Verify the design matches the original
+        run: python tools/verify_shared_assets.py
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: "src"
+          api_location: "api"
+          output_location: ""
+
+  close_pull_request:
+    name: Close preview environment
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: close

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Not an editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared/base.css">
+<style>
+.gate{max-width:520px;margin:0 auto;padding:110px 24px;text-align:center}
+.gate .mark{width:38px;height:38px;border-radius:50%;margin:0 auto 22px;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:-.04em}
+.gate h1{font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+.gate p{margin-top:12px;font-size:14px;line-height:1.6;color:var(--text)}
+.gate .acts{margin-top:26px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.gate a{font-size:13.5px;text-decoration:none;border-radius:100px;padding:9px 20px;
+  border:1px solid var(--line);background:#fff;color:var(--text)}
+.gate a:hover{border-color:#A9B8CC;color:var(--ink)}
+.gate a.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
+.gate a.pri:hover{filter:brightness(1.1)}
+</style>
+</head>
+<body>
+<div class="gate">
+  <div class="mark">ac</div>
+  <h1>You are signed in, but not as an editor</h1>
+  <p>Editing the Voca CIC roadmap is limited to a named set of people. If you
+     should be one of them, ask the roadmap owner to grant your account the
+     <strong>editor</strong> role, then sign in again.</p>
+  <p>Signing in with a different account may also help if you used a personal
+     Microsoft account by mistake.</p>
+  <div class="acts">
+    <a class="pri" href="/">View the roadmap</a>
+    <a href="/.auth/logout?post_logout_redirect_uri=/">Sign out</a>
+  </div>
+</div>
+</body>
+</html>

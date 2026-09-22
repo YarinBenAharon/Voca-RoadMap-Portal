@@ -1,0 +1,12 @@
+{
+  "name": "voca-roadmap-portal-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Publish and read endpoints for the Voca CIC roadmap portal",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.26.0"
+  }
+}

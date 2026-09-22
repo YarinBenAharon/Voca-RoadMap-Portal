@@ -1,0 +1,635 @@
+{
+  "meta": {
+    "product": "Voca CIC",
+    "vendor": "AudioCodes",
+    "title": "Release roadmap",
+    "lede": "What is shipping, what is next, and what we are working toward. Organised by release train, with a target quarter for each. Quarters are planning targets and can move.",
+    "updated": "2 September 2026",
+    "currentRelease": "12.2",
+    "latestBuild": "12.2.0.954",
+    "nextTrain": "12.3"
+  },
+  "categories": [
+    {
+      "id": "agent",
+      "label": "Agent experience",
+      "short": "Agent"
+    },
+    {
+      "id": "routing",
+      "label": "Routing and queues",
+      "short": "Routing"
+    },
+    {
+      "id": "ai",
+      "label": "AI and automation",
+      "short": "AI"
+    },
+    {
+      "id": "channels",
+      "label": "Channels and integrations",
+      "short": "Channels"
+    },
+    {
+      "id": "reporting",
+      "label": "Reporting",
+      "short": "Reporting"
+    },
+    {
+      "id": "platform",
+      "label": "Administration and platform",
+      "short": "Platform"
+    }
+  ],
+  "trains": [
+    {
+      "id": "t122",
+      "ver": "12.2",
+      "quarter": "Q3 2026",
+      "phase": "now",
+      "status": "Available",
+      "head": "Speech, queue behaviour and agent experience",
+      "note": "The 12.2 train is generally available and has been extended through three maintenance builds. Items marked with a build number reached customers in that build rather than at the initial release.",
+      "maint": {
+        "title": "Maintenance builds in the 12.2 train",
+        "note": "Maintenance builds carry the capabilities tagged above alongside quality and stability fixes. Builds roll out per region on a staged schedule.",
+        "drops": [
+          {
+            "ver": "12.2.0.500",
+            "when": "July 2026"
+          },
+          {
+            "ver": "12.2.0.700",
+            "when": "July 2026"
+          },
+          {
+            "ver": "12.2.0.954",
+            "when": "August 2026"
+          }
+        ]
+      },
+      "items": [
+        {
+          "name": "Bring your own Azure speech-to-text",
+          "desc": "Use your own Azure Speech resource for transcription, with your own keys, region and billing.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Jabra device selection in the Worker app",
+          "desc": "Select and control Jabra headsets from within the Worker app.",
+          "cat": "agent",
+          "patch": "12.2.0.700",
+          "br": "BR-6715",
+          "cf": true
+        },
+        {
+          "name": "Configurable default landing page",
+          "desc": "Choose which page agents see when they sign in to the agent apps.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6704",
+          "cf": false
+        },
+        {
+          "name": "Automatic focus on the live call page",
+          "desc": "The live call view comes forward as soon as an agent answers, without a manual click.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6705",
+          "cf": false
+        },
+        {
+          "name": "Time range filter in call history",
+          "desc": "Filter recent and missed calls by a chosen time range.",
+          "cat": "agent",
+          "patch": "12.2.0.500",
+          "br": "BR-6707",
+          "cf": false
+        },
+        {
+          "name": "Recording retention policies",
+          "desc": "Define how long recordings are kept and when they are removed automatically.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6543",
+          "cf": false
+        },
+        {
+          "name": "Anytime Queue Menu Access",
+          "desc": "Callers can reach the in-queue menu at any time rather than only at cycle boundaries.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6167",
+          "cf": false
+        },
+        {
+          "name": "Automatic detection of not-ready agents",
+          "desc": "Queue overflow that identifies agents left in a not-ready state",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "FlexApp presence status change",
+          "desc": "Agents set their own availability status directly from the Flex app.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "In-queue cycle time in seconds",
+          "desc": "Configure the in-queue announcement cycle at second-level .",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6168",
+          "cf": false
+        },
+        {
+          "name": "Agent custom view",
+          "desc": "allowing opt-in/out and queue states view per Agent in worker group setting",
+          "cat": "agent",
+          "patch": "12.2.0.700",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "Text-to-speech in Journey Manager",
+          "desc": "present TTS prompts in Journey manager report",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t1221",
+      "ver": "12.2.1",
+      "quarter": "Q4 2026",
+      "phase": "next",
+      "status": "In development",
+      "head": "Interim maintenance train",
+      "note": "A short train between 12.2 and 12.3 carrying targeted queue behaviour changes. Target date 11 October 2026.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Immediate start for in-queue announcement cycles",
+          "desc": "Begin the in-queue announcement cycle at the start of the wait rather than after the first cycle interval elapses.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6962",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t123",
+      "ver": "12.3",
+      "quarter": "Q4 2026",
+      "phase": "next",
+      "status": "In development",
+      "head": "Omnichannel, workforce management and the new Teams experience",
+      "note": "The largest train of the cycle. It adds WhatsApp as a channel, workforce management integration, post-call surveys, scheduled-report controls and a rebuilt Teams app experience.",
+      "maint": null,
+      "items": [
+        {
+          "name": "New Teams app experience for Worker and Supervisor",
+          "desc": "Rebuilt agent and supervisor apps inside Microsoft Teams, with a refreshed layout and faster navigation.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "In-queue overflow routing",
+          "desc": "Move waiting callers to an alternate queue or destination when thresholds are exceeded.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6605",
+          "cf": true
+        },
+        {
+          "name": "Callback outside business hours",
+          "desc": "Offer a callback when the contact centre is closed, queued for the next open period.",
+          "cat": "routing",
+          "patch": "",
+          "br": "BR-6604",
+          "cf": true
+        },
+        {
+          "name": "Barge-in during text-to-speech prompts",
+          "desc": "Callers can speak or press a key over a synthesised prompt instead of waiting for it to finish.",
+          "cat": "ai",
+          "patch": "",
+          "br": "BR-6684",
+          "cf": true
+        },
+        {
+          "name": "Post-call survey",
+          "desc": "Collect caller feedback at the end of an interaction and report on the results alongside call data.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "AI processing without recording retention",
+          "desc": "Run transcription, summaries and insights on a call without retaining the audio, for environments with strict retention rules.",
+          "cat": "ai",
+          "patch": "",
+          "br": "BR-6963",
+          "cf": true
+        },
+        {
+          "name": "Queue performance metrics",
+          "desc": "Average speed of answer and agent hunt time reported per queue.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6969",
+          "cf": true
+        },
+        {
+          "name": "Custom daily time window for scheduled reports",
+          "desc": "Set the daily start and end time a scheduled report covers, instead of a fixed calendar day.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6965",
+          "cf": true
+        },
+        {
+          "name": "Clone a report schedule",
+          "desc": "Duplicate an existing scheduled report and adjust it, rather than rebuilding from scratch.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6966",
+          "cf": true
+        },
+        {
+          "name": "omnichannel - WhatsApp",
+          "desc": "Handle WhatsApp conversations in the same queues and agent workspace as voice.",
+          "cat": "channels",
+          "patch": "",
+          "br": "BR-6728",
+          "cf": true
+        },
+        {
+          "name": "BYO Workforce management",
+          "desc": "Export interaction and adherence data to workforce management platforms for forecasting and scheduling.",
+          "cat": "channels",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Agent insights - Prebuilt CRM connectors for wrap up events",
+          "desc": "More control over what call and wrap-up data is written back to the CRM record, and when.",
+          "cat": "channels",
+          "patch": "",
+          "br": "BR-6749",
+          "cf": true
+        },
+        {
+          "name": "Agent Phonebook search enhancements",
+          "desc": "Search the organisation directory from the agent app before transferring or dialling.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6624",
+          "cf": true
+        },
+        {
+          "name": "Caller name in missed and recent calls tab",
+          "desc": "Resolved contact names appear in call history rather than numbers alone.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6702",
+          "cf": false
+        },
+        {
+          "name": "Wrap-up events on outbound calls",
+          "desc": "Apply the same Wrap-up events to outbound calls that are already available on inbound.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6606",
+          "cf": false
+        },
+        {
+          "name": "Flex Queue members recording",
+          "desc": "allowing Teams clients and PSTN/3rd party ext. recording capabilities",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6189",
+          "cf": true
+        },
+        {
+          "name": "Voca AIR setup wizard",
+          "desc": "Guided setup for the AI receptionist, taking a new tenant from empty to answering calls.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t124",
+      "ver": "12.4",
+      "quarter": "Q1 2027",
+      "phase": "later",
+      "status": "Planned",
+      "head": "Outbound parity and supervisor reach",
+      "note": "Closes the gaps between inbound and outbound handling, extends supervisor monitoring to Operator Connect, and deepens the reporting set.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Immediate data export on configuration save",
+          "desc": "Trigger the initial data export as soon as an export configuration is saved, without waiting for the next scheduled run.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6970",
+          "cf": false
+        },
+        {
+          "name": "Global variables in flows and queues",
+          "desc": "Define a value once and reference it across call flows and queues instead of repeating it.",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Live monitoring for outbound calls",
+          "desc": "Supervisors can monitor outbound interactions, not only inbound.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6682",
+          "cf": true
+        },
+        {
+          "name": "SLA metrics in Voca Reports",
+          "desc": "Service level attainment reported per queue and per period, against configurable targets.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6453",
+          "cf": true
+        },
+        {
+          "name": "Agent hunt timer in Voca Reports",
+          "desc": "Reporting on how long calls ring at each agent before moving on.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "BR-6580",
+          "cf": true
+        },
+        {
+          "name": "Outbound conference in the Worker app",
+          "desc": "Add a third party to an outbound call from the Worker app.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6681",
+          "cf": true
+        },
+        {
+          "name": "Live monitoring on Operator Connect",
+          "desc": "Extends supervisor monitoring to tenants running Operator Connect.",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Worker profiles, second phase",
+          "desc": "Extends profiles with additional attributes and broader use across routing and reporting.",
+          "cat": "agent",
+          "patch": "",
+          "br": "BR-6625",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t130",
+      "ver": "13.0",
+      "quarter": "Q2 2027",
+      "phase": "later",
+      "status": "Planned",
+      "head": "Openness, custom reporting and the new routing engine",
+      "note": "Opens the platform up: public provisioning APIs, dashboards you build yourself, and a move to the AudioCodes routing engine.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Licensing model enhancements",
+          "desc": "Second phase of the updated licensing model, including how usage is measured and reported.",
+          "cat": "platform",
+          "patch": "",
+          "br": "BR-6006",
+          "cf": false
+        },
+        {
+          "name": "Custom dashboards",
+          "desc": "Assemble your own dashboard from available metrics rather than using fixed views.",
+          "cat": "reporting",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Common and provisioning APIs",
+          "desc": "Public APIs for provisioning and configuration, so tenant setup can be automated.",
+          "cat": "platform",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Conversational AI enhancements",
+          "desc": "Improvements to intent handling, containment and tuning in the conversational layer.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "AudioCodes Job Router",
+          "desc": "Voca moves to an AudioCodes routing engine, giving more control over routing logic and behaviour.",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    },
+    {
+      "id": "t131",
+      "ver": "13.1",
+      "quarter": "Q3 2027",
+      "phase": "later",
+      "status": "Direction",
+      "head": "Assistive AI at the point of the call",
+      "note": "Moves AI from post-call analysis into the live interaction, and brings existing chatbots into the voice queue. From here the roadmap describes direction rather than committed scope.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Real-time agent assist",
+          "desc": "Suggested answers and next steps surfaced to the agent while the call is still in progress.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": true
+        },
+        {
+          "name": "Third-party chatbot integration with escalation to voice",
+          "desc": "Hand a conversation from an existing chatbot to a Voca voice queue, carrying context across.",
+          "cat": "channels",
+          "patch": "",
+          "br": "",
+          "cf": true
+        }
+      ]
+    },
+    {
+      "id": "t132",
+      "ver": "13.2",
+      "quarter": "Q4 2027",
+      "phase": "later",
+      "status": "Direction",
+      "head": "Agentic tooling and platform consolidation",
+      "note": "Longer-horizon work. Listed to show intent, not to set expectations on timing.",
+      "maint": null,
+      "items": [
+        {
+          "name": "Model Context Protocol support",
+          "desc": "Expose Voca capabilities to AI agents and assistants through MCP.",
+          "cat": "ai",
+          "patch": "",
+          "br": "",
+          "cf": false
+        },
+        {
+          "name": "FreeSwitch migration",
+          "desc": "",
+          "cat": "platform",
+          "patch": "",
+          "br": "",
+          "cf": false
+        }
+      ]
+    }
+  ],
+  "evaluation": [
+    {
+      "t": "Agent overview on the home page",
+      "d": "A live team availability summary on the landing page of the agent apps."
+    },
+    {
+      "t": "Agent-to-agent transfer view",
+      "d": "Visibility of which colleague a call was transferred to, and its outcome."
+    },
+    {
+      "t": "Extended fields on contact import",
+      "d": "Import additional contact attributes beyond the current field set."
+    },
+    {
+      "t": "Caller name on the incoming call popup",
+      "d": "Under assessment. Depends on directory lookup behaviour in the underlying platform."
+    },
+    {
+      "t": "Teams presence without additional authentication",
+      "d": "Under assessment. Depends on platform authentication capabilities outside Voca."
+    },
+    {
+      "t": "Report scheduler Unique call id DTMF report",
+      "d": "There is automation and reports behind it on their end with report scheduler and they need UID to be added on the dtmf reporting."
+    }
+  ],
+  "cloud": {
+    "latestVersion": "12.2.0.954",
+    "note": "Builds roll out region by region on a staged schedule. Your account team can confirm the build running in your environment.",
+    "regions": [
+      {
+        "id": "emea",
+        "name": "EMEA",
+        "flag": "🇪🇺",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-16",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "us",
+        "name": "United States",
+        "flag": "🇺🇸",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-24",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "sg",
+        "name": "Singapore",
+        "flag": "🇸🇬",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-09",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "io",
+        "name": "Global (IO)",
+        "flag": "🌐",
+        "version": "12.2.0.954",
+        "lastDeploy": "2026-08-23",
+        "nextVersion": "",
+        "nextDate": "",
+        "publish": true
+      },
+      {
+        "id": "india",
+        "name": "India",
+        "flag": "🇮🇳",
+        "version": "12.2.0.902",
+        "lastDeploy": "2026-08-10",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-14",
+        "publish": true
+      },
+      {
+        "id": "au",
+        "name": "Australia",
+        "flag": "🇦🇺",
+        "version": "12.2.0.902",
+        "lastDeploy": "2026-08-10",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-14",
+        "publish": true
+      },
+      {
+        "id": "swiss",
+        "name": "Switzerland",
+        "flag": "🇨🇭",
+        "version": "12.2.0.707",
+        "lastDeploy": "2026-08-02",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "2026-09-07",
+        "publish": true
+      },
+      {
+        "id": "suny",
+        "name": "SUNY (dedicated)",
+        "flag": "🏛",
+        "version": "12.1.0.83",
+        "lastDeploy": "",
+        "nextVersion": "12.2.0.954",
+        "nextDate": "",
+        "publish": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "trailingSlash": "auto",
+  "platform": {
+    "apiRuntime": "node:20"
+  },
+  "routes": [
+    {
+      "route": "/edit*",
+      "allowedRoles": ["editor"],
+      "headers": {
+        "Cache-Control": "no-store"
+      }
+    },
+    {
+      "route": "/api/publish",
+      "methods": ["POST"],
+      "allowedRoles": ["editor"]
+    },
+    {
+      "route": "/api/snapshots*",
+      "methods": ["GET"],
+      "allowedRoles": ["editor"]
+    },
+    {
+      "route": "/api/roadmap*",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous"],
+      "headers": {
+        "Cache-Control": "no-cache, max-age=0, must-revalidate"
+      }
+    },
+    {
+      "route": "/api/*",
+      "allowedRoles": ["editor"]
+    },
+    {
+      "route": "/login",
+      "redirect": "/.auth/login/aad"
+    },
+    {
+      "route": "/logout",
+      "redirect": "/.auth/logout"
+    },
+    {
+      "route": "/.auth/login/github",
+      "statusCode": 404
+    },
+    {
+      "route": "/shared/*",
+      "headers": {
+        "Cache-Control": "public, max-age=600, must-revalidate"
+      }
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad?post_login_redirect_uri=.referrer"
+    },
+    "403": {
+      "rewrite": "/403.html"
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/shared/*", "/api/*", "/*.{png,jpg,svg,ico,css,js,json}"]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "mimeTypes": {
+    ".json": "application/json"
+  }
+}

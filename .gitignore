@@ -1,0 +1,11 @@
+# Generated: copied from src/shared at build time, never edited by hand
+api/shared/assets/
+
+# Local Azure Functions settings, which hold the storage connection string
+api/local.settings.json
+
+node_modules/
+.venv/
+.idea/
+__pycache__/
+*.pyc

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voca CIC Release roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF;
+  --surface:#F4F6FA;
+  --ink:#0E1020;
+  --text:#464C61;
+  --muted:#7C8397;
+  --line:#E3E8F0;
+  --line-soft:#EEF2F7;
+
+  --brand:#1E7FD4;
+  --cyan:#2FAECE;
+  --violet:#6C5CE0;
+  --pill-bg:#E4E0FA;
+  --pill-fg:#3B2E92;
+
+  --ship:#0E9E86;   --ship-bg:#E1F4F0;
+  --dev:#1E7FD4;    --dev-bg:#E4EFFA;
+  --plan:#6C5CE0;   --plan-bg:#EAE7FA;
+  --dir:#7C8397;    --dir-bg:#EEF1F6;
+  --warn:#C4553A;   --warn-bg:#FAEBE7;
+
+  --font:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Consolas,monospace;
+
+  --lane-w:308px;
+  --lane-gap:18px;
+  --lane-h:clamp(400px, 68vh, 680px);
+  --gutter:40px;
+  --edge:max(var(--gutter), calc((100vw - 1280px) / 2 + var(--gutter)));
+  --r-lg:20px;
+  --r-md:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--gutter)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* TOP BAR */
+.topbar{background:var(--ink);color:#fff}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.logo .mark{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:-.04em}
+.topbar nav{margin-left:auto;display:flex;gap:26px;font-size:13.5px;color:#B9C0D4}
+.topbar nav a{color:inherit;text-decoration:none}
+.topbar nav a:hover{color:#fff}
+.nda{font-size:11.5px;font-weight:500;color:#CFC7F5;background:rgba(108,92,224,.28);border:1px solid rgba(150,136,240,.42);border-radius:100px;padding:4px 12px;white-space:nowrap;margin-left:22px}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:linear-gradient(104deg,#241A52 0%,#3A2C88 30%,#2159AE 66%,#1E8FC4 100%);color:#fff}
+.hero::after{content:"";position:absolute;right:-140px;top:-160px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(88,206,232,.34),transparent 66%)}
+.hero .wrap{position:relative;z-index:1;padding-top:52px;padding-bottom:46px}
+.hero h1{font-size:clamp(27px,4.2vw,42px);line-height:1.14;font-weight:600;letter-spacing:-.025em;max-width:19ch}
+.hero .lede{margin-top:16px;max-width:60ch;font-size:16px;color:#DCE4F5;font-weight:300}
+.hero-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.hfact{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.19);border-radius:var(--r-md);padding:12px 18px;backdrop-filter:blur(6px);min-width:150px}
+.hfact .k{font-size:11.5px;color:#BFC9E4;font-weight:300}
+.hfact .v{font-family:var(--mono);font-size:20px;font-weight:600;letter-spacing:-.02em;margin-top:1px}
+.hfact .v.plain{font-family:var(--font);font-size:16px;font-weight:500}
+
+/* SEGMENTED PILL CONTROL */
+.filterbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+.filterbar .wrap{display:flex;align-items:center;gap:14px;padding-top:16px;padding-bottom:16px}
+.seg{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:100px;padding:5px;box-shadow:0 3px 14px rgba(20,28,54,.07);overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg.overflowing{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.seg button{border:0;background:transparent;border-radius:100px;padding:8px 18px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--pill-bg);color:var(--pill-fg);font-weight:600}
+.finder{margin-left:auto;position:relative;flex-shrink:0}
+.finder input{font-family:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line);border-radius:100px;background:#fff;padding:9px 16px 9px 36px;width:238px}
+.finder input::placeholder{color:var(--muted)}
+.finder svg{position:absolute;left:14px;top:11px;color:var(--muted)}
+
+/* HORIZONTAL BOARD */
+.boardsec{padding:30px 0 12px}
+.bleed{position:relative;max-width:1280px;margin:0 auto;padding:0 var(--gutter)}
+.axis{display:flex;gap:var(--lane-gap);margin-bottom:12px;min-width:min-content}
+.axis-cell{flex:0 0 auto;border-top:2px solid var(--line);padding-top:8px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.axis-cell b{color:var(--ink);font-weight:600}
+.scroller{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scroll-snap-type:x proximity;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.scroller::-webkit-scrollbar{display:none}
+.scroller.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent);mask-image:linear-gradient(90deg,#000 94%,transparent)}
+.scroller.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%);mask-image:linear-gradient(90deg,transparent,#000 6%)}
+.scroller.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.board{display:flex;gap:var(--lane-gap);min-width:min-content;align-items:stretch}
+.lane{flex:0 0 var(--lane-w);width:var(--lane-w);scroll-snap-align:start;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;height:var(--lane-h)}
+.lane.hidden{display:none}
+.lane-head{padding:20px 20px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.lane-topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.lane-ver{font-family:var(--mono);font-size:clamp(25px,2.4vw,30px);font-weight:600;letter-spacing:-.035em;color:var(--ink);line-height:1}
+.lane-q{font-size:12.5px;color:var(--muted);font-weight:500;white-space:nowrap}
+.lane-pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 11px;border-radius:100px;margin-top:12px}
+.p-now .lane-pill{background:var(--ship-bg);color:var(--ship)}
+.p-next .lane-pill{background:var(--dev-bg);color:var(--dev)}
+.p-later .lane-pill{background:var(--plan-bg);color:var(--plan)}
+.p-dir .lane-pill{background:var(--dir-bg);color:var(--dir)}
+.lane-theme{font-size:13.5px;font-weight:500;color:var(--ink);margin-top:10px;line-height:1.45}
+.lane-count{font-size:11.5px;color:var(--muted);margin-top:6px}
+.lane.p-now{border-color:#BFE6DD}
+.lane.p-now .lane-head{box-shadow:inset 0 3px 0 var(--ship)}
+.lane.p-next .lane-head{box-shadow:inset 0 3px 0 var(--dev)}
+.lane.p-later .lane-head{box-shadow:inset 0 3px 0 var(--plan)}
+.lane.p-dir .lane-head{box-shadow:inset 0 3px 0 var(--dir)}
+.lane-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:8px}
+.lane-body::-webkit-scrollbar{width:8px}
+.lane-body::-webkit-scrollbar-thumb{background:#CFD7E2;border-radius:100px;border:2px solid var(--surface)}
+.lane-body::-webkit-scrollbar-track{background:transparent}
+.tile{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:border-color .14s,box-shadow .14s,transform .14s}
+.tile:hover{border-color:#B9C7DC;box-shadow:0 4px 14px rgba(20,28,54,.08);transform:translateY(-1px)}
+.tile.hidden{display:none}
+.tile-name{display:block;font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.42}
+.tile-meta{display:flex;align-items:center;gap:7px;margin-top:8px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.tile-cat{font-size:11px;color:var(--muted)}
+.tile-cf{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--pill-fg);background:var(--pill-bg);border-radius:100px;padding:2px 8px 2px 6px;white-space:nowrap}
+.tile-cf svg{width:10px;height:10px}
+.tile-area{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.cf-toggle{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:100px;padding:9px 14px 9px 16px;font-size:13.5px;font-weight:500;color:var(--text);cursor:pointer;box-shadow:0 3px 14px rgba(20,28,54,.07);transition:background .15s,color .15s,border-color .15s}
+.cf-toggle:hover{border-color:#B9C7DC;color:var(--ink)}
+.cf-toggle svg{color:var(--violet)}
+.cf-toggle .cf-n{font-size:11.5px;font-weight:600;background:var(--pill-bg);color:var(--pill-fg);border-radius:100px;padding:1px 8px;min-width:26px;text-align:center}
+.cf-toggle[aria-pressed="true"]{background:var(--pill-fg);border-color:var(--pill-fg);color:#fff}
+.cf-toggle[aria-pressed="true"] svg{color:#fff}
+.cf-toggle[aria-pressed="true"] .cf-n{background:rgba(255,255,255,.22);color:#fff}
+.tile-build{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--ship);background:var(--ship-bg);border-radius:4px;padding:2px 6px;margin-left:auto}
+.c-agent{background:#1E7FD4}.c-routing{background:#2FAECE}.c-ai{background:#6C5CE0}
+.c-channels{background:#0E9E86}.c-reporting{background:#D48A1E}.c-platform{background:#8A8FA8}
+.lane-maint{margin-top:4px;background:#fff;border:1px dashed var(--line);border-radius:var(--r-md);padding:12px 14px}
+.lane-maint h4{font-size:12px;font-weight:600;color:var(--ink)}
+.lane-maint p{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.drops{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.drop{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);background:var(--surface);border-radius:5px;padding:3px 8px}
+.lane-empty{font-size:12.5px;color:var(--muted);padding:14px 4px;text-align:center}
+.navb{position:absolute;top:calc(50% - 8px);z-index:12;width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 5px 18px rgba(20,28,54,.14);color:var(--ink);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .15s}
+.navb:hover{transform:scale(1.06)}
+.navb[disabled]{opacity:0;pointer-events:none}
+.navb.prev{left:calc(var(--gutter) - 21px)}
+.navb.next{right:calc(var(--gutter) - 21px)}
+.boardsec .boardhint,.boardsec .noresult{max-width:1280px;margin-left:auto;margin-right:auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+.boardsec .progress{width:calc(100% - 2 * var(--gutter));max-width:calc(1280px - 2 * var(--gutter));margin:14px auto 0}
+.progress{height:4px;background:var(--line-soft);border-radius:100px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:100px;width:30%;transition:width .12s,margin-left .12s}
+.boardhint{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:10px}
+
+/* DRAWER */
+.scrim{position:fixed;inset:0;background:rgba(14,16,32,.42);z-index:70;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:92vw;background:#fff;z-index:80;transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(14,16,32,.18)}
+.drawer.open{transform:none}
+.drawer-head{padding:26px 28px 20px;border-bottom:1px solid var(--line-soft)}
+.drawer-head .eyebrow{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.drawer-head h3{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.015em;line-height:1.28;margin-top:10px}
+.drawer-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:24px 28px 30px}
+.drawer-body p.desc{font-size:15px;color:var(--text);line-height:1.68}
+.dmeta{margin-top:24px;border-top:1px solid var(--line-soft)}
+.dmeta div{display:flex;justify-content:space-between;gap:18px;padding:12px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.dmeta .k{color:var(--muted)}
+.dmeta .v{color:var(--ink);font-weight:500;text-align:right}
+.dmeta .v.mono{font-family:var(--mono)}
+.dclose{position:absolute;top:22px;right:24px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.dclose:hover{color:var(--ink);border-color:#B9C7DC}
+.dnote{margin-top:22px;background:var(--surface);border-radius:var(--r-md);padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.6}
+
+/* SECTIONS */
+.section{padding:56px 0;scroll-margin-top:84px}
+.boardsec{scroll-margin-top:84px}
+.section.alt{background:var(--surface)}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;flex-wrap:wrap}
+.sec-head h2{font-size:clamp(21px,2.4vw,26px);font-weight:600;color:var(--ink);letter-spacing:-.02em}
+.sec-head .sub{font-size:14.5px;color:var(--muted);margin-top:8px;max-width:60ch;font-weight:300}
+.latest{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 18px;text-align:right}
+.latest .k{font-size:11.5px;color:var(--muted)}
+.latest b{display:block;font-family:var(--mono);font-size:19px;color:var(--ink);font-weight:600;letter-spacing:-.02em}
+.regions{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;margin-top:28px}
+.region{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px}
+.region-top{display:flex;align-items:center;gap:10px}
+.region-top .flag{font-size:19px;line-height:1}
+.region-top .nm{font-size:14.5px;font-weight:600;color:var(--ink)}
+.region-build{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.02em;margin-top:14px}
+.region-when{font-size:12px;color:var(--muted);margin-top:2px}
+.region-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.st{font-size:11.5px;font-weight:600;padding:3px 11px;border-radius:100px;white-space:nowrap}
+.st.cur{background:var(--ship-bg);color:var(--ship)}
+.st.roll{background:var(--dev-bg);color:var(--dev)}
+.st.old{background:var(--warn-bg);color:var(--warn)}
+.region-next{font-size:11.5px;color:var(--muted);text-align:right}
+.region-next b{display:block;font-family:var(--mono);color:var(--text);font-weight:500}
+.evals{display:grid;grid-template-columns:repeat(auto-fill,minmax(276px,1fr));gap:14px;margin-top:28px}
+.ev{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.ev .t{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.4}
+.ev .d{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6}
+footer{background:var(--ink);color:#9AA3BD;padding:38px 0 46px}
+footer .wrap{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap}
+footer p{font-size:12.5px;max-width:62ch;line-height:1.7;font-weight:300}
+footer .stamp{font-size:12.5px;text-align:right;white-space:nowrap;color:#6E7899}
+.noresult{display:none;padding:60px 0;text-align:center;color:var(--muted);font-size:15px}
+.noresult.show{display:block}
+
+/* ── laptop: tighten lanes so a 3rd is always in view ── */
+@media(max-width:1180px){
+  :root{--lane-w:292px}
+}
+/* ── tablet landscape / small laptop ── */
+@media(max-width:1024px){
+  :root{--gutter:32px}
+  .topbar nav{gap:18px;font-size:13px}
+}
+/* ── tablet portrait ── */
+@media(max-width:900px){
+  :root{--lane-w:300px;--gutter:26px;--lane-h:clamp(400px,64vh,620px)}
+  .topbar nav{display:none}
+  .nda{margin-left:auto}
+  .navb{display:none}
+  .hero .wrap{padding-top:40px;padding-bottom:36px}
+  .section{padding:44px 0}
+  .hfact{flex:1 1 168px;min-width:0}
+  .filterbar .wrap{flex-wrap:wrap}
+  .seg{flex:1 1 100%}
+  .cf-toggle{order:2}
+  .finder{order:3;flex:1 1 200px;margin-left:0;width:auto}
+  .finder input{width:100%}
+}
+/* ── phones ── */
+@media(max-width:640px){
+  :root{--lane-w:calc(100vw - 80px);--gutter:20px;--lane-h:clamp(360px,62vh,560px);--r-lg:16px}
+  .topbar .wrap{height:56px;gap:10px}
+  .logo{font-size:17px}
+  .hero .wrap{padding-top:30px;padding-bottom:28px}
+  .hero .lede{font-size:15px;margin-top:12px}
+  .hero-facts{gap:8px;margin-top:22px}
+  .hfact{padding:10px 14px}
+  .hfact .v{font-size:17px}
+  .filterbar .wrap{flex-wrap:wrap;gap:10px;padding-top:12px;padding-bottom:12px}
+  .seg{width:100%;padding:4px}
+  .seg button{padding:7px 15px;font-size:13px}
+  .finder{margin-left:0;order:3}
+  .finder input{width:100%}
+  .cf-toggle{padding:8px 12px;font-size:13px}
+  .finder{flex:1 1 110px}
+  .finder input{padding-left:32px;font-size:13px}
+  .boardsec{padding:20px 0 8px}
+  .lane-head{padding:16px 16px 14px}
+  .lane-body{padding:12px}
+  .boardhint{font-size:11.5px}
+  .kbd-only{display:none}
+  .section{padding:36px 0}
+  .sec-head{align-items:flex-start}
+  .latest{text-align:left}
+  .regions,.evals{gap:10px;margin-top:20px}
+  .region,.ev{padding:16px}
+  footer{padding:30px 0 36px}
+  footer .wrap{gap:18px}
+  footer .stamp{text-align:left}
+
+  /* drawer becomes a bottom sheet, reachable by thumb */
+  .drawer{top:auto;left:0;right:0;bottom:0;width:100%;max-width:none;height:88vh;
+          transform:translateY(100%);border-radius:22px 22px 0 0}
+  .drawer.open{transform:none}
+  .drawer::before{content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);
+                  width:38px;height:4px;border-radius:100px;background:var(--line)}
+  .drawer-head{padding:26px 22px 18px}
+  .drawer-body{padding:20px 22px 34px}
+  .dclose{top:20px;right:18px}
+}
+@media(max-width:380px){
+  .seg button{padding:7px 12px;font-size:12.5px}
+  .hfact{flex:1 1 100%}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{
+  .filterbar,.navb,.progress,.boardhint,.scrim,.drawer,.topbar nav{display:none!important}
+  body{font-size:10.5pt}
+  .scroller{overflow:visible}
+  .board{display:block}
+  .lane{width:100%;height:auto;break-inside:avoid;margin-bottom:14px}
+  .lane-body{overflow:visible}
+  .axis{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="logo"><span class="mark">ac</span>AudioCodes</span>
+    <nav><a href="#board-section">Roadmap</a><a href="#regions">Regions</a><a href="#evaluation">Under evaluation</a></nav>
+    <span class="nda">Confidential &middot; NDA</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Voca CIC release roadmap</h1>
+    <p class="lede">What is shipping, what is next, and what we are working toward. Organised by release train, with a target quarter for each. Quarters are planning targets and can move.</p>
+    <div class="hero-facts">
+      <div class="hfact"><div class="k">Current release</div><div class="v">12.2</div></div>
+      <div class="hfact"><div class="k">Latest build</div><div class="v">12.2.0.954</div></div>
+      <div class="hfact"><div class="k">Next train</div><div class="v">12.3</div></div>
+      <div class="hfact"><div class="k">Updated</div><div class="v plain">2 September 2026</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="filterbar">
+  <div class="wrap">
+    <div class="seg" role="group" aria-label="Filter by area"><button data-cat="all" aria-pressed="true">All</button><button data-cat="agent" aria-pressed="false" title="Agent experience">Agent</button><button data-cat="routing" aria-pressed="false" title="Routing and queues">Routing</button><button data-cat="ai" aria-pressed="false" title="AI and automation">AI</button><button data-cat="channels" aria-pressed="false" title="Channels and integrations">Channels</button><button data-cat="reporting" aria-pressed="false" title="Reporting">Reporting</button><button data-cat="platform" aria-pressed="false" title="Administration and platform">Platform</button></div>
+    <button class="cf-toggle" id="cfToggle" aria-pressed="false" title="Show only customer-facing features"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing <span class="cf-n">28</span></button>
+    <div class="finder">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
+      <input type="search" id="finder" placeholder="Search capabilities" aria-label="Search capabilities">
+    </div>
+  </div>
+</div>
+
+<section class="boardsec" id="board-section">
+  <div class="bleed">
+    <button class="navb prev" aria-label="Earlier releases">&lsaquo;</button>
+    <button class="navb next" aria-label="Later releases">&rsaquo;</button>
+    <div class="scroller" id="scroller" tabindex="0" aria-label="Release timeline, scrolls horizontally">
+      <div>
+        <div class="axis"><div class="axis-cell" style="width:calc(3 * var(--lane-w) + 2 * var(--lane-gap))"><b>2026</b></div><div class="axis-cell" style="width:calc(4 * var(--lane-w) + 3 * var(--lane-gap))"><b>2027</b></div></div>
+        <div class="board" id="board"><section class="lane p-now" data-lane="t122">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">12.2</span>
+        <span class="lane-q">Q3 2026</span>
+      </div>
+      <span class="lane-pill">Available</span>
+      <div class="lane-theme">Speech, queue behaviour and agent experience</div>
+      <div class="lane-count"><span data-count>12</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="ai" data-k="bring your own azure speech-to-text use your own azure speech resource for transcription, with your own keys, region and billing. ai and automation customer facing "
+      data-t="t122" data-i="0"
+      data-name="Bring your own Azure speech-to-text" data-desc="Use your own Azure Speech resource for transcription, with your own keys, region and billing."
+      data-catlabel="AI and automation"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Bring your own Azure speech-to-text</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="jabra device selection in the worker app select and control jabra headsets from within the worker app. agent experience customer facing "
+      data-t="t122" data-i="1"
+      data-name="Jabra device selection in the Worker app" data-desc="Select and control Jabra headsets from within the Worker app."
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="12.2.0.700" data-cf="1"
+      >
+      <span class="tile-name">Jabra device selection in the Worker app</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        <span class="tile-build">12.2.0.700</span>
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="configurable default landing page choose which page agents see when they sign in to the agent apps. agent experience "
+      data-t="t122" data-i="2"
+      data-name="Configurable default landing page" data-desc="Choose which page agents see when they sign in to the agent apps."
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="12.2.0.500" data-cf="0"
+      >
+      <span class="tile-name">Configurable default landing page</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        <span class="tile-build">12.2.0.500</span>
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="automatic focus on the live call page the live call view comes forward as soon as an agent answers, without a manual click. agent experience "
+      data-t="t122" data-i="3"
+      data-name="Automatic focus on the live call page" data-desc="The live call view comes forward as soon as an agent answers, without a manual click."
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="12.2.0.500" data-cf="0"
+      >
+      <span class="tile-name">Automatic focus on the live call page</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        <span class="tile-build">12.2.0.500</span>
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="time range filter in call history filter recent and missed calls by a chosen time range. agent experience "
+      data-t="t122" data-i="4"
+      data-name="Time range filter in call history" data-desc="Filter recent and missed calls by a chosen time range."
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="12.2.0.500" data-cf="0"
+      >
+      <span class="tile-name">Time range filter in call history</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        <span class="tile-build">12.2.0.500</span>
+      </span>
+    </button><button class="tile" data-cat="platform" data-k="recording retention policies define how long recordings are kept and when they are removed automatically. administration and platform "
+      data-t="t122" data-i="5"
+      data-name="Recording retention policies" data-desc="Define how long recordings are kept and when they are removed automatically."
+      data-catlabel="Administration and platform"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Recording retention policies</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-platform"></span><span class="tile-cat">Administration and platform</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="anytime queue menu access callers can reach the in-queue menu at any time rather than only at cycle boundaries. routing and queues "
+      data-t="t122" data-i="6"
+      data-name="Anytime Queue Menu Access" data-desc="Callers can reach the in-queue menu at any time rather than only at cycle boundaries."
+      data-catlabel="Routing and queues"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Anytime Queue Menu Access</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="automatic detection of not-ready agents queue overflow that identifies agents left in a not-ready state routing and queues "
+      data-t="t122" data-i="7"
+      data-name="Automatic detection of not-ready agents" data-desc="Queue overflow that identifies agents left in a not-ready state"
+      data-catlabel="Routing and queues"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Automatic detection of not-ready agents</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="flexapp presence status change agents set their own availability status directly from the flex app. agent experience "
+      data-t="t122" data-i="8"
+      data-name="FlexApp presence status change" data-desc="Agents set their own availability status directly from the Flex app."
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">FlexApp presence status change</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="in-queue cycle time in seconds configure the in-queue announcement cycle at second-level . routing and queues "
+      data-t="t122" data-i="9"
+      data-name="In-queue cycle time in seconds" data-desc="Configure the in-queue announcement cycle at second-level ."
+      data-catlabel="Routing and queues"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">In-queue cycle time in seconds</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="agent custom view allowing opt-in/out and queue states view per agent in worker group setting agent experience "
+      data-t="t122" data-i="10"
+      data-name="Agent custom view" data-desc="allowing opt-in/out and queue states view per Agent in worker group setting"
+      data-catlabel="Agent experience"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="12.2.0.700" data-cf="0"
+      >
+      <span class="tile-name">Agent custom view</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        <span class="tile-build">12.2.0.700</span>
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="text-to-speech in journey manager present tts prompts in journey manager report ai and automation "
+      data-t="t122" data-i="11"
+      data-name="Text-to-speech in Journey Manager" data-desc="present TTS prompts in Journey manager report"
+      data-catlabel="AI and automation"
+      data-train="12.2" data-q="Q3 2026"
+      data-status="Available" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Text-to-speech in Journey Manager</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      <div class="lane-maint">
+      <h4>Maintenance builds in the 12.2 train</h4>
+      <p>Maintenance builds carry the capabilities tagged above alongside quality and stability fixes. Builds roll out per region on a staged schedule.</p>
+      <div class="drops"><div class="drop">12.2.0.500</div><div class="drop">12.2.0.700</div><div class="drop">12.2.0.954</div></div>
+    </div>
+      
+    </div>
+  </section>
+<section class="lane p-next" data-lane="t1221">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">12.2.1</span>
+        <span class="lane-q">Q4 2026</span>
+      </div>
+      <span class="lane-pill">In development</span>
+      <div class="lane-theme">Interim maintenance train</div>
+      <div class="lane-count"><span data-count>1</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="routing" data-k="immediate start for in-queue announcement cycles begin the in-queue announcement cycle at the start of the wait rather than after the first cycle interval elapses. routing and queues "
+      data-t="t1221" data-i="0"
+      data-name="Immediate start for in-queue announcement cycles" data-desc="Begin the in-queue announcement cycle at the start of the wait rather than after the first cycle interval elapses."
+      data-catlabel="Routing and queues"
+      data-train="12.2.1" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Immediate start for in-queue announcement cycles</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section>
+<section class="lane p-next" data-lane="t123">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">12.3</span>
+        <span class="lane-q">Q4 2026</span>
+      </div>
+      <span class="lane-pill">In development</span>
+      <div class="lane-theme">Omnichannel, workforce management and the new Teams experience</div>
+      <div class="lane-count"><span data-count>17</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="agent" data-k="new teams app experience for worker and supervisor rebuilt agent and supervisor apps inside microsoft teams, with a refreshed layout and faster navigation. agent experience customer facing "
+      data-t="t123" data-i="0"
+      data-name="New Teams app experience for Worker and Supervisor" data-desc="Rebuilt agent and supervisor apps inside Microsoft Teams, with a refreshed layout and faster navigation."
+      data-catlabel="Agent experience"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">New Teams app experience for Worker and Supervisor</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="in-queue overflow routing move waiting callers to an alternate queue or destination when thresholds are exceeded. routing and queues customer facing "
+      data-t="t123" data-i="1"
+      data-name="In-queue overflow routing" data-desc="Move waiting callers to an alternate queue or destination when thresholds are exceeded."
+      data-catlabel="Routing and queues"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">In-queue overflow routing</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="callback outside business hours offer a callback when the contact centre is closed, queued for the next open period. routing and queues customer facing "
+      data-t="t123" data-i="2"
+      data-name="Callback outside business hours" data-desc="Offer a callback when the contact centre is closed, queued for the next open period."
+      data-catlabel="Routing and queues"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Callback outside business hours</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="barge-in during text-to-speech prompts callers can speak or press a key over a synthesised prompt instead of waiting for it to finish. ai and automation customer facing "
+      data-t="t123" data-i="3"
+      data-name="Barge-in during text-to-speech prompts" data-desc="Callers can speak or press a key over a synthesised prompt instead of waiting for it to finish."
+      data-catlabel="AI and automation"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Barge-in during text-to-speech prompts</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="post-call survey collect caller feedback at the end of an interaction and report on the results alongside call data. ai and automation customer facing "
+      data-t="t123" data-i="4"
+      data-name="Post-call survey" data-desc="Collect caller feedback at the end of an interaction and report on the results alongside call data."
+      data-catlabel="AI and automation"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Post-call survey</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="ai processing without recording retention run transcription, summaries and insights on a call without retaining the audio, for environments with strict retention rules. ai and automation customer facing "
+      data-t="t123" data-i="5"
+      data-name="AI processing without recording retention" data-desc="Run transcription, summaries and insights on a call without retaining the audio, for environments with strict retention rules."
+      data-catlabel="AI and automation"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">AI processing without recording retention</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="queue performance metrics average speed of answer and agent hunt time reported per queue. reporting customer facing "
+      data-t="t123" data-i="6"
+      data-name="Queue performance metrics" data-desc="Average speed of answer and agent hunt time reported per queue."
+      data-catlabel="Reporting"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Queue performance metrics</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="custom daily time window for scheduled reports set the daily start and end time a scheduled report covers, instead of a fixed calendar day. reporting customer facing "
+      data-t="t123" data-i="7"
+      data-name="Custom daily time window for scheduled reports" data-desc="Set the daily start and end time a scheduled report covers, instead of a fixed calendar day."
+      data-catlabel="Reporting"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Custom daily time window for scheduled reports</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="clone a report schedule duplicate an existing scheduled report and adjust it, rather than rebuilding from scratch. reporting customer facing "
+      data-t="t123" data-i="8"
+      data-name="Clone a report schedule" data-desc="Duplicate an existing scheduled report and adjust it, rather than rebuilding from scratch."
+      data-catlabel="Reporting"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Clone a report schedule</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="channels" data-k="omnichannel - whatsapp handle whatsapp conversations in the same queues and agent workspace as voice. channels and integrations customer facing "
+      data-t="t123" data-i="9"
+      data-name="omnichannel - WhatsApp" data-desc="Handle WhatsApp conversations in the same queues and agent workspace as voice."
+      data-catlabel="Channels and integrations"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">omnichannel - WhatsApp</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-channels"></span><span class="tile-cat">Channels and integrations</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="channels" data-k="byo workforce management export interaction and adherence data to workforce management platforms for forecasting and scheduling. channels and integrations customer facing "
+      data-t="t123" data-i="10"
+      data-name="BYO Workforce management" data-desc="Export interaction and adherence data to workforce management platforms for forecasting and scheduling."
+      data-catlabel="Channels and integrations"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">BYO Workforce management</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-channels"></span><span class="tile-cat">Channels and integrations</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="channels" data-k="agent insights - prebuilt crm connectors for wrap up events more control over what call and wrap-up data is written back to the crm record, and when. channels and integrations customer facing "
+      data-t="t123" data-i="11"
+      data-name="Agent insights - Prebuilt CRM connectors for wrap up events" data-desc="More control over what call and wrap-up data is written back to the CRM record, and when."
+      data-catlabel="Channels and integrations"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Agent insights - Prebuilt CRM connectors for wrap up events</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-channels"></span><span class="tile-cat">Channels and integrations</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="agent phonebook search enhancements search the organisation directory from the agent app before transferring or dialling. agent experience customer facing "
+      data-t="t123" data-i="12"
+      data-name="Agent Phonebook search enhancements" data-desc="Search the organisation directory from the agent app before transferring or dialling."
+      data-catlabel="Agent experience"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Agent Phonebook search enhancements</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="caller name in missed and recent calls tab resolved contact names appear in call history rather than numbers alone. agent experience "
+      data-t="t123" data-i="13"
+      data-name="Caller name in missed and recent calls tab" data-desc="Resolved contact names appear in call history rather than numbers alone."
+      data-catlabel="Agent experience"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Caller name in missed and recent calls tab</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="wrap-up events on outbound calls apply the same wrap-up events to outbound calls that are already available on inbound. agent experience "
+      data-t="t123" data-i="14"
+      data-name="Wrap-up events on outbound calls" data-desc="Apply the same Wrap-up events to outbound calls that are already available on inbound."
+      data-catlabel="Agent experience"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Wrap-up events on outbound calls</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="flex queue members recording allowing teams clients and pstn/3rd party ext. recording capabilities reporting customer facing "
+      data-t="t123" data-i="15"
+      data-name="Flex Queue members recording" data-desc="allowing Teams clients and PSTN/3rd party ext. recording capabilities"
+      data-catlabel="Reporting"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Flex Queue members recording</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="voca air setup wizard guided setup for the ai receptionist, taking a new tenant from empty to answering calls. ai and automation customer facing "
+      data-t="t123" data-i="16"
+      data-name="Voca AIR setup wizard" data-desc="Guided setup for the AI receptionist, taking a new tenant from empty to answering calls."
+      data-catlabel="AI and automation"
+      data-train="12.3" data-q="Q4 2026"
+      data-status="In development" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Voca AIR setup wizard</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section>
+<section class="lane p-later" data-lane="t124">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">12.4</span>
+        <span class="lane-q">Q1 2027</span>
+      </div>
+      <span class="lane-pill">Planned</span>
+      <div class="lane-theme">Outbound parity and supervisor reach</div>
+      <div class="lane-count"><span data-count>8</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="platform" data-k="immediate data export on configuration save trigger the initial data export as soon as an export configuration is saved, without waiting for the next scheduled run. administration and platform "
+      data-t="t124" data-i="0"
+      data-name="Immediate data export on configuration save" data-desc="Trigger the initial data export as soon as an export configuration is saved, without waiting for the next scheduled run."
+      data-catlabel="Administration and platform"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Immediate data export on configuration save</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-platform"></span><span class="tile-cat">Administration and platform</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="global variables in flows and queues define a value once and reference it across call flows and queues instead of repeating it. routing and queues customer facing "
+      data-t="t124" data-i="1"
+      data-name="Global variables in flows and queues" data-desc="Define a value once and reference it across call flows and queues instead of repeating it."
+      data-catlabel="Routing and queues"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Global variables in flows and queues</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="live monitoring for outbound calls supervisors can monitor outbound interactions, not only inbound. agent experience customer facing "
+      data-t="t124" data-i="2"
+      data-name="Live monitoring for outbound calls" data-desc="Supervisors can monitor outbound interactions, not only inbound."
+      data-catlabel="Agent experience"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Live monitoring for outbound calls</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="sla metrics in voca reports service level attainment reported per queue and per period, against configurable targets. reporting customer facing "
+      data-t="t124" data-i="3"
+      data-name="SLA metrics in Voca Reports" data-desc="Service level attainment reported per queue and per period, against configurable targets."
+      data-catlabel="Reporting"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">SLA metrics in Voca Reports</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="agent hunt timer in voca reports reporting on how long calls ring at each agent before moving on. reporting customer facing "
+      data-t="t124" data-i="4"
+      data-name="Agent hunt timer in Voca Reports" data-desc="Reporting on how long calls ring at each agent before moving on."
+      data-catlabel="Reporting"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Agent hunt timer in Voca Reports</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="outbound conference in the worker app add a third party to an outbound call from the worker app. agent experience customer facing "
+      data-t="t124" data-i="5"
+      data-name="Outbound conference in the Worker app" data-desc="Add a third party to an outbound call from the Worker app."
+      data-catlabel="Agent experience"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Outbound conference in the Worker app</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="live monitoring on operator connect extends supervisor monitoring to tenants running operator connect. agent experience customer facing "
+      data-t="t124" data-i="6"
+      data-name="Live monitoring on Operator Connect" data-desc="Extends supervisor monitoring to tenants running Operator Connect."
+      data-catlabel="Agent experience"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Live monitoring on Operator Connect</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="agent" data-k="worker profiles, second phase extends profiles with additional attributes and broader use across routing and reporting. agent experience customer facing "
+      data-t="t124" data-i="7"
+      data-name="Worker profiles, second phase" data-desc="Extends profiles with additional attributes and broader use across routing and reporting."
+      data-catlabel="Agent experience"
+      data-train="12.4" data-q="Q1 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Worker profiles, second phase</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-agent"></span><span class="tile-cat">Agent experience</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section>
+<section class="lane p-later" data-lane="t130">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">13.0</span>
+        <span class="lane-q">Q2 2027</span>
+      </div>
+      <span class="lane-pill">Planned</span>
+      <div class="lane-theme">Openness, custom reporting and the new routing engine</div>
+      <div class="lane-count"><span data-count>5</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="platform" data-k="licensing model enhancements second phase of the updated licensing model, including how usage is measured and reported. administration and platform "
+      data-t="t130" data-i="0"
+      data-name="Licensing model enhancements" data-desc="Second phase of the updated licensing model, including how usage is measured and reported."
+      data-catlabel="Administration and platform"
+      data-train="13.0" data-q="Q2 2027"
+      data-status="Planned" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Licensing model enhancements</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-platform"></span><span class="tile-cat">Administration and platform</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="reporting" data-k="custom dashboards assemble your own dashboard from available metrics rather than using fixed views. reporting customer facing "
+      data-t="t130" data-i="1"
+      data-name="Custom dashboards" data-desc="Assemble your own dashboard from available metrics rather than using fixed views."
+      data-catlabel="Reporting"
+      data-train="13.0" data-q="Q2 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Custom dashboards</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-reporting"></span><span class="tile-cat">Reporting</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="platform" data-k="common and provisioning apis public apis for provisioning and configuration, so tenant setup can be automated. administration and platform customer facing "
+      data-t="t130" data-i="2"
+      data-name="Common and provisioning APIs" data-desc="Public APIs for provisioning and configuration, so tenant setup can be automated."
+      data-catlabel="Administration and platform"
+      data-train="13.0" data-q="Q2 2027"
+      data-status="Planned" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Common and provisioning APIs</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-platform"></span><span class="tile-cat">Administration and platform</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="ai" data-k="conversational ai enhancements improvements to intent handling, containment and tuning in the conversational layer. ai and automation "
+      data-t="t130" data-i="3"
+      data-name="Conversational AI enhancements" data-desc="Improvements to intent handling, containment and tuning in the conversational layer."
+      data-catlabel="AI and automation"
+      data-train="13.0" data-q="Q2 2027"
+      data-status="Planned" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Conversational AI enhancements</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="routing" data-k="audiocodes job router voca moves to an audiocodes routing engine, giving more control over routing logic and behaviour. routing and queues "
+      data-t="t130" data-i="4"
+      data-name="AudioCodes Job Router" data-desc="Voca moves to an AudioCodes routing engine, giving more control over routing logic and behaviour."
+      data-catlabel="Routing and queues"
+      data-train="13.0" data-q="Q2 2027"
+      data-status="Planned" data-build="" data-cf="0"
+      >
+      <span class="tile-name">AudioCodes Job Router</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-routing"></span><span class="tile-cat">Routing and queues</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section>
+<section class="lane p-dir" data-lane="t131">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">13.1</span>
+        <span class="lane-q">Q3 2027</span>
+      </div>
+      <span class="lane-pill">Direction</span>
+      <div class="lane-theme">Assistive AI at the point of the call</div>
+      <div class="lane-count"><span data-count>2</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="ai" data-k="real-time agent assist suggested answers and next steps surfaced to the agent while the call is still in progress. ai and automation customer facing "
+      data-t="t131" data-i="0"
+      data-name="Real-time agent assist" data-desc="Suggested answers and next steps surfaced to the agent while the call is still in progress."
+      data-catlabel="AI and automation"
+      data-train="13.1" data-q="Q3 2027"
+      data-status="Direction" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Real-time agent assist</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="channels" data-k="third-party chatbot integration with escalation to voice hand a conversation from an existing chatbot to a voca voice queue, carrying context across. channels and integrations customer facing "
+      data-t="t131" data-i="1"
+      data-name="Third-party chatbot integration with escalation to voice" data-desc="Hand a conversation from an existing chatbot to a Voca voice queue, carrying context across."
+      data-catlabel="Channels and integrations"
+      data-train="13.1" data-q="Q3 2027"
+      data-status="Direction" data-build="" data-cf="1"
+      >
+      <span class="tile-name">Third-party chatbot integration with escalation to voice</span>
+      <span class="tile-meta">
+        <span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>
+        <span class="tile-area"><span class="dot c-channels"></span><span class="tile-cat">Channels and integrations</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section>
+<section class="lane p-dir" data-lane="t132">
+    <div class="lane-head">
+      <div class="lane-topline">
+        <span class="lane-ver">13.2</span>
+        <span class="lane-q">Q4 2027</span>
+      </div>
+      <span class="lane-pill">Direction</span>
+      <div class="lane-theme">Agentic tooling and platform consolidation</div>
+      <div class="lane-count"><span data-count>2</span> capabilities</div>
+      
+    </div>
+    <div class="lane-body">
+      <button class="tile" data-cat="ai" data-k="model context protocol support expose voca capabilities to ai agents and assistants through mcp. ai and automation "
+      data-t="t132" data-i="0"
+      data-name="Model Context Protocol support" data-desc="Expose Voca capabilities to AI agents and assistants through MCP."
+      data-catlabel="AI and automation"
+      data-train="13.2" data-q="Q4 2027"
+      data-status="Direction" data-build="" data-cf="0"
+      >
+      <span class="tile-name">Model Context Protocol support</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-ai"></span><span class="tile-cat">AI and automation</span></span>
+        
+      </span>
+    </button><button class="tile" data-cat="platform" data-k="freeswitch migration  administration and platform "
+      data-t="t132" data-i="1"
+      data-name="FreeSwitch migration" data-desc=""
+      data-catlabel="Administration and platform"
+      data-train="13.2" data-q="Q4 2027"
+      data-status="Direction" data-build="" data-cf="0"
+      >
+      <span class="tile-name">FreeSwitch migration</span>
+      <span class="tile-meta">
+        
+        <span class="tile-area"><span class="dot c-platform"></span><span class="tile-cat">Administration and platform</span></span>
+        
+      </span>
+    </button>
+      <p class="lane-empty" hidden>Nothing here in this view.</p>
+      
+      
+    </div>
+  </section></div>
+      </div>
+    </div>
+  </div>
+  <div class="progress"><i></i></div>
+  <p class="boardhint">Scroll sideways or swipe.<span class="kbd-only"> The left and right arrow keys work too.</span> Select any capability for detail.</p>
+  <p class="noresult" id="noresult">Nothing matches that filter. Clear the search or choose another area.</p>
+</section>
+
+<section class="section alt" id="regions">
+  <div class="wrap"><div class="sec-head">
+      <div>
+        <h2>Where each region is today</h2>
+        <p class="sub">Builds roll out region by region on a staged schedule. Your account team can confirm the build running in your environment.</p>
+      </div>
+      <div class="latest"><span class="k">Latest build</span><b>12.2.0.954</b></div>
+    </div>
+    <div class="regions"><div class="region">
+        <div class="region-top">
+          <span class="flag">🇪🇺</span>
+          <span class="nm">EMEA</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.954</div>
+        <div class="region-when">Deployed 16 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st cur">Current</span>
+          
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🇺🇸</span>
+          <span class="nm">United States</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.954</div>
+        <div class="region-when">Deployed 24 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st cur">Current</span>
+          
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🇸🇬</span>
+          <span class="nm">Singapore</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.954</div>
+        <div class="region-when">Deployed 9 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st cur">Current</span>
+          
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🌐</span>
+          <span class="nm">Global (IO)</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.954</div>
+        <div class="region-when">Deployed 23 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st cur">Current</span>
+          
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🇮🇳</span>
+          <span class="nm">India</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.902</div>
+        <div class="region-when">Deployed 10 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st roll">Update scheduled</span>
+          <span class="region-next">next<b>12.2.0.954</b>14 Sep 2026</span>
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🇦🇺</span>
+          <span class="nm">Australia</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.902</div>
+        <div class="region-when">Deployed 10 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st roll">Update scheduled</span>
+          <span class="region-next">next<b>12.2.0.954</b>14 Sep 2026</span>
+        </div>
+      </div><div class="region">
+        <div class="region-top">
+          <span class="flag">🇨🇭</span>
+          <span class="nm">Switzerland</span>
+          
+          
+        </div>
+        <div class="region-build">12.2.0.707</div>
+        <div class="region-when">Deployed 2 Aug 2026</div>
+        <div class="region-foot">
+          <span class="st roll">Update scheduled</span>
+          <span class="region-next">next<b>12.2.0.954</b>7 Sep 2026</span>
+        </div>
+      </div></div></div>
+</section>
+
+<section class="section" id="evaluation">
+  <div class="wrap">
+    <div class="sec-head"><div>
+      <h2>Under evaluation</h2>
+      <p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p>
+    </div></div>
+    <div class="evals"><div class="ev"><div class="t">Agent overview on the home page</div><div class="d">A live team availability summary on the landing page of the agent apps.</div></div><div class="ev"><div class="t">Agent-to-agent transfer view</div><div class="d">Visibility of which colleague a call was transferred to, and its outcome.</div></div><div class="ev"><div class="t">Extended fields on contact import</div><div class="d">Import additional contact attributes beyond the current field set.</div></div><div class="ev"><div class="t">Caller name on the incoming call popup</div><div class="d">Under assessment. Depends on directory lookup behaviour in the underlying platform.</div></div><div class="ev"><div class="t">Teams presence without additional authentication</div><div class="d">Under assessment. Depends on platform authentication capabilities outside Voca.</div></div><div class="ev"><div class="t">Report scheduler Unique call id DTMF report</div><div class="d">There is automation and reports behind it on their end with report scheduler and they need UID to be added on the dtmf reporting.</div></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>This roadmap describes our current plans and is provided for planning purposes only. It is
+      not a commitment, promise or legal obligation, and it does not form part of any contract.
+      Content, sequencing and timing can change without notice. Do not base purchasing decisions
+      on capabilities that have not yet been released.</p>
+    <div class="stamp">Voca CIC Release roadmap<br>Updated 2 September 2026</div>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Capability detail">
+  <button class="dclose" aria-label="Close">&#10005;</button>
+  <div class="drawer-head"><div class="eyebrow"></div><h3></h3></div>
+  <div class="drawer-body"></div>
+</aside>
+
+<script>
+
+function initBoard(){
+  var scroller = document.getElementById('scroller');
+  var board    = document.getElementById('board');
+  if(!board) return null;
+  var segs   = [].slice.call(document.querySelectorAll('.seg button'));
+  var tiles  = [].slice.call(board.querySelectorAll('.tile'));
+  var lanes  = [].slice.call(board.querySelectorAll('.lane'));
+  var finder = document.getElementById('finder');
+  var none   = document.getElementById('noresult');
+  var bar    = document.querySelector('.progress i');
+  var prev   = document.querySelector('.navb.prev');
+  var next   = document.querySelector('.navb.next');
+  var cat = window.__cat || 'all';
+  var cfBtn = document.getElementById('cfToggle');
+  var cfOnly = !!window.__cfOnly;
+
+  function apply(){
+    var term = finder ? finder.value.trim().toLowerCase() : '';
+    var any = false, cfCount = 0;
+    tiles.forEach(function(t){
+      var base = (cat==='all' || t.dataset.cat===cat) && (!term || (t.dataset.k||'').indexOf(term)!==-1);
+      var isCf = t.dataset.cf === '1';
+      if(base && isCf) cfCount++;
+      var ok = base && (!cfOnly || isCf);
+      t.classList.toggle('hidden', !ok);
+      if(ok) any = true;
+    });
+    if(cfBtn){
+      var cn = cfBtn.querySelector('.cf-n'); if(cn) cn.textContent = cfCount;
+      cfBtn.setAttribute('aria-pressed', String(cfOnly));
+    }
+    lanes.forEach(function(l){
+      var n = l.querySelectorAll('.tile:not(.hidden)').length;
+      var c = l.querySelector('[data-count]'); if(c) c.textContent = n;
+      var e = l.querySelector('.lane-empty'); if(e) e.hidden = n !== 0;
+      var m = l.querySelector('.lane-maint'); if(m) m.style.display = (cat==='all' && !term && !cfOnly) ? '' : 'none';
+    });
+    if(none) none.classList.toggle('show', !any);
+    sync();
+  }
+  segs.forEach(function(b){
+    b.setAttribute('aria-pressed', String(b.dataset.cat === cat));
+    b.addEventListener('click', function(){
+      cat = b.dataset.cat; window.__cat = cat;
+      segs.forEach(function(o){ o.setAttribute('aria-pressed', String(o===b)); });
+      apply();
+    });
+  });
+  if(finder) finder.addEventListener('input', apply);
+  if(cfBtn) cfBtn.addEventListener('click', function(){
+    cfOnly = !cfOnly; window.__cfOnly = cfOnly; apply();
+  });
+
+  function step(){
+    var l = board.querySelector('.lane:not(.hidden)');
+    return l ? l.getBoundingClientRect().width + 18 : 320;
+  }
+  function sync(){
+    if(!scroller) return;
+    var max = scroller.scrollWidth - scroller.clientWidth;
+    if(bar){
+      var frac = scroller.clientWidth / Math.max(scroller.scrollWidth, 1);
+      bar.style.width = Math.min(100, frac*100) + '%';
+      bar.style.marginLeft = (max > 0 ? (scroller.scrollLeft/max)*(100 - frac*100) : 0) + '%';
+    }
+    if(prev) prev.disabled = scroller.scrollLeft <= 4;
+    if(next) next.disabled = scroller.scrollLeft >= max - 4;
+    scroller.classList.toggle('fade-l', scroller.scrollLeft > 4);
+    scroller.classList.toggle('fade-r', scroller.scrollLeft < max - 4);
+  }
+  if(prev) prev.addEventListener('click', function(){ scroller.scrollLeft -= step(); });
+  if(next) next.addEventListener('click', function(){ scroller.scrollLeft += step(); });
+  if(scroller){
+    scroller.addEventListener('scroll', sync, { passive:true });
+    scroller.addEventListener('keydown', function(e){
+      if(e.key==='ArrowRight'){ scroller.scrollLeft += step(); e.preventDefault(); }
+      if(e.key==='ArrowLeft'){ scroller.scrollLeft -= step(); e.preventDefault(); }
+    });
+  }
+  var seg = document.querySelector('.seg');
+  function segFade(){
+    if(seg) seg.classList.toggle('overflowing', seg.scrollWidth > seg.clientWidth + 2);
+  }
+  if(seg) seg.addEventListener('scroll', function(){
+    if(seg.scrollLeft + seg.clientWidth >= seg.scrollWidth - 2) seg.classList.remove('overflowing');
+    else segFade();
+  }, { passive:true });
+  window.addEventListener('resize', function(){ sync(); segFade(); });
+  if(window.ResizeObserver && seg) new ResizeObserver(segFade).observe(seg);
+  segFade();
+  apply();
+  return { apply: apply, sync: sync };
+}
+
+function initDrawer(opts){
+  var scrim = document.getElementById('scrim');
+  var dr    = document.getElementById('drawer');
+  if(!dr) return null;
+  function close(){
+    dr.classList.remove('open'); scrim.classList.remove('open');
+    dr.style.transition = ''; dr.style.transform = '';
+  }
+  scrim.addEventListener('click', close);
+
+  /* bottom-sheet: drag down to dismiss (phones only) */
+  var sy = null, dy = 0;
+  function isSheet(){ return window.matchMedia('(max-width:640px)').matches; }
+  dr.addEventListener('touchstart', function(e){
+    if(!isSheet()) return;
+    var body = dr.querySelector('.drawer-body');
+    if(body && body.scrollTop > 0) return;
+    sy = e.touches[0].clientY; dy = 0;
+  }, { passive:true });
+  dr.addEventListener('touchmove', function(e){
+    if(sy === null) return;
+    dy = e.touches[0].clientY - sy;
+    if(dy > 0){ dr.style.transition = 'none'; dr.style.transform = 'translateY(' + dy + 'px)'; }
+  }, { passive:true });
+  dr.addEventListener('touchend', function(){
+    if(sy === null) return;
+    dr.style.transition = ''; dr.style.transform = '';
+    if(dy > 110) close();
+    sy = null; dy = 0;
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+  var cl = dr.querySelector('.dclose'); if(cl) cl.addEventListener('click', close);
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-act]')) return;
+    var t = e.target.closest('.tile');
+    if(!t) return;
+    var d = t.dataset;
+    var rows = [['Area', d.catlabel, ''], ['Release train', d.train, 'mono'],
+                ['Target', d.q, ''], ['Confidence', d.status, '']];
+    if(d.build) rows.push(['Delivered in build', d.build, 'mono']);
+    if(d.cf === '1') rows.push(['Customer facing', 'Yes', '']);
+    else if(opts && opts.showBr) rows.push(['Customer facing', 'No, internal', '']);
+    if(opts && opts.showBr && d.br) rows.push(['Jira', d.br, 'mono']);
+    dr.querySelector('.drawer-body').innerHTML =
+      '<p class="desc">' + (d.desc || 'No description yet.') + '</p>' +
+      '<div class="dmeta">' + rows.map(function(r){
+        return '<div><span class="k">'+r[0]+'</span><span class="v '+r[2]+'">'+r[1]+'</span></div>';
+      }).join('') + '</div>' +
+      '<p class="dnote">Target quarters are planning intentions, not commitments. Sequencing can change.</p>' +
+      ((opts && opts.editFooter) ? opts.editFooter(d) : '');
+    dr.querySelector('.eyebrow').innerHTML =
+      '<span class="dot c-'+d.cat+'"></span>' + d.catlabel + ' &nbsp;&middot;&nbsp; ' + d.train;
+    dr.querySelector('h3').textContent = d.name;
+    dr.classList.add('open'); scrim.classList.add('open');
+  });
+  return { close: close };
+}
+
+initBoard();
+initDrawer({ showBr:false });
+</script>
+
+</body>
+</html>
