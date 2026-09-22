@@ -1,6 +1,6 @@
 # Deploying the Voca CIC roadmap portal
 
-Target shape:
+Target shape, at **https://vocacic-roadmap.voca.cloud**:
 
 | URL | Who | What |
 | --- | --- | --- |
@@ -13,6 +13,10 @@ Target shape:
 Running cost: the Static Web App is on the **Free** plan; the storage account
 holds a few hundred KB and costs cents per month.
 
+Do the steps in order. The custom domain comes before handing out editor
+access on purpose — an invitation link embeds whichever hostname you pick when
+you generate it, so adding the domain first saves re-issuing them.
+
 ---
 
 ## 1. Prerequisites
@@ -20,7 +24,8 @@ holds a few hundred KB and costs cents per month.
 - An Azure subscription with permission to create a Static Web App and a
   storage account.
 - A GitHub account that can create a repository.
-- Nothing needs installing locally. The GitHub Actions pipeline builds the API.
+- Ability to add a **CNAME** record in the `voca.cloud` DNS zone.
+- Nothing needs installing locally — the GitHub Actions pipeline builds the API.
 
 ## 2. Push the code to GitHub
 
@@ -48,7 +53,7 @@ Azure portal → **Create a resource** → **Static Web App**:
 | Region | pick the one nearest your users |
 
 Choosing **Other** rather than GitHub stops Azure generating its own workflow
-file, which would conflict with the one in `.github/workflows/`.
+file, which would conflict with the one already in `.github/workflows/`.
 
 Once created: **Overview → Manage deployment token** → copy it. In GitHub go to
 **Settings → Secrets and variables → Actions → New repository secret**:
@@ -59,8 +64,10 @@ Once created: **Overview → Manage deployment token** → copy it. In GitHub go
 Then re-run the workflow (**Actions** tab → latest run → **Re-run all jobs**),
 or push any commit. The site deploys in about two minutes.
 
-At this point `/` loads and shows the roadmap **as originally supplied** — the
-API falls back to `api/shared/seed.json` until the first publish.
+From the **Overview** page, copy the generated URL — something like
+`happy-sand-0a1b2c3d4.azurestaticapps.net`. You need it in step 5. Open it: the
+roadmap loads, showing the content **as originally supplied**, because the API
+falls back to `api/shared/seed.json` until the first publish.
 
 ## 4. Create the storage account for published content
 
@@ -89,7 +96,40 @@ Optionally `ROADMAP_CONTAINER` if you want a container name other than
 
 Save. The API restarts within a few seconds.
 
-## 5. Grant people the editor role
+## 5. Custom domain: vocacic-roadmap.voca.cloud
+
+This is a subdomain, so a single **CNAME** is all that is needed — the TXT
+record you may have seen in Azure's documentation applies only to apex
+(root) domains.
+
+**First, in DNS.** In the `voca.cloud` zone, add:
+
+| Setting | Value |
+| --- | --- |
+| Type | `CNAME` |
+| Host / Name | `VocaCIC-Roadmap` |
+| Value / Points to | the `…azurestaticapps.net` hostname from step 3 |
+| TTL | leave at the default |
+
+Hostnames are case-insensitive, so `VocaCIC-Roadmap` and `vocacic-roadmap`
+are the same record. Azure displays it lowercase.
+
+**Then, in Azure.** Static Web App → **Settings → Custom domains** → **+ Add**
+→ **Custom domain on other DNS**:
+
+1. Enter `vocacic-roadmap.voca.cloud`, then **Next**
+2. Hostname record type: **CNAME**
+3. **Add**
+
+Azure checks the record is visible in public DNS and then issues a free TLS
+certificate automatically. If validation fails, the record has not propagated
+yet — wait and retry rather than changing anything. Propagation is usually
+minutes but can take considerably longer depending on the zone's TTL.
+
+Set it as the default domain once it resolves, so the `azurestaticapps.net`
+URL redirects to it. The Free plan allows two custom domains.
+
+## 6. Grant people the editor role
 
 Sign-in itself is open — on the Free plan Microsoft's pre-configured provider
 lets any Microsoft account complete a login. Access is decided by the `editor`
@@ -98,11 +138,10 @@ role, which you grant per person:
 1. Static Web App → **Settings → Role management** → **Invite**
 2. Authorization provider: **Microsoft Entra ID** (`aad`)
 3. Invitee: the person's **email address**
-4. Domain: your custom domain once step 6 is done, otherwise the
-   `*.azurestaticapps.net` one
+4. Domain: **vocacic-roadmap.voca.cloud**
 5. Role: `editor` — spelled exactly, lowercase
 6. Validity: up to 168 hours (7 days)
-7. **Generate**, then email the invite link to that person
+7. **Generate**, then send the invite link to that person
 
 They open the link, sign in once, and the role sticks. Someone who signs in
 without the role sees a page explaining they are not an editor; `/edit` and
@@ -111,35 +150,24 @@ the publish API both refuse them.
 Removing someone: same screen, select their row, **Delete**. Access is revoked
 within a few minutes.
 
-> The invitation system caps at **25 users**, which is a platform limit of the
-> Free and Standard plans alike. Going beyond that needs the Standard plan and
-> a roles function.
-
-## 6. Custom domain
-
-Static Web App → **Settings → Custom domains** → **Add**. Azure gives you the
-records to create; typically:
-
-- a **CNAME** from your hostname to the `*.azurestaticapps.net` default hostname
-- a **TXT** record for validation
-
-Create them with whoever runs your DNS, then hit **Validate**. HTTPS is issued
-automatically. The Free plan allows two custom domains.
-
-After the domain is live, issue future role invitations against it so the
-invite links point at the right host.
+> The invitation system caps at **25 users** — a platform limit of the Free and
+> Standard plans alike. Going beyond it needs the Standard plan and a roles
+> function.
 
 ## 7. Verify
 
-- [ ] `/` loads the board with no sign-in, in a private browsing window
+- [ ] `https://vocacic-roadmap.voca.cloud` loads the board in a private window,
+      with no sign-in, over HTTPS with a valid certificate
 - [ ] the board scrolls sideways, area filters work, search works, tiles open
-- [ ] **Sign in** appears top-right; signing in with a non-editor account shows
-      the "not an editor" page at `/edit`
+- [ ] **Sign in** appears top-right; signing in with a non-editor account and
+      visiting `/edit` shows the "not an editor" page
 - [ ] an invited editor sees **Edit roadmap** top-right and reaches `/edit`
 - [ ] the editor makes a change and clicks **Publish**; a private window on `/`
       shows it after a refresh
-- [ ] no Jira/BR reference appears anywhere on `/` (check a tile you know has one)
+- [ ] no Jira/BR reference appears anywhere on `/` — check a tile you know has one
 - [ ] a region marked internal (`publish: false`) does not appear on `/`
+
+---
 
 ## Operating it
 
@@ -148,19 +176,24 @@ invite links point at the right host.
 lists them newest first; `GET /api/snapshots?id=<timestamp>` returns one. To
 restore, load that JSON into the editor with **Import JSON** and hit
 **Publish**. The standalone `.html` beside it is also directly openable if you
-just need to see or send an old version.
+just need to read or forward an old version.
 
 **Two editors at once.** Drafts stay in each editor's own browser, as before.
-On opening `/edit`, if the live roadmap has been published more recently than
-your local draft was saved, the bar says so and offers to load it — so nobody
+On opening `/edit`, if the live roadmap was published more recently than your
+local draft was saved, the bar says so and offers to load it — so nobody
 silently publishes over someone else's work. There is no locking; coordinate
 before large edits.
 
-**Nothing published yet / storage misconfigured.** `/api/roadmap` falls back to
-the supplied roadmap, so the portal always renders something. If `Publish`
+**Nothing published yet, or storage misconfigured.** `/api/roadmap` falls back
+to the supplied roadmap, so the portal always renders something. If **Publish**
 fails with a storage message, check the `ROADMAP_STORAGE` app setting.
 
 **Where content actually lives.** `api/shared/seed.json` is the frozen starting
-point committed to the repo; everything published after that lives only in the
-storage account. Back the container up if the roadmap matters — the repo alone
-will not restore it.
+point committed to the repo; everything published after that exists only in the
+storage account. Back the container up if the roadmap matters — the repository
+alone will not restore it.
+
+**Changing the site.** Push to `main` and Actions redeploys. The pipeline runs
+`tools/verify_shared_assets.py` first and **fails the deploy** if the
+stylesheet, board runtime or markup helpers have drifted from the original
+design. See `CLAUDE.md`.
