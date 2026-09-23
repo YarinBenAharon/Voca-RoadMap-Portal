@@ -116,10 +116,6 @@ body.preview .region.is-internal{display:none!important}
     <span class="ed-brand"><span class="mark">ac</span>Roadmap editor <span>Voca CIC</span></span>
     <button class="ed-btn" id="bAddTrain">Add train</button>
     <button class="ed-btn" id="bMeta">Header</button>
-    <button class="ed-btn" id="bEval">Under evaluation</button>
-    <button class="ed-btn" id="bJsonOut">Export JSON</button>
-    <button class="ed-btn" id="bJsonIn">Import JSON</button>
-    <button class="ed-btn danger" id="bReset">Reset</button>
     <div class="ed-right">
       <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
       <span class="ed-pub" id="pubState"></span>
@@ -141,7 +137,6 @@ body.preview .region.is-internal{display:none!important}
 
 <div class="ovl" id="ovl"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
-<input type="file" id="fileIn" accept="application/json,.json" style="display:none">
 <script src="/shared/render.js"></script>
 <script src="/shared/board.js"></script>
 <script src="/shared/session.js"></script>
@@ -440,18 +435,6 @@ function editMeta(){
       touch();
     });
 }
-function manageEvals(){
-  const list = data.evaluation.map((e,i) =>
-    '<div style="display:flex;justify-content:space-between;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft)">' +
-      '<span style="font-size:13.5px;color:var(--ink)">'+esc(e.t)+'</span>' +
-      '<button class="tbtn" data-ev="'+i+'">Edit</button></div>').join('');
-  openModal('Under evaluation',
-    (list || '<p style="color:var(--muted);font-size:13px">Nothing here yet.</p>') +
-    '<div style="margin-top:18px"><button class="mbtn" id="addEv">Add item</button></div>',
-    () => true);
-  document.getElementById('addEv').onclick = () => { closeModal(); editEval(null); };
-  document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { closeModal(); editEval(+b.dataset.ev); });
-}
 
 /* ── moves ──────────────────────────────────────────────────────────── */
 function moveItem(trainId, idx, dir){
@@ -577,14 +560,6 @@ document.addEventListener('click', e => {
 });
 
 /* ── toolbar ────────────────────────────────────────────────────────── */
-function download(name, text, type){
-  const blob = new Blob([text], { type: type || 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-}
-function stamp(){ return new Date().toISOString().slice(0,10); }
 
 document.getElementById('bPublish').onclick = async () => {
   const b = document.getElementById('bPublish');
@@ -607,31 +582,8 @@ document.getElementById('bPublish').onclick = async () => {
     b.disabled = false; b.textContent = label;
   }
 };
-document.getElementById('bJsonOut').onclick = () => {
-  download('Voca_Roadmap_Data_' + stamp() + '.json', JSON.stringify(data, null, 2), 'application/json');
-  toast('Roadmap data exported');
-};
-document.getElementById('bJsonIn').onclick = () => document.getElementById('fileIn').click();
-document.getElementById('fileIn').onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const fr = new FileReader();
-  fr.onload = () => {
-    try {
-      const p = JSON.parse(fr.result);
-      if (!p.trains || !p.meta) throw new Error('shape');
-      data = withCf(p); scrollMemo = 0; save(); render(); toast('Roadmap data loaded');
-    } catch(err){ toast('That file is not a roadmap export'); }
-  };
-  fr.readAsText(f); e.target.value = '';
-};
 document.getElementById('bAddTrain').onclick = () => editTrain(null);
 document.getElementById('bMeta').onclick = editMeta;
-document.getElementById('bEval').onclick = manageEvals;
-document.getElementById('bReset').onclick = () => {
-  if (confirm('Discard every change and reload the roadmap as originally supplied?')){
-    data = JSON.parse(JSON.stringify(seed)); scrollMemo = 0; save(); render(); toast('Reset to the supplied roadmap');
-  }
-};
 document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
 window.addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
 

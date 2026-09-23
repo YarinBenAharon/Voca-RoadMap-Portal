@@ -64,7 +64,7 @@ Everything between steps 2 and 4 is private to you.
 | Add a release train | **Add release train**, at the far right of the board |
 | Maintenance builds | **Maintenance builds** / **Add builds** at the bottom of a train |
 | The page heading, intro text, current release, "updated" date | **Header** in the top bar |
-| The "Under evaluation" list | **Under evaluation** in the top bar |
+| The "Under evaluation" list | **Edit** on any card in that section, or **Add item** at the end of it |
 | Regional deployment status | the ✎ button on a region card |
 
 Target quarters are planning intentions. The footer of the public board says so
@@ -94,10 +94,10 @@ While you have an unpublished draft, the top bar says **Local draft, not
 published yet**. That text is your reminder that the public board has not
 moved.
 
-**If a draft matters and you are not ready to publish**, press **Export JSON**
-in the top bar. That downloads a file you can keep or send to a colleague, and
-load later with **Import JSON**. It is the only way to move work between
-machines or hand it to someone else.
+**If a draft matters, publish it.** Publishing is the only way to get work out
+of your own browser — there is no way to save a draft to a file, move it to
+another machine, or hand it to a colleague. Long-lived drafts are a risk:
+finish the edit and publish, rather than leaving work parked for days.
 
 ---
 
@@ -181,44 +181,31 @@ problem; try again.
 
 ## Recovering an earlier version
 
-Every publish is kept permanently, so a bad publish is always reversible.
+**Every publish is kept permanently**, so a bad publish is always reversible —
+but not by you, from the editor. This is deliberate: the roadmap is edited in
+place and there is nothing in the interface that can overwrite it with an old
+copy by accident.
 
-The simple habit that makes this painless: press **Export JSON** before any
-large change. Restoring is then **Import JSON** followed by **Publish**.
-
-If you did not export, earlier versions can still be retrieved. While signed in
-as an editor, open:
+You can *see* the history. Signed in as an editor, open:
 
 ```
 https://vocacic-roadmap.voca.cloud/api/snapshots
 ```
 
-That lists every publish, newest first, each with an `id`. To fetch one, add
-its id:
+That lists every publish, newest first, each with an `id`, who published it and
+when. Add an id to read that version in full:
 
 ```
 https://vocacic-roadmap.voca.cloud/api/snapshots?id=THE-ID
 ```
 
-Save that page as a file, load it with **Import JSON**, check it, and
-**Publish**. If that feels fiddly, it is — ask whoever maintains the portal to
-do it.
+**To actually restore one, ask whoever maintains the portal.** It is a quick
+job for them. Note the id of the version you want and roughly when it was
+good.
 
----
-
-## A warning about Reset
-
-The red **Reset** button does **not** return you to the currently published
-roadmap. It returns to the roadmap **as originally supplied** in September
-2026, discarding everything published since.
-
-It only affects your own draft, so the public board is untouched until you
-press Publish. But if you Reset and then Publish, the live roadmap goes back to
-its original content.
-
-If what you actually want is "undo my draft and start from what is live",
-that is the **Load it** link in the top bar, or simply Reset and then reload
-one of the snapshots above. When in doubt, Export JSON first.
+If you simply want to abandon your own unpublished changes and go back to
+what is live, that does not need a restore — use the **Load it** link in the
+top bar, described above.
 
 ---
 

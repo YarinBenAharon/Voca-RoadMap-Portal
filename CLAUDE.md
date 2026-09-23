@@ -119,9 +119,10 @@ Fields with non-obvious behavior:
   `requestor` in particular holds customer names on an NDA board.
 - `cf` — "customer facing", drives the star badge and the filter toggle. It
   does *not* hide anything.
-- `withCf()` backfills `cf`, `requestor` and `pm` on drafts and imports saved
-  before those fields existed, matching by feature *name* against the seed —
-  so renaming a feature loses its backfill.
+- `withCf()` backfills `cf`, `requestor` and `pm` on drafts saved before those
+  fields existed, matching by feature *name* against the seed — so renaming a
+  feature loses its backfill. This is why the editor still fetches the seed
+  (`/api/roadmap?withSeed=1`) even though Reset is gone.
 - `publish: false` marks a region internal. `regionsHTML({ showAll })` keeps it
   in the editor with an `internal` pill and drops it from the public page.
 - Train `id`s come from `uid()`; dates are ISO and render through `fmtDate()`;
@@ -169,6 +170,14 @@ Unchanged from the original, and worth preserving:
   `.iconb`, `.tile-br`, `.internal`, `.dedit`, `.lane-add` and
   `.region.is-internal`. Any new editor chrome inside the board must be added
   to that rule, or preview starts lying about what customers see.
+
+The editor top bar is deliberately minimal: **Add train**, **Header**,
+**Customer preview**, the publish state, **Publish**, and the session control.
+Export/Import JSON, Reset and the Under evaluation modal were removed on
+request — the roadmap is edited in place and published from here, so there is
+no supported path in the UI for loading a roadmap over the live one. Rollback
+is an operator task via `/api/snapshots`. Do not add such a button back
+without asking.
 
 ### Drafts and publishing
 
