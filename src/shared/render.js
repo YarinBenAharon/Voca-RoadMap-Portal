@@ -32,6 +32,9 @@ function catLabel(data, id){
   const c = (data.categories||[]).find(c => c.id === id);
   return c ? c.label : id;
 }
+function initials(n){
+  return String(n||'').trim().split(/\s+/).slice(0,2).map(w => w[0] ? w[0].toUpperCase() : '').join('');
+}
 function yearOf(q){ const m = String(q||'').match(/(\d{4})/); return m ? m[1] : ''; }
 
 /* Year ruler above the lanes: one cell per run of same-year trains */
@@ -51,20 +54,25 @@ function axisHTML(trains){
 function laneHTML(data, t, opts){
   const editable = !!(opts && opts.editable);
   const tiles = (t.items||[]).map((it, ii) => {
-    const key = (it.name + ' ' + it.desc + ' ' + catLabel(data, it.cat) + (it.cf ? ' customer facing' : '') + ' ' + (editable ? (it.br||'') : '')).toLowerCase();
+    const key = (it.name + ' ' + it.desc + ' ' + catLabel(data, it.cat) + (it.cf ? ' customer facing' : '')
+      + ' ' + (editable ? [it.br||'', it.requestor||'', it.pm||''].join(' ') : '')).toLowerCase();
     return `<button class="tile" data-cat="${esc(it.cat)}" data-k="${esc(key)}"
       data-t="${esc(t.id)}" data-i="${ii}"
       data-name="${esc(it.name)}" data-desc="${esc(it.desc)}"
       data-catlabel="${esc(catLabel(data, it.cat))}"
       data-train="${esc(t.ver)}" data-q="${esc(t.quarter)}"
       data-status="${esc(t.status)}" data-build="${esc(it.patch||'')}" data-cf="${it.cf ? '1' : '0'}"
-      ${editable ? `data-br="${esc(it.br||'')}"` : ''}>
+      ${editable ? `data-br="${esc(it.br||'')}" data-requestor="${esc(it.requestor||'')}" data-pm="${esc(it.pm||'')}"` : ''}>
       <span class="tile-name">${esc(it.name)}</span>
       <span class="tile-meta">
         ${it.cf ? '<span class="tile-cf" title="Customer facing feature"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span>' : ''}
         <span class="tile-area"><span class="dot c-${esc(it.cat)}"></span><span class="tile-cat">${esc(catLabel(data, it.cat))}</span></span>
         ${it.patch ? '<span class="tile-build">'+esc(it.patch)+'</span>' : ''}
       </span>
+      ${editable && (it.requestor || it.pm) ? `<span class="tile-people">
+        ${it.requestor ? '<span class="tile-req" title="Requested by '+esc(it.requestor)+'"><svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm0 1.5c-2.7 0-5 1.4-5 3.1V14h10v-1.4c0-1.7-2.3-3.1-5-3.1z"/></svg><b>'+esc(it.requestor)+'</b></span>' : ''}
+        ${it.pm ? '<span class="tile-pm" title="Responsible PM: '+esc(it.pm)+'"><i>'+esc(initials(it.pm))+'</i>'+esc(it.pm.split(' ')[0])+'</span>' : ''}
+      </span>` : ''}
     </button>`;
   }).join('');
 
@@ -137,7 +145,6 @@ function regionsHTML(data, opts){
     <div class="regions">${cards}${editable ? '<div class="region" style="border-style:dashed;display:flex;align-items:center;justify-content:center"><button class="tbtn add" data-act="radd">Add region</button></div>' : ''}</div>`;
 }
 
-
 /* ── published body  (shared by the live site and the standalone export) ──
    The markup below is the body of buildPublishHTML() moved here verbatim so
    the hosted page and the exported file are generated from one source.     */
@@ -150,7 +157,6 @@ function buildBodyHTML(data, opts){
   const lanes = (data.trains||[]).map(t => laneHTML(data, t, { editable:false })).join('\n');
   const evals = (data.evaluation||[]).map(e =>
     `<div class="ev"><div class="t">${esc(e.t)}</div><div class="d">${esc(e.d)}</div></div>`).join('');
-
   return `<div class="topbar">
   <div class="wrap">
     <span class="logo"><span class="mark">ac</span>${esc(m.vendor)}</span>
@@ -234,5 +240,5 @@ function buildBodyHTML(data, opts){
 
 if (typeof module !== 'undefined' && module.exports){
   module.exports = { esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
-                     yearOf, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
+                     yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

@@ -48,7 +48,7 @@
       "quarter": "Q3 2026",
       "phase": "now",
       "status": "Available",
-      "head": "Speech, queue behaviour and agent experience",
+      "head": "Speech, licensing and platform foundations",
       "note": "The 12.2 train is generally available and has been extended through three maintenance builds. Items marked with a build number reached customers in that build rather than at the initial release.",
       "maint": {
         "title": "Maintenance builds in the 12.2 train",
@@ -75,7 +75,9 @@
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Jabra device selection in the Worker app",
@@ -83,7 +85,9 @@
           "cat": "agent",
           "patch": "12.2.0.700",
           "br": "BR-6715",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Configurable default landing page",
@@ -91,7 +95,9 @@
           "cat": "agent",
           "patch": "12.2.0.500",
           "br": "BR-6704",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Automatic focus on the live call page",
@@ -99,7 +105,9 @@
           "cat": "agent",
           "patch": "12.2.0.500",
           "br": "BR-6705",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Time range filter in call history",
@@ -107,7 +115,9 @@
           "cat": "agent",
           "patch": "12.2.0.500",
           "br": "BR-6707",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Recording retention policies",
@@ -115,7 +125,9 @@
           "cat": "platform",
           "patch": "",
           "br": "BR-6543",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Anytime Queue Menu Access",
@@ -123,7 +135,9 @@
           "cat": "routing",
           "patch": "",
           "br": "BR-6167",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Automatic detection of not-ready agents",
@@ -131,7 +145,9 @@
           "cat": "routing",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "FlexApp presence status change",
@@ -139,7 +155,9 @@
           "cat": "agent",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "In-queue cycle time in seconds",
@@ -147,7 +165,9 @@
           "cat": "routing",
           "patch": "",
           "br": "BR-6168",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Agent custom view",
@@ -155,7 +175,9 @@
           "cat": "agent",
           "patch": "12.2.0.700",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Text-to-speech in Journey Manager",
@@ -163,7 +185,9 @@
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -183,7 +207,19 @@
           "cat": "routing",
           "patch": "",
           "br": "BR-6962",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "Business Continuity Action",
+          "desc": "overflow action when JR is down",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -203,7 +239,9 @@
           "cat": "agent",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "In-queue overflow routing",
@@ -211,7 +249,9 @@
           "cat": "routing",
           "patch": "",
           "br": "BR-6605",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Callback outside business hours",
@@ -219,7 +259,9 @@
           "cat": "routing",
           "patch": "",
           "br": "BR-6604",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Barge-in during text-to-speech prompts",
@@ -227,7 +269,9 @@
           "cat": "ai",
           "patch": "",
           "br": "BR-6684",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Post-call survey",
@@ -235,7 +279,9 @@
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "AI processing without recording retention",
@@ -243,7 +289,9 @@
           "cat": "ai",
           "patch": "",
           "br": "BR-6963",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Queue performance metrics",
@@ -251,7 +299,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6969",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Custom daily time window for scheduled reports",
@@ -259,7 +309,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6965",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Clone a report schedule",
@@ -267,7 +319,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6966",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "omnichannel - WhatsApp",
@@ -275,7 +329,9 @@
           "cat": "channels",
           "patch": "",
           "br": "BR-6728",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "BYO Workforce management",
@@ -283,7 +339,9 @@
           "cat": "channels",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Agent insights - Prebuilt CRM connectors for wrap up events",
@@ -291,7 +349,9 @@
           "cat": "channels",
           "patch": "",
           "br": "BR-6749",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Agent Phonebook search enhancements",
@@ -299,7 +359,9 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6624",
-          "cf": true
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Caller name in missed and recent calls tab",
@@ -307,7 +369,9 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6702",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Wrap-up events on outbound calls",
@@ -315,7 +379,9 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6606",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Flex Queue members recording",
@@ -323,7 +389,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6189",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Voca AIR setup wizard",
@@ -331,7 +399,9 @@
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -341,7 +411,7 @@
       "quarter": "Q1 2027",
       "phase": "later",
       "status": "Planned",
-      "head": "Outbound parity and supervisor reach",
+      "head": "Multi-tenant reach and administration",
       "note": "Closes the gaps between inbound and outbound handling, extends supervisor monitoring to Operator Connect, and deepens the reporting set.",
       "maint": null,
       "items": [
@@ -351,7 +421,9 @@
           "cat": "platform",
           "patch": "",
           "br": "BR-6970",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Global variables in flows and queues",
@@ -359,7 +431,9 @@
           "cat": "routing",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Live monitoring for outbound calls",
@@ -367,7 +441,9 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6682",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "SLA metrics in Voca Reports",
@@ -375,7 +451,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6453",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Agent hunt timer in Voca Reports",
@@ -383,7 +461,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "BR-6580",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Outbound conference in the Worker app",
@@ -391,7 +471,9 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6681",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Live monitoring on Operator Connect",
@@ -399,7 +481,9 @@
           "cat": "agent",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Worker profiles, second phase",
@@ -407,7 +491,29 @@
           "cat": "agent",
           "patch": "",
           "br": "BR-6625",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "AudioCodes Job Router",
+          "desc": "Voca moves to an AudioCodes routing engine, giving more control over routing logic and behaviour.",
+          "cat": "routing",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "Audit trail - Voca cross functionality",
+          "desc": "",
+          "cat": "platform",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -417,7 +523,7 @@
       "quarter": "Q2 2027",
       "phase": "later",
       "status": "Planned",
-      "head": "Openness, custom reporting and the new routing engine",
+      "head": "Reporting depth and outbound parity",
       "note": "Opens the platform up: public provisioning APIs, dashboards you build yourself, and a move to the AudioCodes routing engine.",
       "maint": null,
       "items": [
@@ -427,7 +533,9 @@
           "cat": "platform",
           "patch": "",
           "br": "BR-6006",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Custom dashboards",
@@ -435,7 +543,9 @@
           "cat": "reporting",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Common and provisioning APIs",
@@ -443,7 +553,9 @@
           "cat": "platform",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
           "name": "Conversational AI enhancements",
@@ -451,15 +563,19 @@
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
-          "name": "AudioCodes Job Router",
-          "desc": "Voca moves to an AudioCodes routing engine, giving more control over routing logic and behaviour.",
-          "cat": "routing",
+          "name": "Billing APIs (Reports)",
+          "desc": "",
+          "cat": "agent",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -469,25 +585,49 @@
       "quarter": "Q3 2027",
       "phase": "later",
       "status": "Direction",
-      "head": "Assistive AI at the point of the call",
+      "head": "Openness and custom reporting",
       "note": "Moves AI from post-call analysis into the live interaction, and brings existing chatbots into the voice queue. From here the roadmap describes direction rather than committed scope.",
       "maint": null,
       "items": [
         {
-          "name": "Real-time agent assist",
-          "desc": "Suggested answers and next steps surfaced to the agent while the call is still in progress.",
-          "cat": "ai",
+          "name": "FreeSwitch migration",
+          "desc": "",
+          "cat": "platform",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         },
         {
-          "name": "Third-party chatbot integration with escalation to voice",
-          "desc": "Hand a conversation from an existing chatbot to a Voca voice queue, carrying context across.",
-          "cat": "channels",
+          "name": "UI Facelifting",
+          "desc": "",
+          "cat": "agent",
           "patch": "",
           "br": "",
-          "cf": true
+          "cf": false,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "White Labling",
+          "desc": "",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "custom Historical reports - LLM Driven Chat",
+          "desc": "",
+          "cat": "agent",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     },
@@ -497,25 +637,39 @@
       "quarter": "Q4 2027",
       "phase": "later",
       "status": "Direction",
-      "head": "Agentic tooling and platform consolidation",
+      "head": "Assistive AI at the point of the call",
       "note": "Longer-horizon work. Listed to show intent, not to set expectations on timing.",
       "maint": null,
       "items": [
         {
-          "name": "Model Context Protocol support",
-          "desc": "Expose Voca capabilities to AI agents and assistants through MCP.",
+          "name": "Real-time agent assist",
+          "desc": "Suggested answers and next steps surfaced to the agent while the call is still in progress.",
           "cat": "ai",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": true,
+          "requestor": "",
+          "pm": ""
         },
         {
-          "name": "FreeSwitch migration",
-          "desc": "",
-          "cat": "platform",
+          "name": "Third-party chatbot integration with escalation to voice",
+          "desc": "Hand a conversation from an existing chatbot to a Voca voice queue, carrying context across.",
+          "cat": "channels",
           "patch": "",
           "br": "",
-          "cf": false
+          "cf": true,
+          "requestor": "",
+          "pm": ""
+        },
+        {
+          "name": "Teams Chat - Omnichannel",
+          "desc": "",
+          "cat": "channels",
+          "patch": "",
+          "br": "",
+          "cf": false,
+          "requestor": "",
+          "pm": ""
         }
       ]
     }

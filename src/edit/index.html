@@ -71,7 +71,8 @@
 
 /* customer preview strips internal chrome */
 body.preview .ed-tools,body.preview .iconb,body.preview .tile-br,
-body.preview .internal,body.preview .dedit,body.preview .lane-add{display:none!important}
+body.preview .internal,body.preview .dedit,body.preview .lane-add,
+body.preview .tile-people{display:none!important}
 body.preview .region.is-internal{display:none!important}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E1020;color:#fff;font-size:13px;padding:11px 20px;border-radius:100px;z-index:200;opacity:0;pointer-events:none;transition:opacity .18s;max-width:80vw;text-align:center}
@@ -141,7 +142,6 @@ body.preview .region.is-internal{display:none!important}
 <div class="ovl" id="ovl"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="fileIn" accept="application/json,.json" style="display:none">
-
 <script src="/shared/render.js"></script>
 <script src="/shared/board.js"></script>
 <script src="/shared/session.js"></script>
@@ -159,11 +159,16 @@ let publishedAt = null;  /* ISO timestamp of the copy currently live on the port
 let dirty = false;
 let scrollMemo = 0;
 
-/* fill the customer-facing flag on older saved copies, matching by feature name */
+/* backfill fields added after a copy was saved, matching by feature name */
 function withCf(d){
   const def = {};
-  ((seed && seed.trains) || []).forEach(t => t.items.forEach(i => { def[i.name] = !!i.cf; }));
-  (d.trains||[]).forEach(t => (t.items||[]).forEach(i => { if (i.cf === undefined) i.cf = !!def[i.name]; }));
+  ((seed && seed.trains) || []).forEach(t => t.items.forEach(i => { def[i.name] = i; }));
+  (d.trains||[]).forEach(t => (t.items||[]).forEach(i => {
+    const o = def[i.name] || {};
+    if (i.cf === undefined) i.cf = !!o.cf;
+    if (i.requestor === undefined) i.requestor = o.requestor || '';
+    if (i.pm === undefined) i.pm = o.pm || '';
+  }));
   return d;
 }
 function loadDraft(){
@@ -225,11 +230,21 @@ function closeDrawer(){
   document.getElementById('scrim').classList.remove('open');
 }
 
+/* reuse names already typed elsewhere on the roadmap */
+function datalist(id, field){
+  const seen = [];
+  data.trains.forEach(t => t.items.forEach(i => {
+    const v = (i[field]||'').trim();
+    if (v && seen.indexOf(v) === -1) seen.push(v);
+  }));
+  return '<datalist id="'+id+'">' + seen.sort().map(v => '<option value="'+esc(v)+'">').join('') + '</datalist>';
+}
+
 /* ── item edit ──────────────────────────────────────────────────────── */
 function editItem(trainId, idx){
   const t = data.trains.find(x => x.id === trainId);
   const isNew = idx == null;
-  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false } : t.items[idx];
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, requestor:'', pm:'' } : t.items[idx];
   const cats = data.categories.map(c =>
     '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
   const trainOpts = data.trains.map(x =>
@@ -251,12 +266,22 @@ function editItem(trainId, idx){
         '<div class="hint">Internal only. Never reaches the published file.</div></div>' +
     '</div>' +
     '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="cf" style="width:auto"'+(it.cf?' checked':'')+'>Customer facing feature</label>' +
-      '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>',
+      '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Requested by</label>' +
+        '<input name="requestor" list="dl-req" value="'+esc(it.requestor||'')+'" placeholder="Customer or account name">' +
+        '<div class="hint">Internal only. Never reaches the published file.</div></div>' +
+      '<div class="field"><label>Responsible PM</label>' +
+        '<input name="pm" list="dl-pm" value="'+esc(it.pm||'')+'" placeholder="Name">' +
+        '<div class="hint">Internal only.</div></div>' +
+    '</div>' +
+    datalist('dl-req','requestor') + datalist('dl-pm','pm'),
     m => {
       const name = val(m,'name');
       if (!name){ toast('Give the capability a name'); return false; }
       const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
-                    cf:m.querySelector('[name="cf"]').checked };
+                    cf:m.querySelector('[name="cf"]').checked,
+                    requestor:val(m,'requestor'), pm:val(m,'pm') };
       const dest = val(m,'train');
       if (!isNew) t.items.splice(idx,1);
       data.trains.find(x => x.id === dest).items.push(rec);
@@ -621,7 +646,7 @@ function fmtStamp(iso){
 function setPubState(msg, action, onAction){
   const el = document.getElementById('pubState');
   if (!el) return;
-  el.textContent = msg;
+  el.textContent = msg || '';
   if (action){
     const b = document.createElement('button');
     b.className = 'ed-link'; b.textContent = action; b.onclick = onAction;
@@ -650,7 +675,7 @@ async function boot(){
   setSaveState('Saved');
 
   if (!draft){
-    setPubState(publishedAt ? 'Showing the published roadmap' : 'Showing the roadmap as supplied');
+    setPubState(publishedAt ? 'Showing the published roadmap' : '');
   } else if (publishedAt && savedAt && publishedAt > savedAt){
     setPubState('Newer version published' + (res.publishedBy ? ' by ' + res.publishedBy : '') + '.',
       'Load it', () => {

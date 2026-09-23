@@ -135,6 +135,10 @@ function initDrawer(opts){
     if(d.build) rows.push(['Delivered in build', d.build, 'mono']);
     if(d.cf === '1') rows.push(['Customer facing', 'Yes', '']);
     else if(opts && opts.showBr) rows.push(['Customer facing', 'No, internal', '']);
+    if(opts && opts.showBr){
+      rows.push(['Requested by', d.requestor || 'Not recorded', '']);
+      rows.push(['Responsible PM', d.pm || 'Unassigned', '']);
+    }
     if(opts && opts.showBr && d.br) rows.push(['Jira', d.br, 'mono']);
     dr.querySelector('.drawer-body').innerHTML =
       '<p class="desc">' + (d.desc || 'No description yet.') + '</p>' +

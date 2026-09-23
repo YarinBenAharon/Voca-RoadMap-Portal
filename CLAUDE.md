@@ -26,10 +26,17 @@ deploy. Do not "improve" the layout, copy, colours or interaction patterns
 while working on infrastructure. If a feature genuinely cannot be built
 without changing the look or the flow, raise it rather than deciding alone.
 
-The two files at the repository root —
-`Voca_CIC_Release_Roadmap_edit_mode.html` and `..._view_mode.html` — are the
-**frozen originals**, kept as the reference the verification diffs against.
-They are outside `app_location` and are never deployed. Do not edit them.
+`Voca_CIC_Release_Roadmap_EDITOR-3.html` at the repository root is the
+**frozen original** — the standalone editor the portal is cut from, and the
+reference the verification diffs against. `..._edit_mode.html` and
+`..._view_mode.html` are its superseded predecessors, kept for history. All
+three are outside `app_location` and are never deployed. Do not edit them.
+
+When a new standalone editor supersedes this one, update `ORIGINAL`, the line
+ranges and the anchors at the top of `tools/verify_shared_assets.py`, then
+re-cut the shared assets and `seed.json` from it rather than hand-merging.
+The anchor check exists so a stale line number fails loudly instead of
+silently slicing the wrong bytes.
 
 ## Layout
 
@@ -95,7 +102,7 @@ meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, 
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
-            items: [{ name, desc, cat, patch, br, cf }] }
+            items: [{ name, desc, cat, patch, br, cf, requestor, pm }] }
 evaluation[] { t, d }
 cloud     { note, latestVersion, regions: [{ id, name, flag, version,
                                              lastDeploy, nextVersion, nextDate, publish }] }
@@ -103,12 +110,18 @@ cloud     { note, latestVersion, regions: [{ id, name, flag, version,
 
 Fields with non-obvious behavior:
 
-- `br` — internal Jira reference. **Never reaches the public page**:
-  `laneHTML` emits `data-br` only when `editable` is true, and excludes it
-  from the search key. The public page always calls it with `editable:false`.
-- `cf` — "customer facing", drives the star badge and the filter toggle.
-  `withCf()` backfills it on imported legacy JSON by matching feature *name*
-  against the seed, so renaming a feature resets its flag.
+- `br`, `requestor`, `pm` — internal Jira reference, requesting customer and
+  responsible PM. **None of them reach the public page.** `laneHTML` emits
+  their `data-` attributes and the requester/PM badges only when `editable` is
+  true, the drawer rows are gated on `opts.showBr`, and they are excluded from
+  the public search key. The public page always passes `editable:false`.
+  Anything similarly sensitive added later must follow the same pattern —
+  `requestor` in particular holds customer names on an NDA board.
+- `cf` — "customer facing", drives the star badge and the filter toggle. It
+  does *not* hide anything.
+- `withCf()` backfills `cf`, `requestor` and `pm` on drafts and imports saved
+  before those fields existed, matching by feature *name* against the seed —
+  so renaming a feature loses its backfill.
 - `publish: false` marks a region internal. `regionsHTML({ showAll })` keeps it
   in the editor with an `internal` pill and drops it from the public page.
 - Train `id`s come from `uid()`; dates are ISO and render through `fmtDate()`;

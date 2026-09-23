@@ -56,6 +56,7 @@ Everything between steps 2 and 4 is private to you.
 | Where | How |
 | --- | --- |
 | A capability (the tiles on the board) | Click the tile, then **Edit** in the panel that opens |
+| Who asked for a capability, and which PM owns it | **Requested by** and **Responsible PM** in the same Edit form. Both suggest names already used elsewhere on the roadmap, so spelling stays consistent. |
 | Move a capability up or down, or to another release train | Click the tile, then **Move up** / **Move down**, or change the train in **Edit** |
 | Add a capability | **Add capability** at the bottom of a release train |
 | A release train (version, target quarter, status, heading) | **Edit train** in the train's header |
@@ -123,11 +124,15 @@ first.
 
 ## What customers never see
 
-Three things are stripped from the public board automatically. You do not have
-to remember to remove them.
+These are stripped from the public board automatically. You do not have to
+remember to remove them.
 
 - **Jira / BR references.** Visible on tiles in the editor, never on the public
   board, and not searchable there either.
+- **Requested by** and **Responsible PM.** Shown as badges on the tile and in
+  the detail panel while editing; absent from the public board entirely. This
+  matters — *Requested by* usually holds a customer or account name, and the
+  board is shared outside the company.
 - **Regions marked internal.** A region card with the orange *internal* tag is
   editor-only. Set this with the ✎ button on the card.
 - **Editing controls** themselves, obviously.
