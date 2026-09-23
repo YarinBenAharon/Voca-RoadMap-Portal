@@ -22,6 +22,13 @@
       "allowedRoles": ["editor"]
     },
     {
+      "route": "/api/draft",
+      "allowedRoles": ["editor"],
+      "headers": {
+        "Cache-Control": "no-store"
+      }
+    },
+    {
       "route": "/api/roadmap*",
       "methods": ["GET"],
       "allowedRoles": ["anonymous"],

@@ -51,6 +51,11 @@ async function writeText(name, body, contentType){
   });
 }
 
+async function remove(name){
+  const c = await container();
+  await c.getBlockBlobClient(name).deleteIfExists();
+}
+
 async function listSnapshots(limit){
   const c = await container();
   const out = [];
@@ -68,5 +73,5 @@ async function listSnapshots(limit){
 
 module.exports = {
   CURRENT_JSON, CURRENT_HTML,
-  readText, writeText, listSnapshots
+  readText, writeText, remove, listSnapshots
 };

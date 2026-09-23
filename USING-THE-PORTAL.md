@@ -77,27 +77,29 @@ in full legal terms, so the board itself is not a commitment.
 This is the most important thing to understand, and the most common source of
 confusion.
 
-Your changes are saved **continuously, into your own browser only**. The top
-bar shows **Saved** a moment after each edit. Nothing is sent anywhere.
+Your changes are saved **continuously and automatically** — first into this
+browser, then a second or two later to your own private copy on the server.
+The top bar shows **Saving…** and then **Saved**. There is no save button and
+nothing to remember.
 
 | | |
 | --- | --- |
 | Can customers see it? | **No.** The public board still shows the last published version. |
-| Can other editors see it? | **No.** Not even them. Drafts are per person, per browser. |
-| Will it survive closing the tab? | **Yes.** Reopen the editor and your draft is still there. |
+| Can other editors see it? | **No.** Your draft is private to your account. |
+| Will it survive closing the tab? | **Yes.** |
 | Will it survive restarting the computer? | **Yes.** |
-| Will I see it on a different computer? | **No.** The draft lives in the browser you made it in. |
-| Will I see it in a different browser on the same computer? | **No.** Same reason. |
-| Could it be lost? | **Yes** — clearing your browsing data, or using private/incognito mode, discards it. |
+| Will I see it on a different computer? | **Yes.** Sign in to the editor anywhere and your draft is there. |
+| Will it survive clearing my browsing data? | **Yes** — the server copy is fetched again when you next open the editor. |
+| Could it be lost? | Only if you discard it yourself, by publishing or by choosing **Load it**. |
 
 While you have an unpublished draft, the top bar says **Local draft, not
 published yet**. That text is your reminder that the public board has not
-moved.
+moved — the draft itself is safe.
 
-**If a draft matters, publish it.** Publishing is the only way to get work out
-of your own browser — there is no way to save a draft to a file, move it to
-another machine, or hand it to a colleague. Long-lived drafts are a risk:
-finish the edit and publish, rather than leaving work parked for days.
+If the top bar ever reads **Saved on this device only**, the server copy could
+not be written — usually a brief network problem. Your work is still in this
+browser and will sync on its own; just don't switch machines until it says
+**Saved** again.
 
 ---
 
@@ -170,7 +172,8 @@ problem; try again.
 | --- | --- |
 | **Saved** | Your draft is safely stored in this browser |
 | **Saving…** | Momentary, while a change is written |
-| **Could not save locally** | Your browser is refusing to store the draft — often private browsing mode. Your work is at risk; export it. |
+| **Could not save locally** | This browser is refusing to store the draft — often private browsing mode. The server copy still protects you. |
+| **Saved on this device only** | The server copy could not be written. Your work is in this browser and will sync by itself; avoid switching machines until it clears. |
 | **Showing the published roadmap** | What you see matches what the public sees |
 | **Local draft, not published yet** | You have changes the public cannot see |
 | **Newer version published by [name]** | Someone else published while you were away |
@@ -217,9 +220,11 @@ issued to your **UPN**, which in our tenant is not the same as your email
 address — the portal owner has the details.
 
 **My changes have vanished.**
-Almost always a different browser, a different computer, or cleared browsing
-data. Drafts do not travel. Check whether the top bar says *Showing the
-published roadmap*, which means there is no draft in this browser.
+Drafts follow your account, so this is rare. Check the top bar: *Showing the
+published roadmap* means you have no draft at all — which happens after you
+publish, or after choosing **Load it**, both of which deliberately discard the
+draft. Also make sure you are signed in as the same person; a draft belongs to
+one account.
 
 **I published something by mistake.**
 Restore the previous snapshot as described above and publish again. The wrong

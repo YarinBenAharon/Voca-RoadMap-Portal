@@ -153,6 +153,8 @@ let seed = null;         /* pristine roadmap as originally supplied, for Reset *
 let publishedAt = null;  /* ISO timestamp of the copy currently live on the portal */
 let dirty = false;
 let scrollMemo = 0;
+let syncTimer = null;    /* debounce for mirroring the draft to the server */
+let syncing = false;
 
 /* backfill fields added after a copy was saved, matching by feature name */
 function withCf(d){
@@ -174,13 +176,48 @@ function loadDraft(){
 function draftSavedAt(){
   try { return localStorage.getItem(DRAFT_AT) || ''; } catch(e){ return ''; }
 }
-function save(){
+/* Drafts are written to this browser immediately, then mirrored to the
+   server a moment later so they are not trapped on one machine. The server
+   copy is private to whoever is signed in. */
+function stashLocal(at){
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(data));
-    localStorage.setItem(DRAFT_AT, new Date().toISOString());
-    dirty = false; setSaveState('Saved');
+    localStorage.setItem(DRAFT_AT, at || new Date().toISOString());
+    return true;
+  } catch(e){ return false; }
+}
+function save(){
+  dirty = false;
+  if (!stashLocal()){ setSaveState('Could not save locally'); }
+  queueSync();
+}
+function queueSync(){
+  setSaveState('Saving…');
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncDraft, 1500);
+}
+async function syncDraft(){
+  syncTimer = null;
+  if (syncing){ queueSync(); return; }      /* a write is in flight; try again after it */
+  syncing = true;
+  try {
+    const res = await api('/api/draft', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data)
+    });
+    if (res && res.savedAt) stashLocal(res.savedAt);
+    setSaveState('Saved');
+  } catch(err){
+    setSaveState('Saved on this device only');
+  } finally {
+    syncing = false;
   }
-  catch(e){ setSaveState('Could not save locally'); }
+}
+function clearDraft(){
+  clearTimeout(syncTimer); syncTimer = null;
+  try { localStorage.removeItem(LS_KEY); localStorage.removeItem(DRAFT_AT); } catch(e){}
+  return api('/api/draft', { method:'DELETE' }).catch(() => {});
 }
 async function api(path, opts){
   const r = await fetch(path, opts);
@@ -573,7 +610,9 @@ document.getElementById('bPublish').onclick = async () => {
       body:    JSON.stringify(data)
     });
     publishedAt = res.publishedAt;
-    save();
+    /* what was a draft is now the live roadmap, so there is no draft any more */
+    await clearDraft();
+    setSaveState('Saved');
     setPubState('Published ' + fmtStamp(res.publishedAt) + (res.publishedBy ? ' by ' + res.publishedBy : ''));
     toast('Published. Everyone visiting the portal sees this now.');
   } catch(err){
@@ -585,7 +624,9 @@ document.getElementById('bPublish').onclick = async () => {
 document.getElementById('bAddTrain').onclick = () => editTrain(null);
 document.getElementById('bMeta').onclick = editMeta;
 document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
-window.addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
+window.addEventListener('beforeunload', e => {
+  if (dirty || syncTimer || syncing){ e.preventDefault(); e.returnValue = ''; }
+});
 
 /* ── boot ──────────────────────────────────────────────
    The published roadmap is the starting point. A local draft, if there is
@@ -619,9 +660,24 @@ async function boot(){
   seed        = res.seed;
   publishedAt = res.publishedAt || null;
 
-  const draft   = loadDraft();
-  const savedAt = draftSavedAt();
+  /* A draft may exist in this browser, on the server, or both. Take whichever
+     was written last, so moving between machines picks up where you left off. */
+  let remote = null;
+  try { remote = await api('/api/draft'); } catch(err){ remote = null; }
+
+  const local   = loadDraft();
+  const localAt = draftSavedAt();
+  const remoteAt = (remote && remote.savedAt) || '';
+
+  let draft = null, savedAt = '';
+  if (local && (!remoteAt || localAt >= remoteAt)){
+    draft = local; savedAt = localAt;
+  } else if (remote && remote.data){
+    draft = withCf(remote.data); savedAt = remoteAt;
+  }
+
   data = draft || JSON.parse(JSON.stringify(res.data));
+  if (draft && savedAt === remoteAt) stashLocal(remoteAt);   /* keep this browser in step */
 
   render();
   setSaveState('Saved');
@@ -631,8 +687,9 @@ async function boot(){
   } else if (publishedAt && savedAt && publishedAt > savedAt){
     setPubState('Newer version published' + (res.publishedBy ? ' by ' + res.publishedBy : '') + '.',
       'Load it', () => {
-        if (!confirm('Replace your local draft with the published roadmap?')) return;
-        data = JSON.parse(JSON.stringify(res.data)); scrollMemo = 0; save(); render();
+        if (!confirm('Discard your draft and load the published roadmap?')) return;
+        data = JSON.parse(JSON.stringify(res.data)); scrollMemo = 0;
+        clearDraft(); render(); setSaveState('Saved');
         setPubState('Showing the published roadmap');
         toast('Loaded the published roadmap');
       });

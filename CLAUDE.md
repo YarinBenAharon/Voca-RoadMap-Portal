@@ -55,6 +55,7 @@ api/                            managed Azure Functions, Node 20
 ├── roadmap/                    GET  /api/roadmap        anonymous
 ├── publish/                    POST /api/publish        editor only
 ├── snapshots/                  GET  /api/snapshots      editor only
+├── draft/                      GET/PUT/DELETE /api/draft  editor only, per user
 └── shared/
     ├── seed.json               the roadmap as originally supplied
     ├── store.js                blob storage
@@ -173,18 +174,36 @@ Unchanged from the original, and worth preserving:
 
 The editor top bar is deliberately minimal: **Add train**, **Header**,
 **Customer preview**, the publish state, **Publish**, and the session control.
-Export/Import JSON, Reset and the Under evaluation modal were removed on
-request — the roadmap is edited in place and published from here, so there is
-no supported path in the UI for loading a roadmap over the live one. Rollback
-is an operator task via `/api/snapshots`. Do not add such a button back
-without asking.
+
+**The constraint is horizontal space, not capability.** The bar scrolls
+sideways once it overflows, and users were having to drag it left to reach
+controls — so Export/Import JSON, Reset and the Under evaluation modal were
+cut. Anything added here costs width and pushes **Publish** out of view.
+
+So: do not add a top-level button. If the editor needs another action, put it
+behind a single overflow control, or inside an existing modal. Capability is
+welcome; width is not.
+
+One consequence: nothing in the UI can now load a roadmap over the live one,
+and rollback is an operator task via `/api/snapshots`.
 
 ### Drafts and publishing
 
-Drafts live in `localStorage` per browser, as they always did. `boot()` fetches
-the published roadmap; a local draft still wins so work in progress survives a
-reload, but if `publishedAt` is newer than the draft's save time the bar offers
-to load the published copy. There is no locking.
+Drafts are written to `localStorage` immediately and mirrored to
+`drafts/<userId>.json` in blob storage after a 1.5s debounce, so a draft is
+not trapped in one browser. `boot()` fetches the published roadmap and both
+drafts, and takes whichever draft was written last; if `publishedAt` is newer
+than that, the bar offers to load the published copy. There is no locking.
+
+Drafts are **private per user** — the blob is keyed on the caller's own
+`userId` from the client principal, and `api/draft` will not read or write
+anyone else's. They are deliberately **not** validated: a draft is work in
+progress and may be incomplete. Shape is enforced only at publish.
+
+Publishing, and the "Load it" link, both **delete** the draft — once the work
+is live or abandoned there is no draft, and the bar says so. Keep that
+invariant; a lingering draft that equals the published copy makes the status
+line lie.
 
 **Publish** POSTs the data to `/api/publish`, which validates it, writes an
 immutable snapshot, then overwrites `current/roadmap.{json,html}`. It is live

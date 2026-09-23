@@ -43,6 +43,7 @@ GitHub Actions repository secret rather than an Azure app setting.
 | Live roadmap data | `roadmap/current/roadmap.json` in blob storage |
 | Live roadmap as a standalone file | `roadmap/current/roadmap.html` |
 | Every past publish | `roadmap/snapshots/<timestamp>.{json,html}` |
+| Each editor's unpublished draft | `roadmap/drafts/<user id>.json`, private to that person |
 | The originally supplied roadmap | `api/shared/seed.json` in the repository |
 
 Published content exists **only in the storage account**. The repository holds
