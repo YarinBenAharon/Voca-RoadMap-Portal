@@ -33,7 +33,7 @@
       "methods": ["GET"],
       "allowedRoles": ["anonymous"],
       "headers": {
-        "Cache-Control": "no-cache, max-age=0, must-revalidate"
+        "Cache-Control": "no-store"
       }
     },
     {

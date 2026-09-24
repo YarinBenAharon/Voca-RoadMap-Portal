@@ -215,9 +215,11 @@ top bar, described above.
 ## If something goes wrong
 
 **I signed in but there is no Edit link, or /edit says I am not an editor.**
-Your account has not been granted the editor role. Note that invitations are
-issued to your **UPN**, which in our tenant is not the same as your email
-address — the portal owner has the details.
+Your account has not been granted the editor role. The page you land on shows
+**your sign-in name** with a **Copy** button — send that exact string to the
+roadmap owner and ask for editor access. Do not send your email address
+instead: in our tenant the two are different, and access is granted against
+the sign-in name.
 
 **My changes have vanished.**
 Drafts follow your account, so this is rare. Check the top bar: *Showing the

@@ -112,12 +112,22 @@ cloud     { note, latestVersion, regions: [{ id, name, flag, version,
 Fields with non-obvious behavior:
 
 - `br`, `requestor`, `pm` — internal Jira reference, requesting customer and
-  responsible PM. **None of them reach the public page.** `laneHTML` emits
-  their `data-` attributes and the requester/PM badges only when `editable` is
-  true, the drawer rows are gated on `opts.showBr`, and they are excluded from
-  the public search key. The public page always passes `editable:false`.
-  Anything similarly sensitive added later must follow the same pattern —
-  `requestor` in particular holds customer names on an NDA board.
+  responsible PM. They are hidden in **two** places, and both are required:
+  1. **Rendering** — `laneHTML` emits their `data-` attributes and the
+     requester/PM badges only when `editable` is true, the drawer rows are
+     gated on `opts.showBr`, and they are excluded from the public search key.
+  2. **The payload** — `/api/roadmap` is an anonymous route, so
+     `api/shared/publicView.js` deletes these fields, drops `publish:false`
+     regions and blanks `publishedBy` for any caller without the editor role.
+
+  Hiding them at render time alone is **not** enough: the endpoint is a public
+  URL and was briefly serving real `br` values and customer names to anyone
+  who opened it. `requestor` holds customer names on an NDA board.
+
+  Adding another sensitive field means updating `INTERNAL_ITEM_FIELDS` in
+  `publicView.js` as well as the render gate. `verify_shared_assets.py` reads
+  the `editable`-gated attributes straight out of `render.js` and fails if any
+  of them is missing from the stripper, so CI catches the omission.
 - `cf` — "customer facing", drives the star badge and the filter toggle. It
   does *not* hide anything.
 - `withCf()` backfills `cf`, `requestor` and `pm` on drafts saved before those

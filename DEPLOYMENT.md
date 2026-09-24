@@ -153,11 +153,15 @@ role, which you grant per person:
 > This invitation link is invalid. Please contact the site admin for a valid invitation.
 > ```
 >
-> To get the exact string for someone, have them open
-> https://vocacic-roadmap.voca.cloud, click **Sign in**, then visit
-> **`/.auth/me`** and read `userDetails`. Invite that, character for
-> character. Anyone can sign in without an invitation, so this costs nothing
-> and removes the guesswork.
+> **Do not try to work out someone's UPN — have the portal tell you.** Send
+> the person https://vocacic-roadmap.voca.cloud/edit and ask them to sign in.
+> They will be refused, and the page then shows their sign-in name with a
+> **Copy** button. They send you that string; you paste it into the invitation
+> unchanged.
+>
+> Anyone can sign in without an invitation, so this costs nothing and removes
+> the guesswork entirely. (The same value is visible at **`/.auth/me`** as
+> `userDetails`, if you prefer to read it directly.)
 
 1. Static Web App → **Settings → Role management** → **Invite**
 2. Authorization provider: **Microsoft Entra ID** (`aad`)

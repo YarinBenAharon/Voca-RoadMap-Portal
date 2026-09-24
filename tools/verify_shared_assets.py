@@ -12,6 +12,7 @@ Run from the repository root:  python tools/verify_shared_assets.py
 
 import json
 import pathlib
+import re
 import sys
 
 # The frozen original. Bump this, and the line numbers below, whenever a new
@@ -63,8 +64,8 @@ def main():
               p.read_text(encoding='utf-8').rstrip('\n') == cut(first, last).rstrip('\n'))
 
     render = pathlib.Path('src/shared/render.js')
-    check('%-14s %s' % ('markup helpers', render),
-          render.is_file() and render.read_text(encoding='utf-8').startswith(cut(*HELPERS)))
+    rendered = render.read_text(encoding='utf-8') if render.is_file() else ''
+    check('%-14s %s' % ('markup helpers', render), rendered.startswith(cut(*HELPERS)))
 
     print('Bundled roadmap content:')
     seed_file = pathlib.Path('api/shared/seed.json')
@@ -77,6 +78,25 @@ def main():
               % (len(got['trains']), sum(len(t['items']) for t in got['trains'])))
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('seed.json readable (%s)' % err, False)
+
+    print('Internal fields stripped from the public payload:')
+    try:
+        stripper = pathlib.Path('api/shared/publicView.js').read_text(encoding='utf-8')
+        listed = set(re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'",
+                                re.search(r'INTERNAL_ITEM_FIELDS\s*=\s*\[([^\]]*)\]',
+                                          stripper).group(1)))
+        # every data- attribute render.js emits only when editable is true
+        gated = set(re.findall(r'data-[a-z]+="\$\{esc\(it\.([A-Za-z0-9_]+)',
+                               re.search(r'\$\{editable \?\s*`([^`]*)`', rendered).group(1)))
+        check('render.js gates %s' % (sorted(gated) or 'nothing'), bool(gated))
+        missing = gated - listed
+        check('publicView strips all of them%s'
+              % ('' if not missing else ' (MISSING: %s)' % ', '.join(sorted(missing))),
+              not missing)
+        check('publicView drops internal regions',
+              "publish !== false" in stripper)
+    except Exception as err:                      # noqa: BLE001 - reported, not raised
+        check('public payload check (%s)' % err, False)
 
     print()
     if failures:
