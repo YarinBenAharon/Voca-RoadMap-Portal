@@ -56,6 +56,7 @@ Everything between steps 2 and 4 is private to you.
 | Where | How |
 | --- | --- |
 | A capability (the tiles on the board) | Click the tile, then **Edit** in the panel that opens |
+| Who uses a capability (Administrators, Supervisors, Agents…) | **For** in the Edit form. Shown to customers in the detail panel, and it suggests values already used elsewhere on the roadmap. |
 | Who asked for a capability, and which PM owns it | **Requested by** and **Responsible PM** in the same Edit form. Both suggest names already used elsewhere on the roadmap, so spelling stays consistent. |
 | Move a capability up or down, or to another release train | Click the tile, then **Move up** / **Move down**, or change the train in **Edit** |
 | Add a capability | **Add capability** at the bottom of a release train |

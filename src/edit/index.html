@@ -165,6 +165,7 @@ function withCf(d){
     if (i.cf === undefined) i.cf = !!o.cf;
     if (i.requestor === undefined) i.requestor = o.requestor || '';
     if (i.pm === undefined) i.pm = o.pm || '';
+    if (i.audience === undefined) i.audience = o.audience || '';
   }));
   return d;
 }
@@ -276,7 +277,7 @@ function datalist(id, field){
 function editItem(trainId, idx){
   const t = data.trains.find(x => x.id === trainId);
   const isNew = idx == null;
-  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, requestor:'', pm:'' } : t.items[idx];
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, audience:'', requestor:'', pm:'' } : t.items[idx];
   const cats = data.categories.map(c =>
     '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
   const trainOpts = data.trains.map(x =>
@@ -291,6 +292,9 @@ function editItem(trainId, idx){
       '<div class="field"><label>Area</label><select name="cat">'+cats+'</select></div>' +
       '<div class="field"><label>Release train</label><select name="train">'+trainOpts+'</select></div>' +
     '</div>' +
+    '<div class="field"><label>For</label>' +
+      '<input name="audience" list="dl-aud" value="'+esc(it.audience||'')+'" placeholder="Administrators, Supervisors, Agents">' +
+      '<div class="hint">Who in the customer\'s organization uses it. Shown to customers.</div></div>' +
     '<div class="frow">' +
       '<div class="field"><label>Delivered in build</label><input name="patch" value="'+esc(it.patch)+'" placeholder="12.2.0.700">' +
         '<div class="hint">Only for items already shipped in a maintenance build.</div></div>' +
@@ -307,12 +311,12 @@ function editItem(trainId, idx){
         '<input name="pm" list="dl-pm" value="'+esc(it.pm||'')+'" placeholder="Name">' +
         '<div class="hint">Internal only.</div></div>' +
     '</div>' +
-    datalist('dl-req','requestor') + datalist('dl-pm','pm'),
+    datalist('dl-aud','audience') + datalist('dl-req','requestor') + datalist('dl-pm','pm'),
     m => {
       const name = val(m,'name');
       if (!name){ toast('Give the capability a name'); return false; }
       const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
-                    cf:m.querySelector('[name="cf"]').checked,
+                    cf:m.querySelector('[name="cf"]').checked, audience:val(m,'audience'),
                     requestor:val(m,'requestor'), pm:val(m,'pm') };
       const dest = val(m,'train');
       if (!isNew) t.items.splice(idx,1);
