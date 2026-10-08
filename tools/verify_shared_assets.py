@@ -17,23 +17,23 @@ import sys
 
 # The frozen original. Bump this, and the line numbers below, whenever a new
 # standalone editor supersedes it.
-ORIGINAL = pathlib.Path('Voca_CIC_Release_Roadmap_EDITOR-3.html')
+ORIGINAL = pathlib.Path('Voca_CIC_Release_Roadmap_EDITOR-4.html')
 
 SLICES = [
     ('src/shared/base.css', 'stylesheet',    138, 421),
-    ('src/shared/board.js', 'board runtime', 573, 728),
+    ('src/shared/board.js', 'board runtime', 573, 730),
 ]
 HELPERS = (424, 570)            # render.js starts with these, then adds buildBodyHTML
-SEED    = (1008, 1796)          # the DEFAULT_DATA object literal
+SEED    = (1012, 1800)          # the DEFAULT_DATA object literal
 
 # Lines the slices are cut at, and what must be sitting on them.
 ANCHORS = [
     (137, 'const BASE_CSS = `'),
     (422, '`;'),
     (572, 'const BOARD_JS = `'),
-    (729, '`;'),
-    (1008, 'const DEFAULT_DATA = {'),
-    (1796, '};'),
+    (731, '`;'),
+    (1012, 'const DEFAULT_DATA = {'),
+    (1800, '};'),
 ]
 
 

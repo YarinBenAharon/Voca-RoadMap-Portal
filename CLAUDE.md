@@ -26,11 +26,12 @@ deploy. Do not "improve" the layout, copy, colours or interaction patterns
 while working on infrastructure. If a feature genuinely cannot be built
 without changing the look or the flow, raise it rather than deciding alone.
 
-`Voca_CIC_Release_Roadmap_EDITOR-3.html` at the repository root is the
+`Voca_CIC_Release_Roadmap_EDITOR-4.html` at the repository root is the
 **frozen original** — the standalone editor the portal is cut from, and the
-reference the verification diffs against. `..._edit_mode.html` and
+reference the verification diffs against. It is EDITOR-3 plus the `audience`
+("For") item field. `..._EDITOR-3.html`, `..._edit_mode.html` and
 `..._view_mode.html` are its superseded predecessors, kept for history. All
-three are outside `app_location` and are never deployed. Do not edit them.
+four are outside `app_location` and are never deployed. Do not edit them.
 
 When a new standalone editor supersedes this one, update `ORIGINAL`, the line
 ranges and the anchors at the top of `tools/verify_shared_assets.py`, then
@@ -103,7 +104,7 @@ meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, 
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
-            items: [{ name, desc, cat, patch, br, cf, requestor, pm }] }
+            items: [{ name, desc, cat, patch, br, cf, audience, requestor, pm }] }
 evaluation[] { t, d }
 cloud     { note, latestVersion, regions: [{ id, name, flag, version,
                                              lastDeploy, nextVersion, nextDate, publish }] }
@@ -130,7 +131,12 @@ Fields with non-obvious behavior:
   of them is missing from the stripper, so CI catches the omission.
 - `cf` — "customer facing", drives the star badge and the filter toggle. It
   does *not* hide anything.
-- `withCf()` backfills `cf`, `requestor` and `pm` on drafts saved before those
+- `audience` — free text, who in the customer's organization uses the
+  capability ("Administrators, Supervisors"). Shown as **For** in the drawer,
+  only when set, and included in the search key. Public, so it is deliberately
+  *not* in `INTERNAL_ITEM_FIELDS` or behind `editable`. Named `audience` rather
+  than `for` because `for` is a JS keyword.
+- `withCf()` backfills `cf`, `audience`, `requestor` and `pm` on drafts saved before those
   fields existed, matching by feature *name* against the seed — so renaming a
   feature loses its backfill. This is why the editor still fetches the seed
   (`/api/roadmap?withSeed=1`) even though Reset is gone.

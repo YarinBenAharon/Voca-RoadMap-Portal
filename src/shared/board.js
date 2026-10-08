@@ -130,8 +130,10 @@ function initDrawer(opts){
     var t = e.target.closest('.tile');
     if(!t) return;
     var d = t.dataset;
-    var rows = [['Area', d.catlabel, ''], ['Release train', d.train, 'mono'],
-                ['Target', d.q, ''], ['Confidence', d.status, '']];
+    var rows = [['Area', d.catlabel, '']];
+    if(d.audience) rows.push(['For', d.audience, '']);
+    rows.push(['Release train', d.train, 'mono'],
+              ['Target', d.q, ''], ['Confidence', d.status, '']);
     if(d.build) rows.push(['Delivered in build', d.build, 'mono']);
     if(d.cf === '1') rows.push(['Customer facing', 'Yes', '']);
     else if(opts && opts.showBr) rows.push(['Customer facing', 'No, internal', '']);

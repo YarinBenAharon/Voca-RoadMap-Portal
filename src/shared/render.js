@@ -54,12 +54,12 @@ function axisHTML(trains){
 function laneHTML(data, t, opts){
   const editable = !!(opts && opts.editable);
   const tiles = (t.items||[]).map((it, ii) => {
-    const key = (it.name + ' ' + it.desc + ' ' + catLabel(data, it.cat) + (it.cf ? ' customer facing' : '')
+    const key = (it.name + ' ' + it.desc + ' ' + catLabel(data, it.cat) + ' ' + (it.audience||'') + (it.cf ? ' customer facing' : '')
       + ' ' + (editable ? [it.br||'', it.requestor||'', it.pm||''].join(' ') : '')).toLowerCase();
     return `<button class="tile" data-cat="${esc(it.cat)}" data-k="${esc(key)}"
       data-t="${esc(t.id)}" data-i="${ii}"
       data-name="${esc(it.name)}" data-desc="${esc(it.desc)}"
-      data-catlabel="${esc(catLabel(data, it.cat))}"
+      data-catlabel="${esc(catLabel(data, it.cat))}" data-audience="${esc(it.audience||'')}"
       data-train="${esc(t.ver)}" data-q="${esc(t.quarter)}"
       data-status="${esc(t.status)}" data-build="${esc(it.patch||'')}" data-cf="${it.cf ? '1' : '0'}"
       ${editable ? `data-br="${esc(it.br||'')}" data-requestor="${esc(it.requestor||'')}" data-pm="${esc(it.pm||'')}"` : ''}>
