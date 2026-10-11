@@ -53,7 +53,8 @@ src/                            app_location — everything served to browsers
     ├── render.js               markup helpers (frozen slice) + buildBodyHTML
     ├── session.js              the sign-in control
     └── xlsx.js                 the public page's Excel download (no library;
-                                public fields only; not synced into the API)
+                                public fields, plus BR when the payload has
+                                br, i.e. for editors; not synced into the API)
 api/                            managed Azure Functions, Node 20
 ├── roadmap/                    GET  /api/roadmap        anonymous
 ├── publish/                    POST /api/publish        editor only
