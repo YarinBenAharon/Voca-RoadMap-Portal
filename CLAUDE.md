@@ -51,7 +51,9 @@ src/                            app_location — everything served to browsers
     ├── base.css                THE stylesheet  (frozen slice)
     ├── board.js                initBoard + initDrawer  (frozen slice)
     ├── render.js               markup helpers (frozen slice) + buildBodyHTML
-    └── session.js              the sign-in control
+    ├── session.js              the sign-in control
+    └── xlsx.js                 the public page's Excel download (no library;
+                                public fields only; not synced into the API)
 api/                            managed Azure Functions, Node 20
 ├── roadmap/                    GET  /api/roadmap        anonymous
 ├── publish/                    POST /api/publish        editor only

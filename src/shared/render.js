@@ -150,6 +150,10 @@ function regionsHTML(data, opts){
    the hosted page and the exported file are generated from one source.     */
 function buildBodyHTML(data, opts){
   const sessionSlot = (opts && opts.session) ? '<div class="sess" id="session"></div>' : '';
+  /* only the live page loads xlsx.js; the published standalone file has no download */
+  const downloadBtn = (opts && opts.download)
+    ? '<button class="xl-btn" id="dlXlsx" title="Download the roadmap as an Excel workbook"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11"/></svg>Excel</button>'
+    : '';
   const m = data.meta;
   const segs = ['<button data-cat="all" aria-pressed="true">All</button>']
     .concat((data.categories||[]).map(c =>
@@ -187,6 +191,7 @@ function buildBodyHTML(data, opts){
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
       <input type="search" id="finder" placeholder="Search capabilities" aria-label="Search capabilities">
     </div>
+    ${downloadBtn}
   </div>
 </div>
 
