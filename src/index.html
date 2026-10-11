@@ -19,6 +19,17 @@
 .sess .sess-in:hover{background:rgba(108,92,224,.5)}
 .sess .sess-who{max-width:19ch;overflow:hidden;text-overflow:ellipsis}
 
+/* ══ EXCEL DOWNLOAD ══════════════════════════════════════
+   After the search box in the filter bar, in the shape of the Customer
+   facing pill. Only this page has it (see xlsx.js).                         */
+.xl-btn{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;font-family:inherit;border:1px solid var(--line);
+  background:#fff;border-radius:100px;padding:9px 16px 9px 14px;font-size:13.5px;font-weight:500;color:var(--text);
+  cursor:pointer;box-shadow:0 3px 14px rgba(20,28,54,.07);transition:color .15s,border-color .15s}
+.xl-btn:hover{border-color:#B9C7DC;color:var(--ink)}
+.xl-btn svg{color:var(--violet)}
+@media(max-width:900px){ .xl-btn{order:4} }
+@media(max-width:640px){ .xl-btn{padding:8px 12px;font-size:13px} }
+
 /* ══ FIRST PAINT ═════════════════════════════════════════ */
 .boot{display:flex;flex-direction:column;align-items:center;justify-content:center;
       min-height:70vh;gap:16px;padding:0 24px;text-align:center;color:var(--muted)}
@@ -49,6 +60,7 @@
 <script src="/shared/render.js"></script>
 <script src="/shared/board.js"></script>
 <script src="/shared/session.js"></script>
+<script src="/shared/xlsx.js"></script>
 <script>
 /* The board markup, stylesheet and runtime here are the same ones the editor
    uses and the same ones baked into the exported standalone file, so the page
@@ -83,7 +95,8 @@
     }
 
     document.title = data.meta.product + ' ' + data.meta.title;
-    app.innerHTML  = buildBodyHTML(data, { session: true });
+    app.innerHTML  = buildBodyHTML(data, { session: true, download: true });
+    document.getElementById('dlXlsx').addEventListener('click', () => downloadRoadmapXlsx(data));
     initBoard();
     initDrawer({ showBr: false });
     mountSession();
