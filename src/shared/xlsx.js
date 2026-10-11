@@ -2,10 +2,11 @@
    The roadmap as an Excel workbook, built in the browser.
 
    No library: an .xlsx file is a zip of a few XML parts, written here with
-   inline strings and stored (uncompressed) zip entries. Only public fields
-   are exported - the same ones the public board shows - so it is safe even
-   when an editor, whose /api/roadmap payload carries br, requestor and pm,
-   downloads from the public page.
+   inline strings and stored (uncompressed) zip entries. It exports the
+   fields the public board shows, plus a BR column only when the payload
+   carries br - which /api/roadmap sends to signed-in editors alone
+   (publicView deletes the key for everyone else). requestor and pm are
+   never exported. Each release train's rows get their own fill colour.
 
    Not one of the byte-verified design assets, and not inlined into the
    published standalone file.
@@ -21,15 +22,23 @@ function plainText(html){
 }
 
 function roadmapSheets(data){
-  const rows = [['Release train', 'Target quarter', 'Confidence', 'Capability', 'Description',
-                 'Area', 'For', 'Customer facing', 'Delivered in build']];
-  (data.trains || []).forEach(t => (t.items || []).forEach(it => {
-    rows.push([t.ver, t.quarter, t.status, it.name, plainText(it.desc), catLabel(data, it.cat),
-               it.audience || '', it.cf ? 'Yes' : 'No', it.patch || '']);
+  const trains = data.trains || [];
+  /* the key itself is the signal: publicView removes it, editors get it even when empty */
+  const withBr = trains.some(t => (t.items || []).some(it => 'br' in it));
+  const head = ['Release train', 'Target quarter', 'Confidence', 'Capability']
+    .concat(withBr ? ['BR'] : [], ['Description', 'Area', 'For', 'Customer facing', 'Delivered in build']);
+  const rows = [head], bands = [null];
+  trains.forEach((t, ti) => (t.items || []).forEach(it => {
+    rows.push([t.ver, t.quarter, t.status, it.name]
+      .concat(withBr ? [it.br || ''] : [],
+              [plainText(it.desc), catLabel(data, it.cat), it.audience || '', it.cf ? 'Yes' : 'No', it.patch || '']));
+    bands.push(ti % TRAIN_FILLS.length);
   }));
   const evals = [['Capability', 'Notes']].concat((data.evaluation || []).map(e => [e.t, e.d]));
   return [
-    { name: 'Roadmap', rows, widths: [13, 20, 15, 42, 90, 26, 30, 15, 17], wrap: [4] },
+    { name: 'Roadmap', rows, bands,
+      widths: [13, 20, 15, 42].concat(withBr ? [22] : [], [90, 26, 30, 15, 17]),
+      wrap: [head.indexOf('Description')] },
     { name: 'Under evaluation', rows: evals, widths: [48, 90], wrap: [1] }
   ];
 }
@@ -48,12 +57,19 @@ function colName(i){
   return s;
 }
 
-/* styles.xml cellXfs: 0 plain, 1 header (bold on grey), 2 plain wrapped, all top-aligned */
+/* One light fill per release train, in train order; repeats after ten trains. */
+const TRAIN_FILLS = ['DCEBFB', 'DDF3EE', 'ECE7FB', 'FCEBD5', 'E3F4DC',
+                     'FBE0E6', 'DDF1F8', 'FFF4CC', 'EFE4F6', 'E6EBF2'];
+
+/* styles.xml cellXfs: 0 plain, 1 header (bold on grey), 2 plain wrapped, all top-aligned;
+   then per train fill k: 3 + 2k plain, 4 + 2k wrapped */
 function sheetXML(sh){
   const last = colName(sh.rows[0].length - 1) + sh.rows.length;
   const cols = sh.widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('');
   const body = sh.rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
-    const s = ri === 0 ? 1 : (sh.wrap.indexOf(ci) !== -1 ? 2 : 0);
+    const wrap = sh.wrap.indexOf(ci) !== -1;
+    const band = sh.bands ? sh.bands[ri] : null;
+    const s = ri === 0 ? 1 : band == null ? (wrap ? 2 : 0) : 3 + 2 * band + (wrap ? 1 : 0);
     return `<c r="${colName(ci)}${ri + 1}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
   }).join('') + '</row>').join('');
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -89,14 +105,20 @@ function workbookParts(sheets){
     'xl/styles.xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       `<styleSheet xmlns="${ns}/spreadsheetml/2006/main">` +
       '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>' +
-      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
-      '<fill><patternFill patternType="solid"><fgColor rgb="FFE8ECF3"/><bgColor indexed="64"/></patternFill></fill></fills>' +
-      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+      `<fills count="${3 + TRAIN_FILLS.length}"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>` +
+      ['E8ECF3'].concat(TRAIN_FILLS).map(rgb =>
+        `<fill><patternFill patternType="solid"><fgColor rgb="FF${rgb}"/><bgColor indexed="64"/></patternFill></fill>`).join('') +
+      '</fills>' +
+      '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>' +
+      '<border><left/><right/><top/><bottom style="thin"><color rgb="FFFFFFFF"/></bottom><diagonal/></border></borders>' +
       '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
-      '<cellXfs count="3">' +
+      `<cellXfs count="${3 + 2 * TRAIN_FILLS.length}">` +
       '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top"/></xf>' +
       '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top"/></xf>' +
       '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      TRAIN_FILLS.map((_, k) => [false, true].map(wrap =>
+        `<xf numFmtId="0" fontId="0" fillId="${3 + k}" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1">` +
+        `<alignment vertical="top"${wrap ? ' wrapText="1"' : ''}/></xf>`).join('')).join('') +
       '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'
   };
   sheets.forEach((s, i) => { parts['xl/worksheets/sheet' + (i + 1) + '.xml'] = sheetXML(s); });

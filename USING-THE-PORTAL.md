@@ -15,8 +15,10 @@ The portal has two sides.
 **The public board** is what anyone sees at the portal address. No sign-in, no
 password. It is read-only. The **Excel** button beside the search box downloads
 the published roadmap as a workbook: every capability with its train, quarter,
-area, For and description, plus the Under evaluation list. It carries only what
-the public board shows, never Jira references, requesters or PMs.
+area, For and description, plus the Under evaluation list, with each release
+train in its own colour. It carries only what the public board shows. The one
+exception: when you are signed in as an editor, the file also has a **BR**
+column with the Jira references. Requesters and PMs are never included.
 
 **The editor** is the same board with editing controls, open only to named
 people. You change things there, and they stay private to you until you press
