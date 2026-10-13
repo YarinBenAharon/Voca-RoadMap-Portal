@@ -10,9 +10,10 @@
 <link rel="stylesheet" href="/shared/base.css">
 <style>
 .gate{max-width:520px;margin:0 auto;padding:110px 24px;text-align:center}
-.gate .mark{width:38px;height:38px;border-radius:50%;margin:0 auto 22px;
-  background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:-.04em}
+/* the colour logos, made for light backgrounds */
+.gate .brand{display:flex;align-items:center;justify-content:center;gap:16px;margin:0 auto 30px}
+.gate .brand picture{display:flex}
+.gate .brand .sep{width:1px;height:26px;background:var(--line)}
 .gate h1{font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
 .gate p{margin-top:12px;font-size:14px;line-height:1.6;color:var(--text)}
 .gate .acts{margin-top:26px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
@@ -34,7 +35,11 @@
 </head>
 <body>
 <div class="gate">
-  <div class="mark">ac</div>
+  <div class="brand">
+    <picture><source srcset="/shared/brand/static/voca-color.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/voca-color.webp" alt="Voca" width="112" height="30"></picture>
+    <span class="sep"></span>
+    <picture><source srcset="/shared/brand/static/audiocodes-color.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/audiocodes-color.webp" alt="AudioCodes" width="173" height="24"></picture>
+  </div>
   <h1>You are signed in, but not as an editor</h1>
   <p>Editing the Voca CIC roadmap is limited to a named set of people. If you
      should be one of them, ask the roadmap owner to grant your account the
@@ -63,7 +68,7 @@
 /* Access is granted against the identity Entra returns, not against an email
    address, and the two differ in this tenant. Showing people their own name
    removes the guesswork for whoever issues the invitation. */
-fetch('/.auth/me', { headers: { 'Accept': 'application/json' } })
+fetch('/.auth/me', { cache: 'no-store', headers: { 'Accept': 'application/json' } })
   .then(function(r){ return r.ok ? r.json() : null; })
   .then(function(j){
     var p = j && j.clientPrincipal;

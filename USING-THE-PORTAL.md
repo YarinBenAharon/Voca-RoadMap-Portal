@@ -12,13 +12,14 @@ understand how it behaves. No technical background assumed.
 
 The portal has two sides.
 
-**The public board** is what anyone sees at the portal address. No sign-in, no
-password. It is read-only. The **Excel** button beside the search box downloads
+**The board** is what you see at the portal address after signing in with your
+Microsoft account (the portal asks straight away). It is read-only. The **Excel** button beside the search box downloads
 the published roadmap as a workbook: every capability with its train, quarter,
-area, For and description, plus the Under evaluation list, with each release
-train in its own colour. It carries only what the public board shows. The one
-exception: when you are signed in as an editor, the file also has a **BR**
-column with the Jira references. Requesters and PMs are never included.
+area, For and description, with each release
+train in its own colour, plus a **BR** column with the Jira references.
+Requesters and PMs are never included.
+The **PDF** button next to it downloads the same content as a printable PDF,
+with a "CONFIDENTIAL" watermark and the time it was exported on every page.
 
 **The editor** is the same board with editing controls, open only to named
 people. You change things there, and they stay private to you until you press
@@ -32,18 +33,19 @@ That single idea explains almost everything else in this guide:
 
 ## Who can do what
 
-| | Sees the public board | Can sign in | Can edit | Can publish |
-| --- | :---: | :---: | :---: | :---: |
-| Anyone with the link | yes | — | no | no |
-| Signed in, no editor role | yes | yes | no | no |
-| Signed in, editor role | yes | yes | yes | yes |
+| | Sees the board | Can edit | Can publish |
+| --- | :---: | :---: | :---: |
+| Not signed in | no, sent to the Microsoft sign-in | no | no |
+| Signed in with a non-AudioCodes account | no, told to use an AudioCodes account | no | no |
+| Signed in with an AudioCodes account | yes | no | no |
+| Signed in, editor role | yes | yes | yes |
 
-Signing in on its own grants nothing — any Microsoft account can do it. Editing
+Signing in with your AudioCodes (@audiocodes.com) account lets you view. Editing
 requires being granted the **editor** role individually. Ask the portal owner
 to add you; it takes them about a minute.
 
-Once you have the role, a **Edit roadmap** link appears in the top right of
-the public board.
+Once you have the role, a **Voca PM** tag and an **Edit** button appear in the
+top right of the board.
 
 ---
 
@@ -69,12 +71,11 @@ Everything between steps 2 and 4 is private to you.
 | Reorder release trains | the **←** and **→** buttons in the train's header |
 | Add a release train | **Add release train**, at the far right of the board |
 | Maintenance builds | **Maintenance builds** / **Add builds** at the bottom of a train |
-| The page heading, intro text, current release, "updated" date | **Header** in the top bar |
-| The "Under evaluation" list | **Edit** on any card in that section, or **Add item** at the end of it |
+| The product name in the page heading, current release, next release, "updated" date | **Header** in the top bar |
 | Regional deployment status | the ✎ button on a region card |
 
-Target quarters are planning intentions. The footer of the public board says so
-in full legal terms, so the board itself is not a commitment.
+Target quarters are planning intentions. The disclaimer under the page heading
+says so in full legal terms, so the board itself is not a commitment.
 
 ---
 
@@ -130,24 +131,25 @@ first.
 
 ---
 
-## What customers never see
+## What viewers see
 
-These are stripped from the public board automatically. You do not have to
-remember to remove them.
+The board is for AudioCodes accounts only. Anyone signed in with another
+Microsoft account is told so and gets no roadmap.
 
-- **Jira / BR references.** Visible on tiles in the editor, never on the public
-  board, and not searchable there either.
-- **Requested by** and **Responsible PM.** Shown as badges on the tile and in
-  the detail panel while editing; absent from the public board entirely. This
-  matters — *Requested by* usually holds a customer or account name, and the
-  board is shared outside the company.
+- **Jira / BR, Requested by, Responsible PM** and **Customer facing: No,
+  internal** are shown to every viewer, read-only, in the detail panel that
+  opens when they select a capability. They are searchable too. Tiles on the
+  board do not show requester or PM badges; only the editor does.
+- **Downloads** (Excel and PDF) include the BR, but never *Requested by* or
+  *Responsible PM*. *Requested by* usually holds a customer or account name,
+  and files get forwarded.
 - **Regions marked internal.** A region card with the orange *internal* tag is
   editor-only. Set this with the ✎ button on the card.
-- **Editing controls** themselves, obviously.
+- **Editing controls** are editor-only, obviously.
 
-The **Customer preview** switch in the top bar shows you exactly what a
-customer sees, without leaving the editor. Use it before every publish. It is
-the honest check — it hides precisely what the public board hides.
+The **Customer preview** switch in the top bar hides the editor's internal
+chrome (BR tags, requester and PM badges, internal regions, editing controls),
+so you can see how a clean, customer-style board looks.
 
 Separately, capabilities can be flagged **Customer facing** (the star badge).
 That flag does *not* hide anything; it drives the "Customer facing" filter that
@@ -262,5 +264,3 @@ Useful vocabulary when discussing changes.
 - **Maintenance builds** — the point releases listed at the bottom of a train.
 - **Regions** — the deployment status cards, showing which build each region is
   running.
-- **Under evaluation** — requested capabilities being assessed, deliberately
-  not tied to any release train.

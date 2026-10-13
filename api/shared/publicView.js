@@ -1,26 +1,18 @@
 /* =========================================================================
-   What an anonymous caller is allowed to see.
+   What a signed-in viewer without the editor role is allowed to see.
 
-   The board markup hides internal fields by rendering with editable:false,
-   but that only protects the page - /api/roadmap is public, so anything left
-   in the payload is readable by anyone who opens the URL directly. This
-   strips it at the source instead.
+   api/roadmap only answers AudioCodes accounts and editors (auth.isAudioCodes),
+   so viewers get every item field, including the internal ones (br, requestor,
+   pm): they are shown read-only in the detail panel. What stays editor-only is
+   the internal regions - publish:false - which the board leaves out anyway.
 
-   Keep this in step with laneHTML/regionsHTML: every field those helpers
-   gate behind `editable` or `showAll` must be removed here too. The board is
-   shared outside the company and `requestor` holds customer names.
+   requestor holds customer names. That is acceptable only because the domain
+   check keeps the payload inside AudioCodes; do not relax that check without
+   stripping requestor here again.
    ========================================================================= */
-
-const INTERNAL_ITEM_FIELDS = ['br', 'requestor', 'pm'];
 
 function publicView(data){
   const out = JSON.parse(JSON.stringify(data));
-
-  (out.trains || []).forEach(t => {
-    (t.items || []).forEach(i => {
-      INTERNAL_ITEM_FIELDS.forEach(f => { delete i[f]; });
-    });
-  });
 
   if (out.cloud && Array.isArray(out.cloud.regions)){
     out.cloud.regions = out.cloud.regions.filter(r => r.publish !== false);
@@ -29,4 +21,4 @@ function publicView(data){
   return out;
 }
 
-module.exports = { publicView, INTERNAL_ITEM_FIELDS };
+module.exports = { publicView };

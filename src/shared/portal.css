@@ -1,0 +1,60 @@
+/* =========================================================================
+   Deliberate departures from the frozen design, asked for by the product
+   owner. base.css stays byte-identical to the original; everything that
+   changes its look lives here, loaded after it by the public page and the
+   editor and inlined after it into the published standalone file.
+   ========================================================================= */
+
+/* Lane heads: reserve two lines for the theme, so the bodies of all lanes
+   start on one line whether a train has a one-line, two-line or no theme. */
+.lane-theme{min-height:calc(2 * 1.45em)}
+
+/* Hero: the title is one line, the disclaimer sits beneath it. */
+.hero h1{max-width:none}
+.hero .lede{max-width:82ch;font-size:14.5px;line-height:1.65}
+@media(max-width:640px){ .hero .lede{font-size:13.5px} }
+
+/* Filter bar: the area pills keep their full width instead of being squeezed
+   and clipped by the buttons beside them. Search, Excel and PDF are one group
+   (.fb-end, public page only) that wraps to a second row as a unit. */
+.filterbar .wrap{flex-wrap:wrap}
+.seg{flex-shrink:0;max-width:100%}
+.fb-end{display:flex;align-items:center;gap:10px;margin-left:auto}
+.fb-end .finder{margin-left:0}
+.fb-end .finder input{width:200px}
+@media(max-width:900px){
+  .fb-end{order:3;flex:1 1 100%;margin-left:0}
+  .fb-end .finder{flex:1 1 auto}
+  .fb-end .finder input{width:100%}
+}
+
+/* Top bar: the animated Voca logo (colour stripes, white text) and, beside it
+   on the right, the AudioCodes logo replace the "ac" mark and vendor name.
+   Sizes keep the source images sharp on high-DPI screens. */
+.logo.brand{gap:16px}
+.logo.brand picture{display:flex}
+.logo.brand img{display:block;height:auto}
+.brand-sep{width:1px;height:26px;background:rgba(255,255,255,.22)}
+@media(max-width:640px){
+  .logo.brand{gap:10px}
+  .logo.brand img[alt="AudioCodes"]{width:122px}
+  .logo.brand img[alt="Voca"]{width:79px}
+  .brand-sep{height:20px}
+}
+@media(max-width:420px){
+  .logo.brand img[alt="AudioCodes"], .brand-sep{display:none}
+}
+
+/* Top bar: no Roadmap / Regions links, so the badge takes over pushing the
+   session control to the right. */
+.topbar .nda{margin-left:auto}
+.sess:empty{display:none}
+.sess .sess-out{font-size:12px;color:#8B94B4}
+.sess .sess-out:hover{color:#fff}
+
+/* Top bar: the "Voca PM" tag beside the Edit button, for editors only (session.js). */
+.sess .sess-tag{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#7FE0C9;
+  background:rgba(14,158,134,.18);border:1px solid rgba(14,158,134,.45);border-radius:6px;padding:3px 8px;cursor:default}
+
+/* Regions: no "Latest build" box beside the heading. */
+.sec-head .latest{display:none}

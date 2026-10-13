@@ -79,24 +79,23 @@ def main():
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('seed.json readable (%s)' % err, False)
 
-    print('Internal fields stripped from the public payload:')
+    # The internal item fields (br, requestor, pm) are shown read-only to
+    # viewers, so the payload carries them. That is safe only while the
+    # roadmap API answers AudioCodes accounts and editors alone.
+    print('Internal fields kept inside AudioCodes:')
     try:
         stripper = pathlib.Path('api/shared/publicView.js').read_text(encoding='utf-8')
-        listed = set(re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'",
-                                re.search(r'INTERNAL_ITEM_FIELDS\s*=\s*\[([^\]]*)\]',
-                                          stripper).group(1)))
+        api = pathlib.Path('api/roadmap/index.js').read_text(encoding='utf-8')
         # every data- attribute render.js emits only when editable is true
         gated = set(re.findall(r'data-[a-z]+="\$\{esc\(it\.([A-Za-z0-9_]+)',
                                re.search(r'\$\{editable \?\s*`([^`]*)`', rendered).group(1)))
         check('render.js gates %s' % (sorted(gated) or 'nothing'), bool(gated))
-        missing = gated - listed
-        check('publicView strips all of them%s'
-              % ('' if not missing else ' (MISSING: %s)' % ', '.join(sorted(missing))),
-              not missing)
+        check('api/roadmap refuses non-AudioCodes accounts',
+              'auth.isAudioCodes(req)' in api and "'audiocodes-only'" in api)
         check('publicView drops internal regions',
               "publish !== false" in stripper)
     except Exception as err:                      # noqa: BLE001 - reported, not raised
-        check('public payload check (%s)' % err, False)
+        check('payload check (%s)' % err, False)
 
     print()
     if failures:

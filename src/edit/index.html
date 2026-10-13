@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/base.css">
+<link rel="stylesheet" href="/shared/portal.css">
 <style>
 /* ══ EDITOR CHROME ══════════════════════════════════════════════════ */
 .ed-bar{position:sticky;top:0;z-index:90;background:#0E1020;color:#fff;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.09)}
@@ -19,8 +20,9 @@
 .ed-bar .wrap{padding-right:0}
 .ed-right{padding-right:var(--gutter)}
 .ed-brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-right:8px}
-.ed-brand .mark{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6C5CE0,#2FAECE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
-.ed-brand span{color:#8B94B4;font-weight:400}
+.ed-brand picture{display:flex}
+.ed-brand img{display:block}
+.ed-brand .ed-sep{width:1px;height:18px;background:rgba(255,255,255,.2)}
 .ed-btn{font-size:12.5px;color:#DCE4EC;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:6px 14px;cursor:pointer}
 .ed-btn:hover{background:rgba(255,255,255,.18);color:#fff}
 .ed-btn.pri{background:linear-gradient(135deg,#6C5CE0,#2159AE);border-color:transparent;color:#fff;font-weight:500}
@@ -79,7 +81,7 @@ body.preview .region.is-internal{display:none!important}
 .toast.show{opacity:1}
 @media(max-width:900px){
   .ed-bar{padding:8px 0}
-  .ed-brand span{display:none}
+  .ed-brand .ed-ac{display:none}
   .filterbar{top:49px}
 }
 @media(max-width:640px){
@@ -113,7 +115,7 @@ body.preview .region.is-internal{display:none!important}
 
 <div class="ed-bar">
   <div class="wrap">
-    <span class="ed-brand"><span class="mark">ac</span>Roadmap editor <span>Voca CIC</span></span>
+    <span class="ed-brand"><picture><source srcset="/shared/brand/static/voca-mixed.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/voca-mixed.webp" alt="Voca" width="68" height="18"></picture><picture class="ed-ac"><source srcset="/shared/brand/static/audiocodes-white.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/audiocodes-white.webp" alt="AudioCodes" width="101" height="14"></picture><span class="ed-sep"></span>Roadmap editor</span>
     <button class="ed-btn" id="bAddTrain">Add train</button>
     <button class="ed-btn" id="bMeta">Header</button>
     <div class="ed-right">
@@ -465,13 +467,13 @@ function editMeta(){
     '<div class="frow"><div class="field"><label>Vendor</label><input name="vendor" value="'+esc(m0.vendor)+'"></div>' +
       '<div class="field"><label>Product</label><input name="product" value="'+esc(m0.product)+'"></div></div>' +
     '<div class="field"><label>Page title</label><input name="title" value="'+esc(m0.title)+'"></div>' +
-    '<div class="field"><label>Opening paragraph</label><textarea name="lede">'+esc(m0.lede)+'</textarea></div>' +
     '<div class="frow"><div class="field"><label>Current release</label><input name="currentRelease" value="'+esc(m0.currentRelease)+'"></div>' +
-      '<div class="field"><label>Latest build</label><input name="latestBuild" value="'+esc(m0.latestBuild)+'"></div></div>' +
-    '<div class="frow"><div class="field"><label>Next train</label><input name="nextTrain" value="'+esc(m0.nextTrain)+'"></div>' +
-      '<div class="field"><label>Roadmap updated</label><input name="updated" value="'+esc(m0.updated)+'"></div></div>',
+      '<div class="field"><label>Next release</label><input name="nextTrain" value="'+esc(m0.nextTrain)+'"></div></div>' +
+    '<div class="field"><label>Roadmap updated</label><input name="updated" value="'+esc(m0.updated)+'"></div>',
     m => {
-      ['vendor','product','title','lede','currentRelease','latestBuild','nextTrain','updated']
+      /* lede and latestBuild are no longer shown (the disclaimer replaced the lede);
+         they stay in the data, untouched, because validate.js requires them */
+      ['vendor','product','title','currentRelease','nextTrain','updated']
         .forEach(k => m0[k] = val(m,k));
       touch();
     });
@@ -499,20 +501,13 @@ function render(){
   const lanes = data.trains.map(t => laneHTML(data, t, { editable:true })).join('')
     + '<section class="lane lane-add"><button class="tbtn add" id="laneAdd">Add release train</button></section>';
 
-  const evals = data.evaluation.map((e,i) =>
-    '<div class="ev"><div class="t">'+esc(e.t)+'</div><div class="d">'+esc(e.d)+'</div>' +
-    '<div class="ed-tools"><button class="tbtn" data-act="eedit" data-i="'+i+'">Edit</button></div></div>').join('')
-    + '<div class="ev" style="border-style:dashed;display:flex;align-items:center;justify-content:center">' +
-      '<button class="tbtn add" data-act="eadd">Add item</button></div>';
-
   document.getElementById('app').innerHTML =
   '<header class="hero"><div class="wrap">' +
-    '<h1>'+esc(m.product)+' release roadmap</h1>' +
-    '<p class="lede">'+esc(m.lede)+'</p>' +
+    '<h1>'+esc(m.product)+' Release Roadmap</h1>' +
+    '<p class="lede">'+esc(DISCLAIMER)+'</p>' +
     '<div class="hero-facts">' +
       '<div class="hfact"><div class="k">Current release</div><div class="v">'+esc(m.currentRelease)+'</div></div>' +
-      '<div class="hfact"><div class="k">Latest build</div><div class="v">'+esc(m.latestBuild)+'</div></div>' +
-      '<div class="hfact"><div class="k">Next train</div><div class="v">'+esc(m.nextTrain)+'</div></div>' +
+      '<div class="hfact"><div class="k">Next release</div><div class="v">'+esc(m.nextTrain)+'</div></div>' +
       '<div class="hfact"><div class="k">Updated</div><div class="v plain">'+esc(m.updated)+'</div></div>' +
     '</div></div></header>' +
 
@@ -538,17 +533,7 @@ function render(){
     '<p class="noresult" id="noresult">Nothing matches that filter.</p>' +
   '</section>' +
 
-  '<section class="section alt"><div class="wrap">'+regionsHTML(data, { showAll:true, editable:true })+'</div></section>' +
-
-  '<section class="section"><div class="wrap">' +
-    '<div class="sec-head"><div><h2>Under evaluation</h2>' +
-    '<p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p></div></div>' +
-    '<div class="evals">'+evals+'</div></div></section>' +
-
-  '<footer><div class="wrap"><p>This roadmap describes our current plans and is provided for planning ' +
-    'purposes only. It is not a commitment, promise or legal obligation, and it does not form part of any ' +
-    'contract. Content, sequencing and timing can change without notice.</p>' +
-    '<div class="stamp">'+esc(m.product)+' '+esc(m.title)+'<br>Updated '+esc(m.updated)+'</div></div></footer>';
+  '<section class="section alt"><div class="wrap">'+regionsHTML(data, { showAll:true, editable:true })+'</div></section>';
 
   // mark internal regions so customer preview can hide them
   const cards = document.querySelectorAll('.region');
@@ -572,6 +557,7 @@ initDrawer({
       '<button class="tbtn del" data-act="idel" data-t="'+d.t+'" data-i="'+d.i+'">Delete</button>' +
     '</div>'
 });
+relabelDrawer();
 
 /* ── delegated actions ──────────────────────────────────────────────── */
 document.addEventListener('click', e => {

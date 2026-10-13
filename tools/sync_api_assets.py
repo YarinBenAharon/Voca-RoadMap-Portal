@@ -3,7 +3,8 @@ inline them into the standalone exported file.
 
 src/shared/ is the single source for the stylesheet, the board runtime and the
 markup helpers. The API is deployed as a separate unit and cannot read src/, so
-the three files are copied into api/shared/assets/ at build time. That copy is
+they (plus portal.css, the owner-requested overrides that load after base.css)
+are copied into api/shared/assets/ at build time. That copy is
 generated, never edited, and is git-ignored so a stale one cannot be committed.
 
 Run from the repository root:  python tools/sync_api_assets.py
@@ -13,7 +14,10 @@ import pathlib
 import shutil
 import sys
 
-ASSETS = ('base.css', 'board.js', 'render.js')
+ASSETS = ('base.css', 'portal.css', 'board.js', 'render.js',
+          # the top bar logos, inlined into the exported file as data URIs
+          'brand/webp/audiocodes-white.webp', 'brand/webp/voca-mixed.webp',
+          'brand/static/audiocodes-white.png', 'brand/static/voca-mixed.png')
 SRC    = pathlib.Path('src/shared')
 DEST   = pathlib.Path('api/shared/assets')
 
@@ -27,6 +31,7 @@ def main():
         source = SRC / name
         if not source.is_file():
             sys.exit('Missing shared asset: %s' % source)
+        (DEST / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, DEST / name)
         print('%s -> %s' % (source, DEST / name))
 

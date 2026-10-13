@@ -145,39 +145,75 @@ function regionsHTML(data, opts){
     <div class="regions">${cards}${editable ? '<div class="region" style="border-style:dashed;display:flex;align-items:center;justify-content:center"><button class="tbtn add" data-act="radd">Add region</button></div>' : ''}</div>`;
 }
 
+/* Shown under the page title, on the board and in the PDF download. */
+const DISCLAIMER = 'This roadmap describes our current plans and is provided for planning purposes only. ' +
+  'It is not a commitment, promise or legal obligation, and it does not form part of any contract. ' +
+  'Content, sequencing and timing can change without notice. ' +
+  'Do not base purchasing decisions on capabilities that have not yet been released.';
+
+/* Hard-coded at the owner's request: on the board the IO region is always
+   shown first and named "Trial cloud", whatever the data says. The editor
+   still shows and edits the regions as stored. */
+const TRIAL_REGION_ID = 'io', TRIAL_REGION_NAME = 'Trial cloud';
+function withTrialRegionFirst(data){
+  const regions = (data.cloud && data.cloud.regions) || [];
+  const i = regions.findIndex(r => r.id === TRIAL_REGION_ID);
+  if (i === -1) return data;
+  const trial = Object.assign({}, regions[i], { name: TRIAL_REGION_NAME });
+  return Object.assign({}, data, { cloud: Object.assign({}, data.cloud,
+    { regions: [trial].concat(regions.filter((_, j) => j !== i)) }) });
+}
+
+/* The detail panel's "Area" label lives in the frozen board.js; this renames
+   it to "Product Area" each time the panel opens. Registered after
+   initDrawer(), so it runs after the panel has been filled. */
+function relabelDrawer(){
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.tile') || e.target.closest('[data-act]')) return;
+    document.querySelectorAll('#drawer .dmeta .k').forEach(function(k){
+      if (k.textContent === 'Area') k.textContent = 'Product Area';
+    });
+  });
+}
+
 /* ── published body  (shared by the live site and the standalone export) ──
    The markup below is the body of buildPublishHTML() moved here verbatim so
    the hosted page and the exported file are generated from one source.     */
 function buildBodyHTML(data, opts){
   const sessionSlot = (opts && opts.session) ? '<div class="sess" id="session"></div>' : '';
-  /* only the live page loads xlsx.js; the published standalone file has no download */
+  /* only the live page loads xlsx.js and pdf.js; the published standalone file has no download */
+  const dlIcon = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11"/></svg>';
   const downloadBtn = (opts && opts.download)
-    ? '<button class="xl-btn" id="dlXlsx" title="Download the roadmap as an Excel workbook"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11"/></svg>Excel</button>'
+    ? '<button class="xl-btn" id="dlXlsx" title="Download the roadmap as an Excel workbook">' + dlIcon + 'Excel</button>' +
+      '<button class="xl-btn" id="dlPdf" title="Download the roadmap as a PDF">' + dlIcon + 'PDF</button>'
     : '';
   const m = data.meta;
   const segs = ['<button data-cat="all" aria-pressed="true">All</button>']
     .concat((data.categories||[]).map(c =>
       `<button data-cat="${esc(c.id)}" aria-pressed="false" title="${esc(c.label)}">${esc(c.short||c.label)}</button>`)).join('');
   const lanes = (data.trains||[]).map(t => laneHTML(data, t, { editable:false })).join('\n');
-  const evals = (data.evaluation||[]).map(e =>
-    `<div class="ev"><div class="t">${esc(e.t)}</div><div class="d">${esc(e.d)}</div></div>`).join('');
+  /* animated WebP, with the static last frame for reduced motion; the
+     exported file passes data URIs instead (see publishHtml.js) */
+  const L = (opts && opts.logos) || {
+    ac:   '/shared/brand/webp/audiocodes-white.webp', acStill:   '/shared/brand/static/audiocodes-white.png',
+    voca: '/shared/brand/webp/voca-mixed.webp',       vocaStill: '/shared/brand/static/voca-mixed.png' };
+  const logo = (src, still, alt, w, h) =>
+    `<picture><source srcset="${still}" media="(prefers-reduced-motion: reduce)"><img src="${src}" alt="${alt}" width="${w}" height="${h}"></picture>`;
   return `<div class="topbar">
   <div class="wrap">
-    <span class="logo"><span class="mark">ac</span>${esc(m.vendor)}</span>
-    <nav><a href="#board-section">Roadmap</a><a href="#regions">Regions</a><a href="#evaluation">Under evaluation</a></nav>
-    <span class="nda">Confidential &middot; NDA</span>
+    <span class="logo brand">${logo(L.voca, L.vocaStill, 'Voca', 112, 30)}<span class="brand-sep"></span>${logo(L.ac, L.acStill, 'AudioCodes', 173, 24)}</span>
+    <span class="nda">AudioCodes users only</span>
     ${sessionSlot}
   </div>
 </div>
 
 <header class="hero">
   <div class="wrap">
-    <h1>${esc(m.product)} release roadmap</h1>
-    <p class="lede">${esc(m.lede)}</p>
+    <h1>${esc(m.product)} Release Roadmap</h1>
+    <p class="lede">${esc(DISCLAIMER)}</p>
     <div class="hero-facts">
       <div class="hfact"><div class="k">Current release</div><div class="v">${esc(m.currentRelease)}</div></div>
-      <div class="hfact"><div class="k">Latest build</div><div class="v">${esc(m.latestBuild)}</div></div>
-      <div class="hfact"><div class="k">Next train</div><div class="v">${esc(m.nextTrain)}</div></div>
+      <div class="hfact"><div class="k">Next release</div><div class="v">${esc(m.nextTrain)}</div></div>
       <div class="hfact"><div class="k">Updated</div><div class="v plain">${esc(m.updated)}</div></div>
     </div>
   </div>
@@ -187,11 +223,13 @@ function buildBodyHTML(data, opts){
   <div class="wrap">
     <div class="seg" role="group" aria-label="Filter by area">${segs}</div>
     <button class="cf-toggle" id="cfToggle" aria-pressed="false" title="Show only customer-facing features"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing <span class="cf-n">${(data.trains||[]).reduce((a,t)=>a+(t.items||[]).filter(i=>i.cf).length,0)}</span></button>
-    <div class="finder">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
-      <input type="search" id="finder" placeholder="Search capabilities" aria-label="Search capabilities">
+    <div class="fb-end">
+      <div class="finder">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
+        <input type="search" id="finder" placeholder="Search capabilities" aria-label="Search capabilities">
+      </div>
+      ${downloadBtn}
     </div>
-    ${downloadBtn}
   </div>
 </div>
 
@@ -212,28 +250,8 @@ function buildBodyHTML(data, opts){
 </section>
 
 <section class="section alt" id="regions">
-  <div class="wrap">${regionsHTML(data, { showAll:false, editable:false })}</div>
+  <div class="wrap">${regionsHTML(withTrialRegionFirst(data), { showAll:false, editable:false })}</div>
 </section>
-
-<section class="section" id="evaluation">
-  <div class="wrap">
-    <div class="sec-head"><div>
-      <h2>Under evaluation</h2>
-      <p class="sub">Requested capabilities we are actively assessing. These are not scheduled to a release train, and some depend on platform capabilities outside our control.</p>
-    </div></div>
-    <div class="evals">${evals}</div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <p>This roadmap describes our current plans and is provided for planning purposes only. It is
-      not a commitment, promise or legal obligation, and it does not form part of any contract.
-      Content, sequencing and timing can change without notice. Do not base purchasing decisions
-      on capabilities that have not yet been released.</p>
-    <div class="stamp">${esc(m.product)} ${esc(m.title)}<br>Updated ${esc(m.updated)}</div>
-  </div>
-</footer>
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Capability detail">
@@ -244,6 +262,6 @@ function buildBodyHTML(data, opts){
 }
 
 if (typeof module !== 'undefined' && module.exports){
-  module.exports = { esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
+  module.exports = { DISCLAIMER, withTrialRegionFirst, relabelDrawer, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
                      yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

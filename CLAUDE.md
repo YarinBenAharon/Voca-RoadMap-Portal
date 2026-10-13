@@ -39,6 +39,36 @@ re-cut the shared assets and `seed.json` from it rather than hand-merging.
 The anchor check exists so a stale line number fails loudly instead of
 silently slicing the wrong bytes.
 
+Deliberate design changes asked for by the product owner do not touch the
+frozen slices. CSS goes in `src/shared/portal.css`, loaded after `base.css`
+everywhere `base.css` is (public page, editor, inlined into the exported
+file); markup changes go in `buildBodyHTML` and the editor's `render()`. So
+far: lane heads reserve two theme lines so lane bodies align; the hero title
+is "<product> Release Roadmap" on one line with the `DISCLAIMER` (in
+`render.js`) beneath it instead of `meta.lede`; the Latest build fact is gone
+and Next train reads Next release; the footer is gone; the Under evaluation
+section is gone from the board, the editor, the Excel and the PDF (the
+`evaluation` data stays); the Regions "Latest build" box is hidden by CSS
+(it is in the frozen `regionsHTML`); the filter bar wraps instead of clipping
+the area pills; on the board and in the exported file the `io` region is
+always shown first and named "Trial cloud" (`withTrialRegionFirst` in
+`render.js`, hard-coded at the owner's request; the editor shows the stored
+order and name); the detail panel's "Area" label reads "Product Area"
+(`relabelDrawer` in `render.js`, run after `initDrawer`, because the label is
+in the frozen `board.js`); the top bar has no Roadmap / Regions links and its badge
+reads "AudioCodes users only"; the top bar
+shows the animated Voca logo on the left, then the AudioCodes logo beside it,
+instead of the "ac" mark; the editor bar shows smaller copies (AudioCodes
+hidden under 900px), and `403.html`, on white, uses the untouched `-color`
+originals (`src/shared/brand/`, WebP with a
+static PNG for `prefers-reduced-motion`); the exported file carries them as
+data URIs. `voca-mixed` is composed frame by frame at the owner's request:
+everything from the white logo except the violet-blue accent stripe, which
+comes from the colour logo (pixels with x < 96 and blue - red > 60; the
+colour logo's slate stripes were lost on the dark bar), with the GIF's timing (60 x 50 ms, then a 17 s hold). They are raster
+brand assets from a sales deck: don't otherwise redraw, recolor or crop them,
+and swap in Marketing's official masters if they become available.
+
 ## Layout
 
 ```
@@ -49,14 +79,19 @@ src/                            app_location — everything served to browsers
 ├── staticwebapp.config.json    routes, role gating, headers
 └── shared/
     ├── base.css                THE stylesheet  (frozen slice)
+    ├── portal.css              owner-requested overrides on top of base.css
+    ├── brand/                  top bar logos: webp/ animated, static/ still
     ├── board.js                initBoard + initDrawer  (frozen slice)
     ├── render.js               markup helpers (frozen slice) + buildBodyHTML
     ├── session.js              the sign-in control
-    └── xlsx.js                 the public page's Excel download (no library;
-                                public fields, plus BR when the payload has
-                                br, i.e. for editors; not synced into the API)
+    ├── xlsx.js                 the public page's Excel download (no library;
+    │                           public fields, plus BR when the payload has
+    │                           br, i.e. for editors; not synced into the API)
+    └── pdf.js                  the public page's PDF download (no library;
+                                same fields as xlsx.js, CONFIDENTIAL watermark
+                                and export timestamp; not synced into the API)
 api/                            managed Azure Functions, Node 20
-├── roadmap/                    GET  /api/roadmap        anonymous
+├── roadmap/                    GET  /api/roadmap        any signed-in user
 ├── publish/                    POST /api/publish        editor only
 ├── snapshots/                  GET  /api/snapshots      editor only
 ├── draft/                      GET/PUT/DELETE /api/draft  editor only, per user
@@ -84,7 +119,7 @@ copy:
    exported file
 
 The API is a separate deployment unit and cannot read `src/`, so
-`tools/sync_api_assets.py` copies the three files into `api/shared/assets/` at
+`tools/sync_api_assets.py` copies them (plus `portal.css`) into `api/shared/assets/` at
 build time. That directory is **generated and git-ignored** — never edit or
 commit it. Run the sync locally if you are testing the API:
 
@@ -104,6 +139,7 @@ blob storage as `current/roadmap.json`, wrapped as
 
 ```
 meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, nextTrain }
+          // lede and latestBuild are no longer shown or edited; kept because validate.js requires them
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
@@ -116,22 +152,26 @@ cloud     { note, latestVersion, regions: [{ id, name, flag, version,
 Fields with non-obvious behavior:
 
 - `br`, `requestor`, `pm` — internal Jira reference, requesting customer and
-  responsible PM. They are hidden in **two** places, and both are required:
-  1. **Rendering** — `laneHTML` emits their `data-` attributes and the
-     requester/PM badges only when `editable` is true, the drawer rows are
-     gated on `opts.showBr`, and they are excluded from the public search key.
-  2. **The payload** — `/api/roadmap` is an anonymous route, so
-     `api/shared/publicView.js` deletes these fields, drops `publish:false`
-     regions and blanks `publishedBy` for any caller without the editor role.
-
-  Hiding them at render time alone is **not** enough: the endpoint is a public
-  URL and was briefly serving real `br` values and customer names to anyone
-  who opened it. `requestor` holds customer names on an NDA board.
-
-  Adding another sensitive field means updating `INTERNAL_ITEM_FIELDS` in
-  `publicView.js` as well as the render gate. `verify_shared_assets.py` reads
-  the `editable`-gated attributes straight out of `render.js` and fails if any
-  of them is missing from the stripper, so CI catches the omission.
+  responsible PM. **Every viewer sees them read-only** in the board's detail
+  panel (Jira, Requested by, Responsible PM, and "Customer facing: No,
+  internal"), at the owner's request; only editors can change them.
+  - **Rendering** — `laneHTML` (frozen) still emits their `data-` attributes
+    and the tile badges only when `editable` is true. The public page renders
+    with `editable:false`, then `withInternalFields()` in `index.html` adds the
+    three attributes and search terms to each tile from the data, and opens
+    the drawer with `showBr:true`. Tiles show no requester/PM badges.
+  - **The payload** — this is safe only because `/api/roadmap` answers
+    AudioCodes accounts and editors alone (`auth.isAudioCodes`, see Auth
+    model). `publicView.js` now only drops `publish:false` regions for
+    non-editors, and `publishedBy` stays blank for them.
+    `verify_shared_assets.py` fails if the API loses the domain check.
+    `requestor` holds customer names: never relax that check without
+    stripping it from the payload again. (The endpoint was once public and
+    briefly served real `br` values and customer names to anyone.)
+  - **Downloads** — Excel and PDF carry a BR column for everyone, but never
+    `requestor` or `pm`, because files travel.
+  - **The standalone exported file** still renders with `editable:false` and
+    no drawer fields, so it carries none of the three.
 - `cf` — "customer facing", drives the star badge and the filter toggle. It
   does *not* hide anything.
 - `audience` — free text, who in the customer's organization uses the
@@ -160,6 +200,23 @@ drive the whole design:
   therefore grants nothing. The GitHub provider is disabled by a 404 route rule.
 - Authorization is the custom **`editor`** role, granted per person through
   Role Management invitations in the Azure portal (25-user platform cap).
+
+**Every route requires sign-in.** A catch-all `/*` rule (plus `/shared/*` and
+`/api/roadmap*`) allows only `authenticated`, and the 401 override sends
+anyone else to the Microsoft sign-in. There is no Sign in button. The top bar
+shows a quiet **Sign out** link for everyone, plus a **Voca PM** tag and an
+**Edit** button for editors (`session.js`). `api/roadmap` re-checks
+`authenticated` itself as a second lock.
+
+**The roadmap is limited to AudioCodes accounts by domain.** Because any
+Microsoft account can sign in, `api/roadmap` returns the data only when
+`auth.isAudioCodes()` holds (provider `aad`, sign-in name ending in a domain
+in `AUDIOCODES_DOMAINS`, today `audiocodes.com`) or the caller is an editor.
+Anyone else gets `403 {error:"audiocodes-only"}`, and `index.html` shows "This
+roadmap is for AudioCodes accounts only" with a Sign out button. The page
+frame and shared assets still load for any signed-in account; only the data
+is withheld. Add a domain to `AUDIOCODES_DOMAINS` if some AudioCodes sign-in
+names use another one.
 
 `/edit*` and `/api/publish` are gated by `allowedRoles` in
 `staticwebapp.config.json`. `api/shared/auth.js` re-checks the role from
@@ -229,6 +286,15 @@ immutable snapshot, then overwrites `current/roadmap.{json,html}`. It is live
 immediately — `/api/roadmap` is sent `no-cache`.
 
 ## Verifying a change
+
+For a local end-to-end check, `node tools/dev_server.js [--data roadmap.json]`
+(after `python tools/sync_api_assets.py`) serves `src/` on
+http://localhost:8765 with a fake sign-in page offering two test users,
+**Voca PM** (editor) and **Regular user** (AudioCodes viewer). It runs the
+real API functions with a local folder (`%TEMP%\voca-roadmap-devstore`) in
+place of blob storage, so drafts and Publish work. Delete that folder to
+start again from `--data`. Keep `--data` files containing customer names out
+of this repo.
 
 There is no test suite. After editing:
 

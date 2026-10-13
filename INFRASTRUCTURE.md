@@ -65,8 +65,21 @@ the only way in.
 
 ## Editors
 
-Keep this list current as people are added and removed in Role management.
+Role management in Azure is the only list; it is not copied here, so it
+cannot go stale. To see who has the `editor` role:
 
-| UPN | Added | Notes |
-| --- | --- | --- |
-| | | |
+```bash
+az staticwebapp users list --name VocaCIC-Roadmap -g VocaCIC-Roadmap-Portal-RG -o table
+```
+
+The CLI has no delete. To take the role away, set the person's roles to just
+`authenticated` (they can still sign in and view), or use **Delete** under
+**Settings → Role management**:
+
+```bash
+az staticwebapp users update --name VocaCIC-Roadmap -g VocaCIC-Roadmap-Portal-RG \
+  --authentication-provider aad --user-details <upn> --roles authenticated
+```
+
+A role change applies from the person's next sign-in; an open session keeps
+its old roles until it expires (up to about 8 hours) or they sign out.
