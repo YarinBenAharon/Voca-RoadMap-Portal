@@ -73,6 +73,7 @@ Everything between steps 2 and 4 is private to you.
 | Maintenance builds | **Maintenance builds** / **Add builds** at the bottom of a train |
 | The product name in the page heading, current release, next release, "updated" date | **Header** in the top bar |
 | Regional deployment status | the ✎ button on a region card |
+| The note under "Where each region is today" | the ✎ button at the end of the note |
 
 Target quarters are planning intentions. The disclaimer under the page heading
 says so in full legal terms, so the board itself is not a commitment. Above

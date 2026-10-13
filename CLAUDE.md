@@ -56,7 +56,9 @@ section is gone from the board, the editor, the Excel and the PDF (the
 the area pills; on the board and in the exported file the `io` region is
 always shown first and named "Trial cloud" (`withTrialRegionFirst` in
 `render.js`, hard-coded at the owner's request; the editor shows the stored
-order and name); the detail panel's "Area" label reads "Product Area"
+order and name); the editor adds a ✎ at the end of the Regions note
+(`cloud.note`, `editCloudNote`), appended after render because the section
+head is in the frozen `regionsHTML`; the detail panel's "Area" label reads "Product Area"
 (`relabelDrawer` in `render.js`, run after `initDrawer`, because the label is
 in the frozen `board.js`); the top bar has no Roadmap / Regions links and its badge
 reads "AudioCodes users only"; the top bar

@@ -460,6 +460,13 @@ function editRegion(idx){
   if (d) d.onclick = () => { data.cloud.regions.splice(idx,1); closeModal(); touch(); };
 }
 
+/* ── regions note (the line under "Where each region is today") ─────── */
+function editCloudNote(){
+  openModal('Regions note',
+    '<div class="field"><label>Note</label><textarea name="note">'+esc(data.cloud.note||'')+'</textarea></div>',
+    m => { data.cloud.note = val(m,'note'); touch(); });
+}
+
 /* ── header meta ────────────────────────────────────────────────────── */
 function editMeta(){
   const m0 = data.meta;
@@ -540,6 +547,10 @@ function render(){
   const cards = document.querySelectorAll('.region');
   data.cloud.regions.forEach((r,i) => { if (r.publish === false && cards[i]) cards[i].classList.add('is-internal'); });
 
+  // regionsHTML is frozen, so the note's edit button is added here
+  const note = document.querySelector('.sec-head .sub');
+  if (note) note.insertAdjacentHTML('beforeend', ' <button class="iconb" data-act="nedit" title="Edit the regions note">✎</button>');
+
   initBoard();
   const sc = document.getElementById('scroller');
   if (sc && scrollMemo){ sc.style.scrollBehavior = 'auto'; sc.scrollLeft = scrollMemo; sc.style.scrollBehavior = ''; }
@@ -585,6 +596,7 @@ document.addEventListener('click', e => {
   if (a === 'eadd')   editEval(null);
   if (a === 'redit')  editRegion(i);
   if (a === 'radd')   editRegion(null);
+  if (a === 'nedit')  editCloudNote();
 });
 
 /* ── toolbar ────────────────────────────────────────────────────────── */
