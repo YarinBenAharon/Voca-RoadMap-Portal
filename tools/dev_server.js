@@ -153,6 +153,11 @@ http.createServer(async (req, res) => {
       const back = url.searchParams.get('back') || '/';
       return redirect(res, back.startsWith('/') ? back : '/', { 'Set-Cookie': 'devuser=' + u + '; Path=/; HttpOnly; SameSite=Lax' });
     }
+    /* the public page frozen on its first-paint loader, for looking at it */
+    if (p === '/.dev/loader'){
+      const html = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8').replace(/^\s*load\(\);\s*$/m, '');
+      return send(res, 200, html, { 'Content-Type': 'text/html; charset=utf-8' });
+    }
     if (p === '/.auth/me')
       return send(res, 200, JSON.stringify({ clientPrincipal: key ? principal(key) : null }), { 'Content-Type': 'application/json' });
     if (p === '/.auth/logout' || p === '/logout')

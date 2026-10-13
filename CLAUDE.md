@@ -60,7 +60,12 @@ reads "AudioCodes users only"; the top bar
 shows the animated Voca logo on the left, then the AudioCodes logo beside it,
 instead of the "ac" mark; the editor bar shows smaller copies (AudioCodes
 hidden under 900px), and `403.html`, on white, uses the untouched `-color`
-originals (`src/shared/brand/`, WebP with a
+originals; the board's first-paint loader (`index.html`) shows
+`voca-loader.webp`, the colour logo's 3 s stripe motion (frames 0-59, the
+text never moves) looped without the 17 s hold, with a gradient "Loading
+the roadmap" title and a sliding bar; under `prefers-reduced-motion` the
+logo and the bar stand still. The loader stays up at least 3 s from page
+open (`LOADER_MIN_MS`), or longer if the roadmap takes longer to arrive. Logos live in `src/shared/brand/` (WebP with a
 static PNG for `prefers-reduced-motion`); the exported file carries them as
 data URIs. `voca-mixed` is composed frame by frame at the owner's request:
 everything from the white logo except the violet-blue accent stripe, which
