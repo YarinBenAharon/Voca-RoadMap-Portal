@@ -24,7 +24,7 @@ function plainText(html){
 function roadmapSheets(data){
   const trains = data.trains || [];
   const head = ['Release train', 'Target quarter', 'Confidence', 'Capability', 'BR',
-                'Description', 'Area', 'For', 'Customer facing', 'Delivered in build'];
+                'Description', 'Area', 'Used by','Customer facing', 'Delivered in build'];
   const rows = [head], bands = [null];
   trains.forEach((t, ti) => (t.items || []).forEach(it => {
     rows.push([t.ver, t.quarter, t.status, it.name, it.br || '',

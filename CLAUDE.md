@@ -58,8 +58,8 @@ always shown first and named "Trial cloud" (`withTrialRegionFirst` in
 `render.js`, hard-coded at the owner's request; the editor shows the stored
 order and name); the editor adds a ✎ at the end of the Regions note
 (`cloud.note`, `editCloudNote`), appended after render because the section
-head is in the frozen `regionsHTML`; the detail panel's "Area" label reads "Product Area"
-(`relabelDrawer` in `render.js`, run after `initDrawer`, because the label is
+head is in the frozen `regionsHTML`; the detail panel's "Area" label reads "Product Area" and "For" reads "Used by"
+(`relabelDrawer` in `render.js`, run after `initDrawer`, because the labels are
 in the frozen `board.js`); the top bar has no Roadmap / Regions links and its badge
 reads "AudioCodes users only"; the top bar
 shows the animated Voca logo on the left, then the AudioCodes logo beside it,
@@ -185,8 +185,9 @@ Fields with non-obvious behavior:
 - `cf` — "customer facing", drives the star badge and the filter toggle. It
   does *not* hide anything.
 - `audience` — free text, who in the customer's organization uses the
-  capability ("Administrators, Supervisors"). Shown as **For** in the drawer,
-  only when set, and included in the search key. Public, so it is deliberately
+  capability ("Administrators, Supervisors"). Shown as **Used by** in the drawer
+  (relabelled from the frozen "For" by `relabelDrawer`), the edit form, Excel
+  and PDF, only when set, and included in the search key. Public, so it is deliberately
   *not* in `INTERNAL_ITEM_FIELDS` or behind `editable`. Named `audience` rather
   than `for` because `for` is a JS keyword.
 - `withCf()` backfills `cf`, `audience`, `requestor` and `pm` on drafts saved before those

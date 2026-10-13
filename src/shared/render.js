@@ -175,14 +175,15 @@ function withTrialRegionFirst(data){
     { regions: [trial].concat(regions.filter((_, j) => j !== i)) }) });
 }
 
-/* The detail panel's "Area" label lives in the frozen board.js; this renames
-   it to "Product Area" each time the panel opens. Registered after
-   initDrawer(), so it runs after the panel has been filled. */
+/* The detail panel's "Area" and "For" labels live in the frozen board.js; this
+   renames them to "Product Area" and "Used by" each time the panel opens.
+   Registered after initDrawer(), so it runs after the panel has been filled. */
 function relabelDrawer(){
   document.addEventListener('click', function(e){
     if (!e.target.closest('.tile') || e.target.closest('[data-act]')) return;
     document.querySelectorAll('#drawer .dmeta .k').forEach(function(k){
       if (k.textContent === 'Area') k.textContent = 'Product Area';
+      else if (k.textContent === 'For') k.textContent = 'Used by';
     });
   });
 }

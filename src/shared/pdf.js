@@ -151,7 +151,7 @@ function roadmapPdfPages(data, stamp){
 
   /* column widths sum to the 770pt content width */
   const cols = [['Capability', 150, 'name'], ['BR', 64, 'br'], ['Description', 316, 'desc'],
-                ['Area', 86, 'area'], ['For', 104, 'audience'], ['Customer facing', 50, 'cf']];
+                ['Area', 86, 'area'], ['Used by', 104,'audience'], ['Customer facing', 50, 'cf']];
 
   const c = pdfCanvas();
   let y = 0;
