@@ -14,8 +14,17 @@ const path = require('path');
 
 const ASSETS   = path.join(__dirname, 'assets');
 const render   = require('./assets/render.js');
-const BASE_CSS = fs.readFileSync(path.join(ASSETS, 'base.css'), 'utf8');
+const BASE_CSS = fs.readFileSync(path.join(ASSETS, 'base.css'), 'utf8')
+               + '\n' + fs.readFileSync(path.join(ASSETS, 'portal.css'), 'utf8');
 const BOARD_JS = fs.readFileSync(path.join(ASSETS, 'board.js'), 'utf8');
+
+/* the exported file is standalone, so the top bar logos travel inside it */
+const dataUri = (file, type) =>
+  `data:${type};base64,` + fs.readFileSync(path.join(ASSETS, 'brand', file)).toString('base64');
+const LOGOS = {
+  ac:   dataUri('webp/audiocodes-white.webp', 'image/webp'), acStill:   dataUri('static/audiocodes-white.png', 'image/png'),
+  voca: dataUri('webp/voca-mixed.webp', 'image/webp'),       vocaStill: dataUri('static/voca-mixed.png', 'image/png')
+};
 
 const esc = render.esc;
 
@@ -35,12 +44,13 @@ function buildPublishHTML(data){
 </head>
 <body>
 
-${render.buildBodyHTML(data, { session: false })}
+${render.buildBodyHTML(data, { session: false, logos: LOGOS })}
 
 <script>
 ${BOARD_JS}
 initBoard();
 initDrawer({ showBr:false });
+(${render.relabelDrawer})();
 <\/script>
 
 </body>

@@ -31,7 +31,7 @@
     {
       "route": "/api/roadmap*",
       "methods": ["GET"],
-      "allowedRoles": ["anonymous"],
+      "allowedRoles": ["authenticated"],
       "headers": {
         "Cache-Control": "no-store"
       }
@@ -54,9 +54,14 @@
     },
     {
       "route": "/shared/*",
+      "allowedRoles": ["authenticated"],
       "headers": {
-        "Cache-Control": "public, max-age=600, must-revalidate"
+        "Cache-Control": "private, max-age=600, must-revalidate"
       }
+    },
+    {
+      "route": "/*",
+      "allowedRoles": ["authenticated"]
     }
   ],
   "responseOverrides": {

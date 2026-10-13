@@ -3,10 +3,10 @@
 
    No library: an .xlsx file is a zip of a few XML parts, written here with
    inline strings and stored (uncompressed) zip entries. It exports the
-   fields the public board shows, plus a BR column only when the payload
-   carries br - which /api/roadmap sends to signed-in editors alone
-   (publicView deletes the key for everyone else). requestor and pm are
-   never exported. Each release train's rows get their own fill colour.
+   fields the board shows plus a BR column, for every viewer (/api/roadmap
+   answers AudioCodes accounts only). requestor and pm are shown on screen
+   but deliberately never exported: files travel, and requestor holds
+   customer names. Each release train's rows get their own fill colour.
 
    Not one of the byte-verified design assets, and not inlined into the
    published standalone file.
@@ -23,23 +23,18 @@ function plainText(html){
 
 function roadmapSheets(data){
   const trains = data.trains || [];
-  /* the key itself is the signal: publicView removes it, editors get it even when empty */
-  const withBr = trains.some(t => (t.items || []).some(it => 'br' in it));
-  const head = ['Release train', 'Target quarter', 'Confidence', 'Capability']
-    .concat(withBr ? ['BR'] : [], ['Description', 'Area', 'For', 'Customer facing', 'Delivered in build']);
+  const head = ['Release train', 'Target quarter', 'Confidence', 'Capability', 'BR',
+                'Description', 'Area', 'For', 'Customer facing', 'Delivered in build'];
   const rows = [head], bands = [null];
   trains.forEach((t, ti) => (t.items || []).forEach(it => {
-    rows.push([t.ver, t.quarter, t.status, it.name]
-      .concat(withBr ? [it.br || ''] : [],
-              [plainText(it.desc), catLabel(data, it.cat), it.audience || '', it.cf ? 'Yes' : 'No', it.patch || '']));
+    rows.push([t.ver, t.quarter, t.status, it.name, it.br || '',
+               plainText(it.desc), catLabel(data, it.cat), it.audience || '', it.cf ? 'Yes' : 'No', it.patch || '']);
     bands.push(ti % TRAIN_FILLS.length);
   }));
-  const evals = [['Capability', 'Notes']].concat((data.evaluation || []).map(e => [e.t, e.d]));
   return [
     { name: 'Roadmap', rows, bands,
-      widths: [13, 20, 15, 42].concat(withBr ? [22] : [], [90, 26, 30, 15, 17]),
-      wrap: [head.indexOf('Description')] },
-    { name: 'Under evaluation', rows: evals, widths: [48, 90], wrap: [1] }
+      widths: [13, 20, 15, 42, 22, 90, 26, 30, 15, 17],
+      wrap: [head.indexOf('Description')] }
   ];
 }
 

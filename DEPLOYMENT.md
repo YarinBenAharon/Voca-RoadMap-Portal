@@ -4,9 +4,9 @@ Target shape, at **https://vocacic-roadmap.voca.cloud**:
 
 | URL | Who | What |
 | --- | --- | --- |
-| `/` | anyone, no sign-in | the published roadmap, read-only |
+| `/` | any signed-in Microsoft account | the published roadmap, read-only |
 | `/edit` | accounts holding the `editor` role | the editor, unchanged |
-| `/api/roadmap` | anyone | the published roadmap as JSON |
+| `/api/roadmap` | any signed-in Microsoft account | the published roadmap as JSON |
 | `/api/publish` | `editor` only | replaces the live roadmap, instantly |
 | `/api/snapshots` | `editor` only | past publishes, for rollback |
 
@@ -193,15 +193,20 @@ within a few minutes.
 
 ## 7. Verify
 
-- [ ] `https://vocacic-roadmap.voca.cloud` loads the board in a private window,
-      with no sign-in, over HTTPS with a valid certificate
+- [ ] `https://vocacic-roadmap.voca.cloud` in a private window goes straight
+      to the Microsoft sign-in, and after it loads the board over HTTPS with a
+      valid certificate; `/api/roadmap` in a private window does not return data
 - [ ] the board scrolls sideways, area filters work, search works, tiles open
-- [ ] **Sign in** appears top-right; signing in with a non-editor account and
-      visiting `/edit` shows the "not an editor" page
-- [ ] an invited editor sees **Edit roadmap** top-right and reaches `/edit`
+- [ ] a non-editor sees no Voca PM tag or Edit button, and visiting `/edit`
+      shows the "not an editor" page
+- [ ] a personal or other-company Microsoft account gets "This roadmap is for
+      AudioCodes accounts only" and no roadmap data
+- [ ] an invited editor sees the **Voca PM** tag and **Edit** top-right and reaches `/edit`
 - [ ] the editor makes a change and clicks **Publish**; a private window on `/`
       shows it after a refresh
-- [ ] no Jira/BR reference appears anywhere on `/` — check a tile you know has one
+- [ ] on `/`, opening a tile you know has a BR shows Jira, Requested by and
+      Responsible PM read-only in the detail panel, with no badges on the tile;
+      the Excel and PDF have a BR column but no requester or PM
 - [ ] a region marked internal (`publish: false`) does not appear on `/`
 
 ---
