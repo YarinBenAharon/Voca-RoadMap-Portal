@@ -31,6 +31,12 @@
   .fb-end .finder input{width:100%}
 }
 
+/* Customer facing note: one line between the filter bar and the board,
+   aligned with the board's content like the board hint. */
+.cf-note{max-width:1280px;margin:0 auto 16px;padding:0 var(--gutter);font-size:13px;line-height:1.8;color:var(--muted)}
+.cf-note .tile-cf{vertical-align:middle;margin:0 2px}
+@media(max-width:640px){ .cf-note{font-size:12px;margin-bottom:12px} }
+
 /* Top bar: the animated Voca logo (colour stripes, white text) and, beside it
    on the right, the AudioCodes logo replace the "ac" mark and vendor name.
    Sizes keep the source images sharp on high-DPI screens. */

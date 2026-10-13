@@ -156,6 +156,12 @@ const DISCLAIMER = 'This roadmap describes our current plans and is provided for
 const INTERNAL_NOTICE = 'Internal use only. Do not share this roadmap, or screenshots, PDFs or exports of it, ' +
   'outside AudioCodes. For customers, send the public roadmap link once it is available.';
 
+/* Between the filter bar and the board: what the Customer facing flag means.
+   HTML, not escaped. */
+const CF_NOTE = '<b>Note:</b> Features marked ' +
+  '<span class="tile-cf"><svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 12l-4.2 2.2.8-4.7L1.2 6.2l4.7-.7z"/></svg>Customer facing</span> ' +
+  'appear on the public roadmap and are visible to all customers.';
+
 /* Hard-coded at the owner's request: on the board the IO region is always
    shown first and named "Trial cloud", whatever the data says. The editor
    still shows and edits the regions as stored. */
@@ -240,6 +246,7 @@ function buildBodyHTML(data, opts){
 </div>
 
 <section class="boardsec" id="board-section">
+  <p class="cf-note">${CF_NOTE}</p>
   <div class="bleed">
     <button class="navb prev" aria-label="Earlier releases">&lsaquo;</button>
     <button class="navb next" aria-label="Later releases">&rsaquo;</button>
