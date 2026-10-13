@@ -75,7 +75,10 @@ Everything between steps 2 and 4 is private to you.
 | Regional deployment status | the ✎ button on a region card |
 
 Target quarters are planning intentions. The disclaimer under the page heading
-says so in full legal terms, so the board itself is not a commitment.
+says so in full legal terms, so the board itself is not a commitment. Above
+the disclaimer, a bold line says the roadmap is internal only, must not be
+shared outside AudioCodes, and that customers get the public roadmap link once
+it is available.
 
 ---
 

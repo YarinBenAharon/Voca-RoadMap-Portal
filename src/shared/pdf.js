@@ -161,6 +161,8 @@ function roadmapPdfPages(data, stamp){
     if (first){
       c.text(X0, PDF_M + 18, title, 20, true, PDF_INK);
       y = PDF_M + 34;
+      pdfWrap(INTERNAL_NOTICE, 8.5, true, X1 - X0).forEach(l => { c.text(X0, y, l, 8.5, true, PDF_INK); y += 11; });
+      y += 3;
       pdfWrap(DISCLAIMER, 8.5, false, X1 - X0).forEach(l => { c.text(X0, y, l, 8.5, false, PDF_MUTED); y += 11; });
       y += 6;
       c.text(X0, y, `Current release ${m.currentRelease || '-'}   |   Next release ${m.nextTrain || '-'}   |   ` +

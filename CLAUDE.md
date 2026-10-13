@@ -45,7 +45,10 @@ everywhere `base.css` is (public page, editor, inlined into the exported
 file); markup changes go in `buildBodyHTML` and the editor's `render()`. So
 far: lane heads reserve two theme lines so lane bodies align; the hero title
 is "<product> Release Roadmap" on one line with the `DISCLAIMER` (in
-`render.js`) beneath it instead of `meta.lede`; the Latest build fact is gone
+`render.js`) beneath it instead of `meta.lede`, led by the bold
+`INTERNAL_NOTICE` (internal only, don't share outside AudioCodes, send
+customers the public link once it exists; drop it when the public roadmap
+launches), also in the editor hero and the PDF; the Latest build fact is gone
 and Next train reads Next release; the footer is gone; the Under evaluation
 section is gone from the board, the editor, the Excel and the PDF (the
 `evaluation` data stays); the Regions "Latest build" box is hidden by CSS

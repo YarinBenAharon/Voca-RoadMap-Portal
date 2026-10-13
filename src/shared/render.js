@@ -151,6 +151,11 @@ const DISCLAIMER = 'This roadmap describes our current plans and is provided for
   'Content, sequencing and timing can change without notice. ' +
   'Do not base purchasing decisions on capabilities that have not yet been released.';
 
+/* Shown above the DISCLAIMER, in the same places, while the roadmap is for
+   AudioCodes accounts only. Drop it once the public roadmap exists. */
+const INTERNAL_NOTICE = 'Internal use only. Do not share this roadmap, or screenshots, PDFs or exports of it, ' +
+  'outside AudioCodes. For customers, send the public roadmap link once it is available.';
+
 /* Hard-coded at the owner's request: on the board the IO region is always
    shown first and named "Trial cloud", whatever the data says. The editor
    still shows and edits the regions as stored. */
@@ -210,6 +215,7 @@ function buildBodyHTML(data, opts){
 <header class="hero">
   <div class="wrap">
     <h1>${esc(m.product)} Release Roadmap</h1>
+    <p class="lede internal-notice">${esc(INTERNAL_NOTICE)}</p>
     <p class="lede">${esc(DISCLAIMER)}</p>
     <div class="hero-facts">
       <div class="hfact"><div class="k">Current release</div><div class="v">${esc(m.currentRelease)}</div></div>
@@ -262,6 +268,6 @@ function buildBodyHTML(data, opts){
 }
 
 if (typeof module !== 'undefined' && module.exports){
-  module.exports = { DISCLAIMER, withTrialRegionFirst, relabelDrawer, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
+  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
                      yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

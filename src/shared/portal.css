@@ -13,6 +13,9 @@
 .hero h1{max-width:none}
 .hero .lede{max-width:82ch;font-size:14.5px;line-height:1.65}
 @media(max-width:640px){ .hero .lede{font-size:13.5px} }
+/* The internal-only notice leads, in bold, with the disclaimer close under it. */
+.hero .lede.internal-notice{font-weight:600;color:#fff}
+.hero .internal-notice + .lede{margin-top:8px}
 
 /* Filter bar: the area pills keep their full width instead of being squeezed
    and clipped by the buttons beside them. Search, Excel and PDF are one group
