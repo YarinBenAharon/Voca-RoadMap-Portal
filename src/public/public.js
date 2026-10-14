@@ -67,11 +67,29 @@
       : '<p class="pnone">Nothing matches that filter. Clear the search or choose another area or time.</p>';
   }
 
+  /* the same loader as the internal board: up for at least 3 s from page
+     open, however fast the roadmap arrives */
+  const LOADER_MIN_MS = 3000;
+  function loaderShown(){
+    const left = LOADER_MIN_MS - performance.now();
+    return left > 0 ? new Promise(r => setTimeout(r, left)) : Promise.resolve();
+  }
+
+  const TOPBAR = `<div class="topbar">
+  <div class="wrap">
+    <span class="logo brand">
+      <picture><source srcset="/shared/brand/static/voca-mixed.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/voca-mixed.webp" alt="Voca" width="112" height="30"></picture>
+      <span class="brand-sep"></span>
+      <picture><source srcset="/shared/brand/static/audiocodes-white.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/audiocodes-white.webp" alt="AudioCodes" width="173" height="24"></picture>
+    </span>
+  </div>
+</div>`;
+
   function render(){
     const pills = (name, list, cur) => list.map(([v, l]) =>
       `<button data-${name}="${esc(v)}" aria-pressed="${v === cur}">${esc(l)}</button>`).join('');
     document.title = view.product + ' Roadmap';
-    app.innerHTML = `
+    app.innerHTML = TOPBAR + `
 <header class="hero">
   <div class="wrap">
     <h1>${esc(view.product)} Roadmap</h1>
@@ -111,9 +129,9 @@
 
   fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' } })
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(v => { view = v; render(); })
-    .catch(() => {
-      app.innerHTML = '<div class="boot"><h2>The roadmap could not be loaded</h2>' +
+    .then(v => loaderShown().then(() => { view = v; render(); }))
+    .catch(() => loaderShown().then(() => {
+      app.innerHTML = TOPBAR + '<div class="boot"><h2>The roadmap could not be loaded</h2>' +
         '<p>Please try again in a moment.</p><button class="retry" onclick="location.reload()">Try again</button></div>';
-    });
+    }));
 })();
