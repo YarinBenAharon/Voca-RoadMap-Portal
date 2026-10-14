@@ -13,6 +13,7 @@ Run from the repository root:  python tools/verify_shared_assets.py
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 # The frozen original. Bump this, and the line numbers below, whenever a new
@@ -96,6 +97,35 @@ def main():
               "publish !== false" in stripper)
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('payload check (%s)' % err, False)
+
+    # The public page has no sign-in, so its feed must carry nothing internal.
+    # Run customerView on the seed, with every item made customer facing,
+    # dated this month and given marker values in the internal fields.
+    print('Public feed carries no internal fields:')
+    try:
+        probe = r"""
+const { customerView } = require('./api/shared/customerView');
+const d = JSON.parse(JSON.stringify(require('./api/shared/seed.json')));
+const now = new Date(), m = now.getUTCFullYear() + '-' + String(now.getUTCMonth() + 1).padStart(2, '0');
+const hidden = [];
+d.trains.forEach(t => t.items.forEach((it, i) => {
+  if (i === 0){ it.cf = false; it.name = 'HIDDEN-' + t.id; hidden.push(it.name); } else it.cf = true;
+  Object.assign(it, { month: m, br: 'LEAK-BR', requestor: 'LEAK-REQ', pm: 'LEAK-PM', patch: '' });
+}));
+d.cloud.regions.forEach(r => { r.name = 'LEAK-REGION'; });
+const out = customerView(d, now);
+process.stdout.write(JSON.stringify({ text: JSON.stringify(out), hidden,
+  n: out.sections.reduce((a, s) => a + s.items.length, 0) }));
+"""
+        res = json.loads(subprocess.run(['node', '-e', probe], capture_output=True, text=True,
+                                        check=True, cwd=pathlib.Path(__file__).resolve().parent.parent).stdout)
+        text = res['text']
+        check('customerView returns items (%d)' % res['n'], res['n'] > 0)
+        check('no br, requestor, pm or region values',
+              not re.search(r'LEAK-|"(br|requestor|pm|patch|cf)"\s*:', text))
+        check('no cf:false items', not any(h in text for h in res['hidden']))
+    except Exception as err:                      # noqa: BLE001 - reported, not raised
+        check('public feed check (%s)' % err, False)
 
     print()
     if failures:

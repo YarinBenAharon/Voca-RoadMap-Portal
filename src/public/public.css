@@ -1,0 +1,68 @@
+/* =========================================================================
+   The public roadmap page, on top of base.css. The top bar, hero, filter
+   bar and pills reuse base.css; the brand, filter-bar and PDF button rules
+   follow portal.css and the board page, which this page does not load.
+   ========================================================================= */
+
+/* top bar: Voca and AudioCodes logos, nothing else */
+.logo.brand{gap:16px}
+.logo.brand picture{display:flex}
+.logo.brand img{display:block;height:auto}
+.brand-sep{width:1px;height:26px;background:rgba(255,255,255,.22)}
+@media(max-width:640px){
+  .logo.brand{gap:10px}
+  .logo.brand img[alt="AudioCodes"]{width:122px}
+  .logo.brand img[alt="Voca"]{width:79px}
+  .brand-sep{height:20px}
+}
+
+.hero h1{max-width:none}
+.hero .lede{max-width:82ch;font-size:14.5px;line-height:1.65}
+
+/* filter bar: area pills, time pills, then search and PDF as one group */
+.filterbar .wrap{flex-wrap:wrap}
+.seg{flex-shrink:0;max-width:100%}
+.fb-end{display:flex;align-items:center;gap:10px;margin-left:auto}
+.fb-end .finder{margin-left:0}
+.fb-end .finder input{width:200px}
+.xl-btn{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;font-family:inherit;border:1px solid var(--line);
+  background:#fff;border-radius:100px;padding:9px 16px 9px 14px;font-size:13.5px;font-weight:500;color:var(--text);
+  cursor:pointer;box-shadow:0 3px 14px rgba(20,28,54,.07);transition:color .15s,border-color .15s}
+.xl-btn:hover{border-color:#B9C7DC;color:var(--ink)}
+.xl-btn svg{color:var(--violet)}
+@media(max-width:900px){
+  .fb-end{flex:1 1 100%;margin-left:0}
+  .fb-end .finder{flex:1 1 auto}
+  .fb-end .finder input{width:100%}
+}
+
+/* sections, one after another */
+.psec{padding:40px 0 8px}
+.psec h2{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.01em;display:flex;align-items:center;gap:10px;
+  padding-left:12px;border-left:4px solid var(--plan)}
+.psec-released h2{border-color:var(--ship)}
+.psec-progress h2{border-color:var(--dev)}
+.psec-upcoming h2{border-color:var(--plan)}
+.psec-planned h2{border-color:var(--dir)}
+.psec-n{font-size:12px;font-weight:600;color:var(--pill-fg);background:var(--pill-bg);border-radius:100px;padding:2px 10px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+
+.pcard{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:18px 20px;
+  box-shadow:0 3px 14px rgba(20,28,54,.05);display:flex;flex-direction:column;gap:8px}
+.pcard-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px}
+.pcard-month{font-weight:600;color:var(--ink)}
+.pcard-area{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+.pcard h3{font-size:15.5px;font-weight:600;color:var(--ink);line-height:1.35}
+.pcard-desc{font-size:13.5px;line-height:1.6}
+.pcard-req{font-size:12.5px;color:var(--text);background:var(--surface);border-radius:8px;padding:6px 10px}
+.pcard-req b{color:var(--ink);font-weight:600}
+.pcard-for{font-size:12px;color:var(--muted);margin-top:auto}
+
+.pnone{max-width:1280px;margin:48px auto;padding:0 var(--gutter);color:var(--muted)}
+#sections{padding-bottom:56px}
+
+.boot{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;
+  padding:0 24px;text-align:center;color:var(--muted)}
+.boot h2{font-size:19px;font-weight:600;color:var(--ink)}
+.boot .retry{font-family:inherit;font-size:13px;color:var(--text);background:#fff;border:1px solid var(--line);
+  border-radius:100px;padding:8px 18px;cursor:pointer}

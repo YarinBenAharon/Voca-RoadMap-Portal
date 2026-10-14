@@ -156,9 +156,22 @@ chrome (BR tags, requester and PM badges, internal regions, editing controls),
 so you can see how a clean, customer-style board looks.
 
 Separately, capabilities can be flagged **Customer facing** (the star badge).
-That flag does *not* hide anything; it drives the "Customer facing" filter that
-visitors can toggle on the public board. Both flagged and unflagged
-capabilities are public.
+On the internal board the flag hides nothing; it drives the "Customer facing"
+filter. On the **public roadmap** (`/public`, for customers and resellers, no
+sign-in), **only** capabilities flagged Customer facing appear.
+
+For the public roadmap, also fill in:
+
+- **Target month**: the month and year customers see. Customer-facing items
+  in an In development or Planned train without one don't appear there. For
+  released items, it is the release month.
+- **Requires** (optional): one line on what the customer needs first, for
+  example "A WhatsApp Business Account".
+
+The public roadmap shows four sections: Recently released (last 12 months),
+In progress, Upcoming (next 3 months) and Planned (4 to 6 months out).
+Direction trains and anything further out are left off. It updates within
+5 minutes of a publish.
 
 ---
 

@@ -9,7 +9,9 @@
    - /.auth/login/aad   a page to pick a test user (no password)
    - /.auth/me          the picked user, as Static Web Apps returns it
    - /.auth/logout      forgets the user
-   - every route needs a user; /edit* and the editor APIs need "editor";
+   - every route needs a user, except the public page (/public*, the
+     /api/public-roadmap feed and the shared files it loads); /edit* and
+     the editor APIs need "editor";
      the same 401 -> sign-in and 403 -> 403.html behaviour as the config
 
    Storage is a local folder (os.tmpdir()/voca-roadmap-devstore) instead of
@@ -75,7 +77,7 @@ if (DATA && !fs.existsSync(storeFile(devStore.CURRENT_JSON))){
 }
 
 const FUNCS = {};
-['roadmap', 'publish', 'snapshots', 'draft'].forEach(n => {
+['roadmap', 'public-roadmap', 'publish', 'snapshots', 'draft'].forEach(n => {
   const f = path.join(ROOT, 'api', n, 'index.js');
   if (fs.existsSync(f)) FUNCS[n] = require(f);
 });
@@ -137,6 +139,7 @@ async function callFunction(name, req, res, url, key){
 
 /* ── routing, after staticwebapp.config.json ─────────────────────────── */
 const EDITOR_ONLY = [/^\/edit/, /^\/api\/publish/, /^\/api\/snapshots/, /^\/api\/draft/];
+const ANONYMOUS   = [/^\/public/, /^\/api\/public-roadmap$/, /^\/shared\/(base\.css|render\.js|pdf\.js|brand\/)/];
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
@@ -163,7 +166,7 @@ http.createServer(async (req, res) => {
     if (p === '/.auth/logout' || p === '/logout')
       return redirect(res, url.searchParams.get('post_logout_redirect_uri') || '/', { 'Set-Cookie': 'devuser=; Path=/; Max-Age=0' });
 
-    if (!key){
+    if (!key && !ANONYMOUS.some(rx => rx.test(p))){
       if (p.startsWith('/api/')) return send(res, 401, 'Sign in required.');
       return redirect(res, '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(p + url.search));
     }
@@ -172,7 +175,7 @@ http.createServer(async (req, res) => {
       return file(res, path.join(SRC, '403.html'), 403);
     }
 
-    const api = /^\/api\/([a-z]+)/.exec(p);
+    const api = /^\/api\/([a-z-]+)/.exec(p);
     if (api) return FUNCS[api[1]] ? callFunction(api[1], req, res, url, key) : send(res, 404, 'No such API');
 
     let f = path.join(SRC, p);

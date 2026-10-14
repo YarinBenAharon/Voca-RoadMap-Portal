@@ -47,8 +47,9 @@ far: lane heads reserve two theme lines so lane bodies align; the hero title
 is "<product> Release Roadmap" on one line with the `DISCLAIMER` (in
 `render.js`) beneath it instead of `meta.lede`, led by the bold
 `INTERNAL_NOTICE` (internal only, don't share outside AudioCodes, send
-customers the public link once it exists; drop it when the public roadmap
-launches), also in the editor hero and the PDF; the Latest build fact is gone
+customers the public link once it exists), also in the editor hero and the
+PDF; the public roadmap at `/public` never shows it, and the internal board
+keeps it, since that board is still internal; the Latest build fact is gone
 and Next train reads Next release; the footer is gone; the Under evaluation
 section is gone from the board, the editor, the Excel and the PDF (the
 `evaluation` data stays); the Regions "Latest build" box is hidden by CSS
@@ -83,7 +84,10 @@ and swap in Marketing's official masters if they become available.
 
 ```
 src/                            app_location — everything served to browsers
-├── index.html                  public board; fetches /api/roadmap, renders it
+├── index.html                  internal board; fetches /api/roadmap, renders it
+├── public/                     the public roadmap, no sign-in (see Public roadmap)
+│   ├── index.html, public.js   fetches /api/public-roadmap; sections, filters, PDF
+│   └── public.css              on top of base.css
 ├── 403.html                    signed in but no editor role
 ├── edit/index.html             the editor, gated on the "editor" role
 ├── staticwebapp.config.json    routes, role gating, headers
@@ -99,9 +103,11 @@ src/                            app_location — everything served to browsers
     │                           br, i.e. for editors; not synced into the API)
     └── pdf.js                  the public page's PDF download (no library;
                                 same fields as xlsx.js, CONFIDENTIAL watermark
-                                and export timestamp; not synced into the API)
+                                and export timestamp; not synced into the API.
+                                downloadPublicRoadmapPdf is the public variant)
 api/                            managed Azure Functions, Node 20
-├── roadmap/                    GET  /api/roadmap        any signed-in user
+├── roadmap/                    GET  /api/roadmap        AudioCodes accounts and editors
+├── public-roadmap/             GET  /api/public-roadmap anyone, no sign-in (customerView)
 ├── publish/                    POST /api/publish        editor only
 ├── snapshots/                  GET  /api/snapshots      editor only
 ├── draft/                      GET/PUT/DELETE /api/draft  editor only, per user
@@ -110,6 +116,7 @@ api/                            managed Azure Functions, Node 20
     ├── store.js                blob storage
     ├── auth.js                 x-ms-client-principal parsing
     ├── validate.js             structural check on an incoming roadmap
+    ├── customerView.js         the public feed: whitelist of fields, cf items, sections
     ├── publishHtml.js          the standalone exported file
     └── assets/                 GENERATED copy of src/shared — git-ignored
 tools/
@@ -153,7 +160,7 @@ meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, 
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
-            items: [{ name, desc, cat, patch, br, cf, audience, requestor, pm }] }
+            items: [{ name, desc, cat, patch, br, cf, audience, month, requires, requestor, pm }] }
 evaluation[] { t, d }
 cloud     { note, latestVersion, regions: [{ id, name, flag, version,
                                              lastDeploy, nextVersion, nextDate, publish }] }
@@ -182,15 +189,24 @@ Fields with non-obvious behavior:
     `requestor` or `pm`, because files travel.
   - **The standalone exported file** still renders with `editable:false` and
     no drawer fields, so it carries none of the three.
-- `cf` — "customer facing", drives the star badge and the filter toggle. It
-  does *not* hide anything.
+- `cf` — "customer facing". On the internal board it drives the star badge
+  and the filter toggle and hides nothing. On the public roadmap only `cf:true`
+  items appear.
+- `month` — `"YYYY-MM"`, the target month (or, for released items, the
+  release month) shown on the public roadmap as "March 2027". Edited as
+  **Target month** in the item form; `validate.js` checks the format. It
+  decides the public section (see Public roadmap), so customer-facing items in
+  In development or Planned trains need one, or they don't appear.
+- `requires` — optional one-line prerequisite ("A WhatsApp Business Account"),
+  shown as "Requires: ..." on the public card and PDF.
 - `audience` — free text, who in the customer's organization uses the
   capability ("Administrators, Supervisors"). Shown as **Used by** in the drawer
   (relabelled from the frozen "For" by `relabelDrawer`), the edit form, Excel
   and PDF, only when set, and included in the search key. Public, so it is deliberately
   *not* in `INTERNAL_ITEM_FIELDS` or behind `editable`. Named `audience` rather
   than `for` because `for` is a JS keyword.
-- `withCf()` backfills `cf`, `audience`, `requestor` and `pm` on drafts saved before those
+- `withCf()` backfills `cf`, `audience`, `requestor` and `pm` (and empty `month`
+  and `requires`) on drafts saved before those
   fields existed, matching by feature *name* against the seed — so renaming a
   feature loses its backfill. This is why the editor still fetches the seed
   (`/api/roadmap?withSeed=1`) even though Reset is gone.
@@ -212,8 +228,12 @@ drive the whole design:
 - Authorization is the custom **`editor`** role, granted per person through
   Role Management invitations in the Azure portal (25-user platform cap).
 
-**Every route requires sign-in.** A catch-all `/*` rule (plus `/shared/*` and
-`/api/roadmap*`) allows only `authenticated`, and the 401 override sends
+**Every route requires sign-in, except the public roadmap.** Rules at the top
+of `staticwebapp.config.json` allow `anonymous` on `/public*`,
+`GET /api/public-roadmap`, and the four shared files the public page loads
+(`base.css`, `render.js`, `pdf.js`, `brand/*`). They must stay above the
+`/api/*` (editor) and `/*` rules. Everything else: a catch-all `/*` rule (plus
+`/shared/*` and `/api/roadmap*`) allows only `authenticated`, and the 401 override sends
 anyone else to the Microsoft sign-in. There is no Sign in button. The top bar
 shows a quiet **Sign out** link for everyone, plus a **Voca PM** tag and an
 **Edit** button for editors (`session.js`). `api/roadmap` re-checks
@@ -236,6 +256,37 @@ alone cannot make the roadmap writable. Keep both locks.
 
 Restricting sign-in to the AudioCodes tenant would require a custom Entra app
 registration, which is **Standard plan only**. That was a deliberate trade.
+
+## Public roadmap
+
+`/public` is for customers and resellers, with no sign-in. It reads
+`/api/public-roadmap`, which returns `customerView(data)` from
+`api/shared/customerView.js`. That function is a **whitelist**: items carry
+only `name, desc, cat, audience, requires, month, ver`, plus the categories
+and `meta.product/title/updated`. `br`, `requestor`, `pm`, `patch`, `cf`, the
+regions, `evaluation` and `publishedBy` never leave it, and neither do
+`cf:false` items. Add a field to the public page by adding it there on
+purpose. `verify_shared_assets.py` runs it on the seed with marker values and
+fails on any leak.
+
+Sections are computed on the server from the current month:
+
+| Section | Items |
+| --- | --- |
+| Recently released | Available trains, or items with `patch`, released in the last 12 months (no month: first month of the train's quarter) |
+| In progress | In development trains, up to 6 months ahead |
+| Upcoming | Planned trains, up to 3 months ahead |
+| Planned | Planned trains, 4 to 6 months ahead |
+
+Direction trains, anything more than 6 months out, and anything still to come
+without a month are hidden. The page filters by category, by time window
+(Released last 12 months, Next 3 months, Next 6 months) and by keyword
+(name, description, category, requires, Used by, month). Its PDF
+(`downloadPublicRoadmapPdf` in `pdf.js`) is the filtered view, grouped by
+section, with an "AudioCodes" watermark and the export timestamp and no
+confidentiality marking. The feed is cached for 5 minutes
+(`Cache-Control: public, max-age=300`), so a publish reaches `/public` within
+that time.
 
 ## Editor conventions
 

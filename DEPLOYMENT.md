@@ -208,6 +208,11 @@ within a few minutes.
       Responsible PM read-only in the detail panel, with no badges on the tile;
       the Excel and PDF have a BR column but no requester or PM
 - [ ] a region marked internal (`publish: false`) does not appear on `/`
+- [ ] `https://vocacic-roadmap.voca.cloud/public` in a private window loads
+      with no sign-in and shows only customer-facing items;
+      `/api/public-roadmap` has no `br`, `requestor` or `pm` keys
+- [ ] its PDF has the AudioCodes watermark and export time, and no
+      "Confidential"
 
 ---
 
