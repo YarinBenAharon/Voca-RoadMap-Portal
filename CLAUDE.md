@@ -62,7 +62,9 @@ order and name); the editor adds a ✎ at the end of the Regions note
 head is in the frozen `regionsHTML`; the detail panel's "Area" label reads "Product Area" and "For" reads "Used by"
 (`relabelDrawer` in `render.js`, run after `initDrawer`, because the labels are
 in the frozen `board.js`); the top bar has no Roadmap / Regions links and its badge
-reads "AudioCodes users only"; the top bar
+reads "AudioCodes users only", followed by a **Public roadmap** link to `/public`
+(live page only, not the standalone export); on the board page the top bar stays
+pinned while scrolling, with the filter bar sticking below it (`index.html`); the top bar
 shows the animated Voca logo on the left, then the AudioCodes logo beside it,
 instead of the "ac" mark; the editor bar shows smaller copies (AudioCodes
 hidden under 900px), and `403.html`, on white, uses the untouched `-color`
