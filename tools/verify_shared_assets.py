@@ -127,6 +127,25 @@ process.stdout.write(JSON.stringify({ text: JSON.stringify(out), hidden,
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('public feed check (%s)' % err, False)
 
+    # A syntax error in a page script shows as a blank page and nothing else,
+    # so every inline <script> and every JS file must at least parse.
+    print('Scripts parse:')
+    root = pathlib.Path(__file__).resolve().parent.parent
+    pages = [p for p in (root / 'src').rglob('*.html')]
+    files = [p for d in ('src', 'api') for p in (root / d).rglob('*.js') if 'assets' not in p.parts
+             and 'node_modules' not in p.parts]
+    for p in pages + files:
+        if p.suffix == '.html':
+            code = '\n'.join(re.findall(r'<script>(.*?)</script>', p.read_text(encoding='utf-8'), re.S))
+            if not code.strip():
+                continue
+            r = subprocess.run(['node', '--check', '--input-type=commonjs', '-'], input=code, encoding='utf-8',
+                               capture_output=True, text=True)
+        else:
+            r = subprocess.run(['node', '--check', str(p)], capture_output=True, text=True, encoding='utf-8')
+        check('%s%s' % (p.relative_to(root).as_posix(), '' if r.returncode == 0 else
+                         ': ' + (r.stderr.strip().splitlines() or ['?'])[-1]), r.returncode == 0)
+
     print()
     if failures:
         print('%d check(s) FAILED - what ships no longer matches the original.' % len(failures))

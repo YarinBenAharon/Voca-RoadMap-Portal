@@ -302,7 +302,7 @@ function editItem(trainId, idx){
       '<div class="hint">Who in the customer\'s organization uses it. Shown to customers.</div></div>' +
     '<div class="frow">' +
       '<div class="field"><label>Target month</label><input type="month" name="month" value="'+esc(it.month||'')+'">' +
-        '<div class="hint">Leave empty to use the train's month'+(t && t.month ? ' ('+esc(t.month)+')' : '')+'. Set it only when this capability ships in a different month.</div></div>' +
+        '<div class="hint">Leave empty to use the train\'s month'+(t && t.month ? ' ('+esc(t.month)+')' : '')+'. Set it only when this capability ships in a different month.</div></div>' +
       '<div class="field"><label>Requires</label><input name="requires" value="'+esc(it.requires||'')+'" placeholder="A WhatsApp Business Account">' +
         '<div class="hint">Optional prerequisite, one line. Shown to customers.</div></div>' +
     '</div>' +
