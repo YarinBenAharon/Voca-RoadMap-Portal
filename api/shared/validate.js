@@ -36,6 +36,7 @@ function validateRoadmap(data){
     if (ids.has(t.id))                           fail('Two release trains share the id "' + t.id + '".');
     ids.add(t.id);
     if (typeof t.ver !== 'string')               fail('trains[' + i + '] needs a version.');
+    if (t.month && !MONTH_RX.test(t.month))      fail('Train ' + t.ver + ': target month must look like 2027-03.');
     if (!Array.isArray(t.items))                 fail('trains[' + i + '].items must be an array.');
     t.items.forEach((it, j) => {
       if (!it || typeof it.name !== 'string' || !it.name.trim())

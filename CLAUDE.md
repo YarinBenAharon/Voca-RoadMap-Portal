@@ -158,7 +158,7 @@ blob storage as `current/roadmap.json`, wrapped as
 meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, nextTrain }
           // lede and latestBuild are no longer shown or edited; kept because validate.js requires them
 categories[] { id, label, short }            // filter segments and dot colors
-trains[]  { id, ver, quarter, phase: now|next|later, status, head, note,
+trains[]  { id, ver, quarter, month, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
             items: [{ name, desc, cat, patch, br, cf, audience, month, requires, requestor, pm }] }
 evaluation[] { t, d }
@@ -192,11 +192,13 @@ Fields with non-obvious behavior:
 - `cf` — "customer facing". On the internal board it drives the star badge
   and the filter toggle and hides nothing. On the public roadmap only `cf:true`
   items appear.
-- `month` — `"YYYY-MM"`, the target month (or, for released items, the
-  release month) shown on the public roadmap as "March 2027". Edited as
-  **Target month** in the item form; `validate.js` checks the format. It
-  decides the public section (see Public roadmap), so customer-facing items in
-  In development or Planned trains need one, or they don't appear.
+- `month` — `"YYYY-MM"`, on trains and items. The train's month (or, for a
+  released train, its release month) is what the public roadmap shows for
+  every item in it, as "March 2027". An item's own month overrides it, for a
+  capability that ships in another month; normally it is empty. Both are
+  edited as **Target month** (train form, item form); `validate.js` checks the
+  format. It decides the public section (see Public roadmap), so In
+  development and Planned trains need one, or their items don't appear.
 - `requires` — optional one-line prerequisite ("A WhatsApp Business Account"),
   shown as "Requires: ..." on the public card and PDF.
 - `audience` — free text, who in the customer's organization uses the
@@ -278,8 +280,9 @@ Sections are computed on the server from the current month:
 | Upcoming | Planned trains, up to 3 months ahead |
 | Planned | Planned trains, 4 to 6 months ahead |
 
-Direction trains, anything more than 6 months out, and anything still to come
-without a month are hidden. The page filters by category, by time window
+An item's month is its own `month`, else its train's. Direction trains,
+anything more than 6 months out, and anything still to come without a month
+are hidden. The page filters by category, by time window
 (Released last 12 months, Next 3 months, Next 6 months) and by keyword
 (name, description, category, requires, Used by, month). Its PDF
 (`downloadPublicRoadmapPdf` in `pdf.js`) is the filtered view, grouped by

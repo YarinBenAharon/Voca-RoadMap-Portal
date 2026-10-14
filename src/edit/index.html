@@ -162,6 +162,7 @@ let syncing = false;
 function withCf(d){
   const def = {};
   ((seed && seed.trains) || []).forEach(t => t.items.forEach(i => { def[i.name] = i; }));
+  (d.trains||[]).forEach(t => { if (t.month === undefined) t.month = ''; });
   (d.trains||[]).forEach(t => (t.items||[]).forEach(i => {
     const o = def[i.name] || {};
     if (i.cf === undefined) i.cf = !!o.cf;
@@ -301,7 +302,7 @@ function editItem(trainId, idx){
       '<div class="hint">Who in the customer\'s organization uses it. Shown to customers.</div></div>' +
     '<div class="frow">' +
       '<div class="field"><label>Target month</label><input type="month" name="month" value="'+esc(it.month||'')+'">' +
-        '<div class="hint">Month and year on the public roadmap. Required for customer-facing items that are in development or planned; for released items, the release month.</div></div>' +
+        '<div class="hint">Leave empty to use the train's month'+(t && t.month ? ' ('+esc(t.month)+')' : '')+'. Set it only when this capability ships in a different month.</div></div>' +
       '<div class="field"><label>Requires</label><input name="requires" value="'+esc(it.requires||'')+'" placeholder="A WhatsApp Business Account">' +
         '<div class="hint">Optional prerequisite, one line. Shown to customers.</div></div>' +
     '</div>' +
@@ -346,7 +347,7 @@ function editItem(trainId, idx){
 function editTrain(trainId){
   const isNew = !trainId;
   const t = isNew
-    ? { id:uid(), ver:'', quarter:'', phase:'later', status:'Planned', head:'', note:'', maint:null, items:[] }
+    ? { id:uid(), ver:'', quarter:'', month:'', phase:'later', status:'Planned', head:'', note:'', maint:null, items:[] }
     : data.trains.find(x => x.id === trainId);
   const ph = [['now','Available now'],['next','Committed, in development'],['later','Planned or direction']]
     .map(p => '<option value="'+p[0]+'"'+(p[0]===t.phase?' selected':'')+'>'+p[1]+'</option>').join('');
@@ -356,6 +357,8 @@ function editTrain(trainId){
       '<div class="field"><label>Version</label><input name="ver" value="'+esc(t.ver)+'" placeholder="12.5"></div>' +
       '<div class="field"><label>Target quarter</label><input name="quarter" value="'+esc(t.quarter)+'" placeholder="Q2 2027">' +
         '<div class="hint">Quarter only. The year drives the ruler above the board.</div></div>' +
+      '<div class="field"><label>Target month</label><input type="month" name="month" value="'+esc(t.month||'')+'">' +
+        '<div class="hint">Month and year on the public roadmap, for every capability in this train unless one sets its own. Needed for trains in development or planned.</div></div>' +
     '</div>' +
     '<div class="frow">' +
       '<div class="field"><label>Confidence</label><select name="phase">'+ph+'</select></div>' +
@@ -368,7 +371,7 @@ function editTrain(trainId){
     m => {
       const ver = val(m,'ver');
       if (!ver){ toast('Give the train a version'); return false; }
-      Object.assign(t, { ver, quarter:val(m,'quarter'), phase:val(m,'phase'),
+      Object.assign(t, { ver, quarter:val(m,'quarter'), month:val(m,'month'), phase:val(m,'phase'),
                          status:val(m,'status'), head:val(m,'head'), note:val(m,'note') });
       if (isNew) data.trains.push(t);
       touch();

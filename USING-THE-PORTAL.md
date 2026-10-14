@@ -162,9 +162,12 @@ sign-in), **only** capabilities flagged Customer facing appear.
 
 For the public roadmap, also fill in:
 
-- **Target month**: the month and year customers see. Customer-facing items
-  in an In development or Planned train without one don't appear there. For
-  released items, it is the release month.
+- **Target month** on the **train** (Edit train): the month and year
+  customers see for every capability in it. For a released train, the release
+  month. Without one, an In development or Planned train's capabilities don't
+  appear there.
+- **Target month** on a **capability**: only when it ships in a different
+  month than its train. Leave it empty otherwise.
 - **Requires** (optional): one line on what the customer needs first, for
   example "A WhatsApp Business Account".
 
