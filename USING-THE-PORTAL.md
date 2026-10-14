@@ -179,8 +179,8 @@ The switch turns orange while it is on.
 
 The public roadmap shows four sections: Recently released (last 12 months),
 In progress, Upcoming (next 3 months) and Planned (4 to 6 months out).
-Direction trains and anything further out are left off. It updates within
-5 minutes of a publish.
+Direction trains and anything further out are left off. It updates as soon
+as you publish: visitors see the change on their next page load.
 
 ---
 
