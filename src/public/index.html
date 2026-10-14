@@ -12,18 +12,16 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="wrap">
-    <span class="logo brand">
-      <picture><source srcset="/shared/brand/static/voca-mixed.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/voca-mixed.webp" alt="Voca" width="112" height="30"></picture>
-      <span class="brand-sep"></span>
-      <picture><source srcset="/shared/brand/static/audiocodes-white.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/audiocodes-white.webp" alt="AudioCodes" width="173" height="24"></picture>
-    </span>
-  </div>
-</div>
-
 <div id="app">
-  <div class="boot" role="status" aria-live="polite"><p>Loading the roadmap…</p></div>
+  <div class="boot loading" role="status" aria-live="polite">
+    <picture class="ld-logo">
+      <source srcset="/shared/brand/static/voca-color.png" media="(prefers-reduced-motion: reduce)">
+      <img src="/shared/brand/webp/voca-loader.webp" alt="Voca" width="180" height="48">
+    </picture>
+    <div class="ld-title">Loading the roadmap</div>
+    <div class="ld-sub">Voca CIC Roadmap</div>
+    <div class="ld-bar" aria-hidden="true"></div>
+  </div>
 </div>
 
 <script src="/shared/render.js"></script>
