@@ -9,27 +9,12 @@
 
 (function(){
   const app = document.getElementById('app');
-  const state = { cat: 'all', when: 'all', q: '' };
+  const state = { cat: 'all', sec: 'all', q: '' };
   let view = null;
 
-  /* time windows, in months from view.asOf */
-  const WHEN = [
-    ['all',      'All'],
-    ['released', 'Released, last 12 months'],
-    ['next3',    'Next 3 months'],
-    ['next6',    'Next 6 months']
-  ];
-
-  const idx = ym => { const m = /^(\d{4})-(\d{2})$/.exec(ym || ''); return m ? m[1] * 12 + (m[2] - 1) : 0; };
   const plain = html => { const d = document.createElement('div'); d.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, ' '); return d.textContent; };
   const catOf = id => (view.categories.find(c => c.id === id) || { label: id }).label;
 
-  function inWindow(sec, it){
-    if (state.when === 'all') return true;
-    if (state.when === 'released') return sec.id === 'released';
-    if (sec.id === 'released') return false;
-    return idx(it.month) <= idx(view.asOf) + (state.when === 'next3' ? 3 : 6);
-  }
   function matches(it){
     if (state.cat !== 'all' && it.cat !== state.cat) return false;
     if (!state.q) return true;
@@ -38,7 +23,7 @@
   }
   function filtered(){
     return Object.assign({}, view, { sections: view.sections.map(s =>
-      Object.assign({}, s, { items: s.items.filter(it => inWindow(s, it) && matches(it)) })) });
+      Object.assign({}, s, { items: state.sec === 'all' || state.sec === s.id ? s.items.filter(matches) : [] })) });
   }
 
   function cardHTML(it){
@@ -101,7 +86,8 @@
   <div class="wrap">
     <div class="seg" role="group" aria-label="Filter by area">${pills('cat',
       [['all', 'All']].concat(view.categories.map(c => [c.id, c.short || c.label])), state.cat)}</div>
-    <div class="seg" role="group" aria-label="Filter by time">${pills('when', WHEN, state.when)}</div>
+    <div class="seg" role="group" aria-label="Filter by section">${pills('sec',
+      [['all', 'All']].concat(view.sections.filter(s => s.items.length).map(s => [s.id, s.label])), state.sec)}</div>
     <div class="fb-end">
       <div class="finder">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5 14.5 14.5"/></svg>
@@ -115,7 +101,7 @@
 
     app.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
-      const key = b.dataset.cat !== undefined ? 'cat' : 'when';
+      const key = b.dataset.cat !== undefined ? 'cat' : 'sec';
       state[key] = b.dataset[key];
       seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
       renderSections();
