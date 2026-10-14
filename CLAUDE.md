@@ -157,7 +157,7 @@ blob storage as `current/roadmap.json`, wrapped as
 `{ publishedAt, publishedBy, data }`.
 
 ```
-meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, nextTrain }
+meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, nextTrain, publicBlocked? }
           // lede and latestBuild are no longer shown or edited; kept because validate.js requires them
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, month, phase: now|next|later, status, head, note,
@@ -272,6 +272,13 @@ regions, `evaluation` and `publishedBy` never leave it, and neither do
 `cf:false` items. Add a field to the public page by adding it there on
 purpose. `verify_shared_assets.py` runs it on the seed with marker values and
 fails on any leak.
+
+**Block public roadmap** (editor top bar) sets `meta.publicBlocked: true`; it
+takes effect at Publish like any edit. While it is on, `customerView()` returns
+only `{ blocked: true }`, no roadmap data at all, and `/public` shows an
+under-construction page (animated Voca logo, "Our roadmap is being updated",
+contact your account manager). `verify_shared_assets.py` checks that a
+blocked feed is exactly `{"blocked":true}`. Turning it off deletes the key.
 
 Sections are computed on the server from the current month:
 

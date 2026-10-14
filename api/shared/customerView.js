@@ -58,6 +58,9 @@ function sectionOf(train, item, at, now){
 }
 
 function customerView(data, now){
+  /* PM switch "Block public roadmap": the page shows an under-construction
+     screen, and the feed carries no roadmap data at all */
+  if (data.meta && data.meta.publicBlocked === true) return { blocked: true };
   const d = now || new Date();
   const nowIdx = d.getUTCFullYear() * 12 + d.getUTCMonth();
   const buckets = {};

@@ -19,8 +19,8 @@ module.exports = async function (context, req) {
         /* the same body for everyone, so a short shared cache is fine */
         'Cache-Control': 'public, max-age=300'
       },
-      body: JSON.stringify(Object.assign(customerView(rec ? rec.data : seed),
-                                         { publishedAt: rec ? rec.publishedAt : null }))
+      body: JSON.stringify((v => v.blocked ? v : Object.assign(v, { publishedAt: rec ? rec.publishedAt : null }))(
+                             customerView(rec ? rec.data : seed)))
     };
   } catch (err){
     context.log.error('public roadmap read failed', err);

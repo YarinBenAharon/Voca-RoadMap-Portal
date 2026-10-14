@@ -33,6 +33,9 @@
 .ed-save.dirty{color:#F0C06A}
 .tgl{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#B9C6D2;cursor:pointer;user-select:none}
 .tgl input{accent-color:#6C5CE0;width:14px;height:14px;cursor:pointer}
+/* Block public roadmap: orange while on, so a blocked /public is hard to miss */
+.tgl.block.on{color:#FFB199;font-weight:600}
+.tgl.block input{accent-color:#C4553A}
 .filterbar{top:53px}
 
 /* lane + tile edit affordances */
@@ -119,6 +122,7 @@ body.preview .region.is-internal{display:none!important}
     <button class="ed-btn" id="bAddTrain">Add train</button>
     <button class="ed-btn" id="bMeta">Header</button>
     <div class="ed-right">
+      <label class="tgl block" id="lBlock" title="While on and published, /public shows an under-construction page and the public feed carries no roadmap data"><input type="checkbox" id="tBlock"> Block public roadmap</label>
       <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
       <span class="ed-pub" id="pubState"></span>
       <span class="ed-save" id="saveState">Saved</span>
@@ -513,6 +517,9 @@ function moveTrain(trainId, dir){
 /* ══ RENDER ═════════════════════════════════════════════════════════ */
 function render(){
   const m = data.meta;
+  const blocked = m.publicBlocked === true;
+  document.getElementById('tBlock').checked = blocked;
+  document.getElementById('lBlock').classList.toggle('on', blocked);
   const segs = ['<button data-cat="all">All</button>']
     .concat(data.categories.map(c =>
       '<button data-cat="'+esc(c.id)+'" title="'+esc(c.label)+'">'+esc(c.short||c.label)+'</button>')).join('');
@@ -640,6 +647,12 @@ document.getElementById('bPublish').onclick = async () => {
 document.getElementById('bAddTrain').onclick = () => editTrain(null);
 document.getElementById('bMeta').onclick = editMeta;
 document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
+/* saved with the roadmap like any edit; takes effect on /public at Publish */
+document.getElementById('tBlock').onchange = e => {
+  if (e.target.checked) data.meta.publicBlocked = true; else delete data.meta.publicBlocked;
+  touch();
+  toast(e.target.checked ? 'Public roadmap blocked. Publish to take it offline.' : 'Public roadmap unblocked. Publish to bring it back.');
+};
 window.addEventListener('beforeunload', e => {
   if (dirty || syncTimer || syncing){ e.preventDefault(); e.returnValue = ''; }
 });
