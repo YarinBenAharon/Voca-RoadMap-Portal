@@ -286,8 +286,9 @@ An item's month is its own `month`, else its train's. Direction trains,
 anything more than 6 months out, and anything still to come without a month
 are hidden. The page filters by category, by section
 (All, Recently released, In progress, Upcoming, Planned; empty sections get no
-pill) and by keyword
-(name, description, category, requires, Used by, month). Its PDF
+pill) and by keyword (name, description, category, requires, Used by,
+month). Each section heading folds and unfolds its cards (open by default,
+remembered while filtering; the PDF still includes folded sections). Its PDF
 (`downloadPublicRoadmapPdf` in `pdf.js`) is the filtered view, grouped by
 section, with an "AudioCodes" watermark and the export timestamp and no
 confidentiality marking. The feed is cached for 5 minutes
