@@ -10,6 +10,7 @@
 (function(){
   const app = document.getElementById('app');
   const state = { cat: 'all', sec: 'all', q: '' };
+  const collapsed = new Set();          /* section ids folded by the visitor */
   let view = null;
 
   const plain = html => { const d = document.createElement('div'); d.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, ' '); return d.textContent; };
@@ -43,13 +44,15 @@
     const f = filtered();
     const shown = f.sections.filter(s => s.items.length);
     document.getElementById('sections').innerHTML = shown.length
-      ? shown.map(s => `<section class="psec psec-${esc(s.id)}">
+      ? shown.map(s => `<section class="psec psec-${esc(s.id)}${collapsed.has(s.id) ? ' closed' : ''}">
           <div class="wrap">
-            <h2>${esc(s.label)} <span class="psec-n">${s.items.length}</span></h2>
-            <div class="pgrid">${s.items.map(cardHTML).join('')}</div>
+            <h2><button class="psec-tog" data-tog="${esc(s.id)}" aria-expanded="${!collapsed.has(s.id)}" aria-controls="grid-${esc(s.id)}">
+              <svg class="psec-chev" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+              ${esc(s.label)} <span class="psec-n">${s.items.length}</span></button></h2>
+            <div class="pgrid" id="grid-${esc(s.id)}">${s.items.map(cardHTML).join('')}</div>
           </div>
         </section>`).join('')
-      : '<p class="pnone">Nothing matches that filter. Clear the search or choose another area or time.</p>';
+      : '<p class="pnone">Nothing matches that filter. Clear the search or choose another area or section.</p>';
   }
 
   /* the same loader as the internal board: up for at least 3 s from page
@@ -106,6 +109,14 @@
       seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
       renderSections();
     }));
+    /* a section heading folds and unfolds its cards; the choice survives filtering */
+    document.getElementById('sections').addEventListener('click', e => {
+      const b = e.target.closest('[data-tog]'); if (!b) return;
+      const id = b.dataset.tog;
+      if (collapsed.has(id)) collapsed.delete(id); else collapsed.add(id);
+      b.closest('.psec').classList.toggle('closed', collapsed.has(id));
+      b.setAttribute('aria-expanded', String(!collapsed.has(id)));
+    });
     document.getElementById('finder').addEventListener('input', e => {
       state.q = e.target.value.trim().toLowerCase(); renderSections();
     });
