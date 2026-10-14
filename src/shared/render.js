@@ -151,10 +151,11 @@ const DISCLAIMER = 'This roadmap describes our current plans and is provided for
   'Content, sequencing and timing can change without notice. ' +
   'Do not base purchasing decisions on capabilities that have not yet been released.';
 
-/* Shown above the DISCLAIMER, in the same places, while the roadmap is for
-   AudioCodes accounts only. Drop it once the public roadmap exists. */
+/* Shown above the DISCLAIMER, in the same places: this board is for
+   AudioCodes accounts only; customers get the public roadmap (/public),
+   linked from the board's top bar. */
 const INTERNAL_NOTICE = 'Internal use only. Do not share this roadmap, or screenshots, PDFs or exports of it, ' +
-  'outside AudioCodes. For customers, send the public roadmap link once it is available.';
+  'outside AudioCodes. For customers, send the public roadmap link (see page header).';
 
 /* Between the filter bar and the board: what the Customer facing flag means.
    HTML, not escaped. */
@@ -193,6 +194,11 @@ function relabelDrawer(){
    the hosted page and the exported file are generated from one source.     */
 function buildBodyHTML(data, opts){
   const sessionSlot = (opts && opts.session) ? '<div class="sess" id="session"></div>' : '';
+  /* live page only: the standalone exported file has no /public to point at */
+  const publicLink = (opts && opts.session)
+    ? '<a class="pub-link" href="/public/" target="_blank" rel="noopener" title="The customer-facing roadmap, no sign-in needed">' +
+      'Public roadmap<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7.5 8.5"/></svg></a>'
+    : '';
   /* only the live page loads xlsx.js and pdf.js; the published standalone file has no download */
   const dlIcon = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11"/></svg>';
   const downloadBtn = (opts && opts.download)
@@ -215,6 +221,7 @@ function buildBodyHTML(data, opts){
   <div class="wrap">
     <span class="logo brand">${logo(L.voca, L.vocaStill, 'Voca', 112, 30)}<span class="brand-sep"></span>${logo(L.ac, L.acStill, 'AudioCodes', 173, 24)}</span>
     <span class="nda">AudioCodes users only</span>
+    ${publicLink}
     ${sessionSlot}
   </div>
 </div>
