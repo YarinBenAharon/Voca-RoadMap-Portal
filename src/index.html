@@ -20,6 +20,16 @@
 .sess .sess-in:hover{background:rgba(108,92,224,.5)}
 .sess .sess-who{max-width:19ch;overflow:hidden;text-overflow:ellipsis}
 
+/* ══ TOP BAR STAYS IN VIEW ═══════════════════════════════
+   The black bar is pinned to the top while scrolling; the filter bar, which
+   base.css pins at top:0, sticks just below it instead. 62px / 56px are the
+   bar heights in base.css.                                                  */
+.topbar{position:sticky;top:0;z-index:45}
+.filterbar{top:62px}
+.section,.boardsec{scroll-margin-top:146px}
+@media(max-width:640px){ .filterbar{top:56px} }
+@media print{ .topbar{position:static} }
+
 /* ══ EXCEL AND PDF DOWNLOADS ═════════════════════════════
    After the search box in the filter bar, in the shape of the Customer
    facing pill. Only this page has them (see xlsx.js, pdf.js).               */
