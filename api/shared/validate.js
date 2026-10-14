@@ -5,7 +5,9 @@
    replaces the live roadmap. Content is the editors' business.
    ========================================================================= */
 
-const META_KEYS = ['product', 'vendor', 'title', 'lede', 'updated',
+const { MONTH_RX } = require('./customerView');
+
+const META_KEYS =['product', 'vendor', 'title', 'lede', 'updated',
                    'currentRelease', 'latestBuild', 'nextTrain'];
 
 function validateRoadmap(data){
@@ -38,6 +40,10 @@ function validateRoadmap(data){
     t.items.forEach((it, j) => {
       if (!it || typeof it.name !== 'string' || !it.name.trim())
         fail('trains[' + i + '].items[' + j + '] needs a name.');
+      if (it.month && !MONTH_RX.test(it.month))
+        fail('"' + it.name + '": target month must look like 2027-03.');
+      if (it.requires != null && typeof it.requires !== 'string')
+        fail('"' + it.name + '": requires must be text.');
     });
   });
 

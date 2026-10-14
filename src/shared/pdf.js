@@ -8,6 +8,10 @@
    timestamp. Same fields as the Excel download: BR for everyone,
    requestor and pm never.
 
+   The public page has its own variant (downloadPublicRoadmapPdf): the
+   customer view grouped by section, an "AudioCodes" watermark and the
+   export timestamp, and no confidentiality marking anywhere.
+
    Text is measured with a canvas in Helvetica/Arial, which share metrics,
    and written in WinAnsi encoding; characters outside it become "?".
 
@@ -122,12 +126,12 @@ function pdfCanvas(){
 
 /* diagonal across the page centre; drawn last and translucent, so it shows
    over the band fills without hiding the text under it */
-function pdfWatermark(s){
+function pdfWatermark(s, color){
   const size = 92, a = Math.PI / 6, cos = Math.cos(a), sin = Math.sin(a);
   const w = pdfMeasure(s, size, true), capH = size * 0.72;
   const x = PDF_W / 2 - (w / 2) * cos + (capH / 2) * sin;
   const y = PDF_H / 2 - (w / 2) * sin - (capH / 2) * cos;
-  return `q /GS1 gs ${pdfRgb('C4553A')} rg BT /F2 ${size} Tf ` +
+  return `q /GS1 gs ${pdfRgb(color || 'C4553A')} rg BT /F2 ${size} Tf ` +
          `${[cos, sin, -sin, cos, x, y].map(pdfNum).join(' ')} Tm ${pdfStr(s)} Tj ET Q`;
 }
 
@@ -265,7 +269,7 @@ function pdfFile(pages, info){
   });
   objs[catalog - 1] = `<< /Type /Catalog /Pages ${tree} 0 R >>`;
   objs[tree - 1] = `<< /Type /Pages /Kids [${kids.map(k => k + ' 0 R').join(' ')}] /Count ${kids.length} >>`;
-  const meta = add(`<< /Title ${pdfStr(pdfSafe(info.title))} /Subject ${pdfStr('Confidential')} ` +
+  const meta = add(`<< /Title ${pdfStr(pdfSafe(info.title))} /Subject ${pdfStr(info.subject || 'Confidential')} ` +
                    `/Producer ${pdfStr('Voca CIC roadmap portal')} /CreationDate ${pdfStr(info.date)} >>`);
 
   let out = '%PDF-1.4\n%âãÏÓ\n';
@@ -289,6 +293,111 @@ function downloadRoadmapPdf(data){
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = (data.meta.product + ' roadmap ' + now.toISOString().slice(0, 10))
+    .replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, '_') + '.pdf';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ── public variant ───────────────────────────────────────────────────── */
+
+const PDF_SECTION = {                                      /* accent, band fill */
+  released: PDF_PHASE['p-now'], progress: PDF_PHASE['p-next'],
+  upcoming: PDF_PHASE['p-later'], planned: PDF_PHASE['p-dir']
+};
+
+/* "2027-03" -> "March 2027" */
+function monthLabel(ym){
+  const M = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const m = /^(\d{4})-(\d{2})$/.exec(String(ym || ''));
+  return m ? M[Number(m[2]) - 1] + ' ' + m[1] : '';
+}
+
+/* view: the /api/public-roadmap body, its sections already filtered by the page */
+function publicRoadmapPdfPages(view, stamp){
+  const title = view.product + ' Roadmap';
+  const FS = 8, LH = 10, PAD = 4, X0 = PDF_M, X1 = PDF_W - PDF_M, BOTTOM = PDF_H - PDF_M - 18;
+  const cols = [['Capability', 170], ['Description', 340], ['Area', 100], ['Month', 64], ['Requires', 96]];
+  const cat = id => { const c = (view.categories || []).find(c => c.id === id); return c ? c.label : id; };
+
+  const c = pdfCanvas();
+  let y = 0;
+
+  function newPage(first){
+    c.page();
+    if (first){
+      c.text(X0, PDF_M + 18, title, 20, true, PDF_INK);
+      y = PDF_M + 34;
+      pdfWrap(DISCLAIMER, 8.5, false, X1 - X0).forEach(l => { c.text(X0, y, l, 8.5, false, PDF_MUTED); y += 11; });
+      y += 6;
+      c.text(X0, y, (view.updated ? `Updated ${view.updated}   |   ` : '') + `Exported ${stamp.human}`, 8.5, true, PDF_TEXT);
+      y += 16;
+    } else {
+      c.text(X0, PDF_M + 6, title, 9, true, PDF_INK);
+      y = PDF_M + 18;
+    }
+  }
+
+  function headerRow(){
+    const h = LH + 2 * PAD;
+    c.rect(X0, y, X1 - X0, h, 'E8ECF3');
+    let x = X0;
+    cols.forEach(([label, w]) => { c.text(x + PAD, y + PAD + FS - 1, label, FS, true, PDF_INK); x += w; });
+    y += h;
+  }
+
+  function band(s, more){
+    const [accent, fill] = PDF_SECTION[s.id] || PDF_PHASE['p-later'];
+    const h = LH + 2 * PAD + 2, n = s.items.length;
+    c.rect(X0, y, X1 - X0, h, fill);
+    c.rect(X0, y, 3, h, accent);
+    c.text(X0 + 10, y + PAD + FS, pdfSafe(s.label + (more ? '   (continued)'
+      : `   (${n} ${n === 1 ? 'capability' : 'capabilities'})`)), FS + 1, true, PDF_INK);
+    y += h;
+  }
+
+  const cellLines = it => [it.name, pdfPlain(it.desc), cat(it.cat), monthLabel(it.month), it.requires]
+    .map((v, i) => pdfWrap(v || '', FS, i === 0, cols[i][1] - 2 * PAD));
+
+  newPage(true);
+  headerRow();
+  view.sections.filter(s => s.items.length).forEach(s => {
+    const rows = s.items.map(cellLines);
+    const first = Math.max(...rows[0].map(l => l.length)) * LH + 2 * PAD;
+    if (y + 2 * LH + first > BOTTOM){ newPage(false); headerRow(); }
+    band(s, false);
+    rows.forEach(lines => {
+      const h = Math.max(...lines.map(l => l.length)) * LH + 2 * PAD;
+      if (y + h > BOTTOM){ newPage(false); headerRow(); band(s, true); }
+      let x = X0;
+      lines.forEach((ls, ci) => {
+        ls.forEach((l, li) => c.text(x + PAD, y + PAD + FS + li * LH, l, FS, ci === 0, ci === 0 ? PDF_INK : PDF_TEXT));
+        x += cols[ci][1];
+      });
+      y += h;
+      c.hline(X0, X1, y, PDF_LINE);
+    });
+    y += 8;
+  });
+
+  c.pages.forEach((ops, i) => {
+    const fy = PDF_H - PDF_M + 4;
+    ops.push(`${pdfRgb(PDF_LINE)} RG 0.6 w ${X0} ${PDF_H - fy + 12} m ${X1} ${PDF_H - fy + 12} l S`);
+    ops.push(`BT /F1 7.5 Tf ${pdfRgb(PDF_MUTED)} rg ${X0} ${PDF_H - fy} Td ` +
+             `${pdfStr(pdfSafe(`AudioCodes  |  ${title}  |  Exported ${stamp.human}`))} Tj ET`);
+    const pg = `Page ${i + 1} of ${c.pages.length}`;
+    ops.push(`BT /F1 7.5 Tf ${pdfRgb(PDF_MUTED)} rg ${pdfNum(X1 - pdfMeasure(pg, 7.5))} ${PDF_H - fy} Td ${pdfStr(pg)} Tj ET`);
+    ops.push(pdfWatermark('AudioCodes', '7C8397'));
+  });
+  return c.pages;
+}
+
+function downloadPublicRoadmapPdf(view){
+  const now = new Date(), stamp = pdfStamp(now);
+  const blob = pdfFile(publicRoadmapPdfPages(view, stamp),
+                       { title: view.product + ' Roadmap', subject: 'Product roadmap', date: stamp.pdf });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (view.product + ' roadmap ' + now.toISOString().slice(0, 10))
     .replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, '_') + '.pdf';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);

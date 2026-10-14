@@ -168,6 +168,8 @@ function withCf(d){
     if (i.requestor === undefined) i.requestor = o.requestor || '';
     if (i.pm === undefined) i.pm = o.pm || '';
     if (i.audience === undefined) i.audience = o.audience || '';
+    if (i.month === undefined) i.month = '';
+    if (i.requires === undefined) i.requires = '';
   }));
   return d;
 }
@@ -279,7 +281,7 @@ function datalist(id, field){
 function editItem(trainId, idx){
   const t = data.trains.find(x => x.id === trainId);
   const isNew = idx == null;
-  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, audience:'', requestor:'', pm:'' } : t.items[idx];
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, audience:'', requires:'', month:'', requestor:'', pm:'' } : t.items[idx];
   const cats = data.categories.map(c =>
     '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
   const trainOpts = data.trains.map(x =>
@@ -297,6 +299,12 @@ function editItem(trainId, idx){
     '<div class="field"><label>Used by</label>' +
       '<input name="audience" list="dl-aud" value="'+esc(it.audience||'')+'" placeholder="Administrators, Supervisors, Agents">' +
       '<div class="hint">Who in the customer\'s organization uses it. Shown to customers.</div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label>Target month</label><input type="month" name="month" value="'+esc(it.month||'')+'">' +
+        '<div class="hint">Month and year on the public roadmap. Required for customer-facing items that are in development or planned; for released items, the release month.</div></div>' +
+      '<div class="field"><label>Requires</label><input name="requires" value="'+esc(it.requires||'')+'" placeholder="A WhatsApp Business Account">' +
+        '<div class="hint">Optional prerequisite, one line. Shown to customers.</div></div>' +
+    '</div>' +
     '<div class="frow">' +
       '<div class="field"><label>Delivered in build</label><input name="patch" value="'+esc(it.patch)+'" placeholder="12.2.0.700">' +
         '<div class="hint">Only for items already shipped in a maintenance build.</div></div>' +
@@ -319,6 +327,7 @@ function editItem(trainId, idx){
       if (!name){ toast('Give the capability a name'); return false; }
       const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
                     cf:m.querySelector('[name="cf"]').checked, audience:val(m,'audience'),
+                    requires:val(m,'requires'), month:val(m,'month'),
                     requestor:val(m,'requestor'), pm:val(m,'pm') };
       const dest = val(m,'train');
       if (!isNew) t.items.splice(idx,1);

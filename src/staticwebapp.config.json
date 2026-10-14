@@ -5,6 +5,34 @@
   },
   "routes": [
     {
+      "route": "/public*",
+      "allowedRoles": ["anonymous"],
+      "headers": {
+        "Cache-Control": "public, max-age=300"
+      }
+    },
+    {
+      "route": "/api/public-roadmap",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/shared/base.css",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/shared/render.js",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/shared/pdf.js",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/shared/brand/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/edit*",
       "allowedRoles": ["editor"],
       "headers": {
