@@ -7,7 +7,8 @@
    patch, the regions and every cf:false item never reach the public page.
 
    Each item lands in one section, from its train's status and its month
-   ("YYYY-MM"), measured from `now`:
+   ("YYYY-MM": the item's own month if set, otherwise its train's),
+   measured from `now`:
 
      released   Available trains, or items with a delivered build (patch),
                 released in the last 12 months. No month: the first month
@@ -65,6 +66,7 @@ function customerView(data, now){
   (data.trains || []).forEach(t => (t.items || []).forEach(it => {
     if (it.cf !== true) return;
     let at = monthIndex(it.month);
+    if (at == null) at = monthIndex(t.month);
     const sec = sectionOf(t, it, at, nowIdx);
     if (!sec) return;
     if (at == null) at = quarterStart(t.quarter);
