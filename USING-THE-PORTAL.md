@@ -171,6 +171,12 @@ For the public roadmap, also fill in:
 - **Requires** (optional): one line on what the customer needs first, for
   example "A WhatsApp Business Account".
 
+To take the public roadmap offline for a while (for example while you rework
+it), tick **Block public roadmap** in the editor's top bar, then **Publish**.
+Customers then see an "Our roadmap is being updated" page instead, and no
+roadmap data is sent to them. Untick it and publish again to bring it back.
+The switch turns orange while it is on.
+
 The public roadmap shows four sections: Recently released (last 12 months),
 In progress, Upcoming (next 3 months) and Planned (4 to 6 months out).
 Direction trains and anything further out are left off. It updates within

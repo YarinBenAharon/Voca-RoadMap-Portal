@@ -124,6 +124,13 @@ process.stdout.write(JSON.stringify({ text: JSON.stringify(out), hidden,
         check('no br, requestor, pm or region values',
               not re.search(r'LEAK-|"(br|requestor|pm|patch|cf)"\s*:', text))
         check('no cf:false items', not any(h in text for h in res['hidden']))
+        blocked = subprocess.run(['node', '-e',
+            "const {customerView}=require('./api/shared/customerView');"
+            "const d=JSON.parse(JSON.stringify(require('./api/shared/seed.json')));d.meta.publicBlocked=true;"
+            "process.stdout.write(JSON.stringify(customerView(d)))"],
+            capture_output=True, text=True, check=True, encoding='utf-8',
+            cwd=pathlib.Path(__file__).resolve().parent.parent).stdout
+        check('blocked feed is only {"blocked":true}', json.loads(blocked) == {'blocked': True})
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('public feed check (%s)' % err, False)
 

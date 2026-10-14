@@ -19,6 +19,8 @@ function validateRoadmap(data){
   for (const k of META_KEYS){
     if (typeof data.meta[k] !== 'string') fail('meta.' + k + ' must be a string.');
   }
+  if (data.meta.publicBlocked !== undefined && typeof data.meta.publicBlocked !== 'boolean')
+    fail('meta.publicBlocked must be true or false.');
 
   if (!Array.isArray(data.categories) || !data.categories.length) fail('"categories" must be a non-empty array.');
   if (!Array.isArray(data.trains))                                fail('"trains" must be an array.');

@@ -124,9 +124,24 @@
     renderSections();
   }
 
+  /* shown while a PM has the public roadmap blocked */
+  function underConstruction(){
+    document.title = 'Voca CIC Roadmap';
+    app.innerHTML = TOPBAR + `<main class="uc">
+  <picture>
+    <source srcset="/shared/brand/static/voca-color.png" media="(prefers-reduced-motion: reduce)">
+    <img src="/shared/brand/webp/voca-loader.webp" alt="Voca" width="200" height="53">
+  </picture>
+  <h1>Our roadmap is being updated</h1>
+  <p>We're preparing the next edition of the Voca CIC roadmap. Please check back soon.</p>
+  <div class="uc-bar" aria-hidden="true"></div>
+  <p class="uc-contact">Need roadmap details now? Contact your AudioCodes account manager.</p>
+</main>`;
+  }
+
   fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' } })
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(v => loaderShown().then(() => { view = v; render(); }))
+    .then(v => loaderShown().then(() => { if (v.blocked){ underConstruction(); return; } view = v; render(); }))
     .catch(() => loaderShown().then(() => {
       app.innerHTML = TOPBAR + '<div class="boot"><h2>The roadmap could not be loaded</h2>' +
         '<p>Please try again in a moment.</p><button class="retry" onclick="location.reload()">Try again</button></div>';
