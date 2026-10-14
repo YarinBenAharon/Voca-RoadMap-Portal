@@ -100,7 +100,15 @@ body.preview .region.is-internal{display:none!important}
   .ovl{padding:20px 12px}
 }
 /* ══ PORTAL CHROME ═══════════════════════════════════════ */
-.ed-pub{font-size:12px;color:#8B94B4;white-space:nowrap}
+.ed-pub{font-size:12px;color:#8B94B4;white-space:nowrap;display:flex;align-items:center;gap:4px;min-width:0}
+/* the status text gives way first when the bar runs out of room; full text on hover */
+.ed-pub .ed-pub-t{overflow:hidden;text-overflow:ellipsis;max-width:26ch}
+/* the two switches share one column, so the bar fits a laptop screen */
+.ed-tgls{display:flex;flex-direction:column;gap:2px}
+.ed-tgls .tgl{font-size:11.5px;line-height:1.35}
+.ed-tgls .tgl input{width:12px;height:12px}
+.ed-right{gap:12px;min-width:0}
+@media(max-width:1200px){ .ed-brand .ed-ac{display:none} .ed-pub .ed-pub-t{max-width:16ch} }
 .ed-link{font-family:inherit;font-size:12px;color:#8FC7FF;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .ed-link:hover{color:#fff}
 .sess{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#B9C6D2;white-space:nowrap}
@@ -122,8 +130,10 @@ body.preview .region.is-internal{display:none!important}
     <button class="ed-btn" id="bAddTrain">Add train</button>
     <button class="ed-btn" id="bMeta">Header</button>
     <div class="ed-right">
-      <label class="tgl block" id="lBlock" title="While on and published, /public shows an under-construction page and the public feed carries no roadmap data"><input type="checkbox" id="tBlock"> Block public roadmap</label>
-      <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
+      <div class="ed-tgls">
+        <label class="tgl block" id="lBlock" title="While on and published, /public shows an under-construction page and the public feed carries no roadmap data"><input type="checkbox" id="tBlock"> Block public roadmap</label>
+        <label class="tgl"><input type="checkbox" id="tPreview"> Customer preview</label>
+      </div>
       <span class="ed-pub" id="pubState"></span>
       <span class="ed-save" id="saveState">Saved</span>
       <button class="ed-btn pri" id="bPublish">Publish</button>
@@ -668,11 +678,14 @@ function fmtStamp(iso){
 function setPubState(msg, action, onAction){
   const el = document.getElementById('pubState');
   if (!el) return;
-  el.textContent = msg || '';
+  el.textContent = '';
+  const t = document.createElement('span');
+  t.className = 'ed-pub-t'; t.textContent = msg || ''; t.title = msg || '';
+  el.appendChild(t);
   if (action){
     const b = document.createElement('button');
     b.className = 'ed-link'; b.textContent = action; b.onclick = onAction;
-    el.appendChild(document.createTextNode(' ')); el.appendChild(b);
+    el.appendChild(b);
   }
 }
 async function boot(){
