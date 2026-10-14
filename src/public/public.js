@@ -139,7 +139,7 @@
 </main>`;
   }
 
-  fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' } })
+  fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(v => loaderShown().then(() => { if (v.blocked){ underConstruction(); return; } view = v; render(); }))
     .catch(() => loaderShown().then(() => {

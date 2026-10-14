@@ -298,9 +298,11 @@ month). Each section heading folds and unfolds its cards (open by default,
 remembered while filtering; the PDF still includes folded sections). Its PDF
 (`downloadPublicRoadmapPdf` in `pdf.js`) is the filtered view, grouped by
 section, with an "AudioCodes" watermark and the export timestamp and no
-confidentiality marking. The feed is cached for 5 minutes
-(`Cache-Control: public, max-age=300`), so a publish reaches `/public` within
-that time.
+confidentiality marking. The feed is never cached (`Cache-Control: no-store`,
+and the page fetches it with `cache:'no-store'`), and the `/public*` files are
+`no-cache` (revalidated on every load), so a publish, including Block public
+roadmap, reaches visitors on their next page load. An earlier 5-minute cache
+made unblocking look broken.
 
 ## Editor conventions
 

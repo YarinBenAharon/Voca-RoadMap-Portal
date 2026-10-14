@@ -16,8 +16,9 @@ module.exports = async function (context, req) {
       status:  200,
       headers: {
         'Content-Type':  'application/json; charset=utf-8',
-        /* the same body for everyone, so a short shared cache is fine */
-        'Cache-Control': 'public, max-age=300'
+        /* never cached: a publish (including Block public roadmap) must
+           reach visitors on their next page load, not minutes later */
+        'Cache-Control': 'no-store'
       },
       body: JSON.stringify((v => v.blocked ? v : Object.assign(v, { publishedAt: rec ? rec.publishedAt : null }))(
                              customerView(rec ? rec.data : seed)))
