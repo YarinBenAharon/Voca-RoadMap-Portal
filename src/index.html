@@ -171,6 +171,7 @@
     withInternalFields(data);
     markRnd(data);
     initBoard();
+    if (res.seesRnd) initRndFilter();
     initDrawer({ showBr: true });
     relabelDrawer();
     mountSession();

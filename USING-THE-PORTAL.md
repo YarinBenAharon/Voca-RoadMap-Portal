@@ -166,8 +166,9 @@ are visible only to editors and the R&D group (the `internal_rnd_group`
 role). Everyone else gets them removed by the server, from the board, the
 Excel and the PDF alike. Internal R&D items are never customer facing: ticking
 it clears and locks Customer facing, and **Customer preview** hides them. For
-editors and the R&D group, the Excel and PDF get an extra **Internal R&D**
-column.
+editors and the R&D group, the filter bar has an **Internal R&D** chip (next
+to Customer facing) that shows only those capabilities, and the Excel and
+PDF get an extra **Internal R&D** column.
 
 For the public roadmap, also fill in:
 

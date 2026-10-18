@@ -201,7 +201,10 @@ Fields with non-obvious behavior:
   `rnd` with `cf`; the edit form clears and locks cf when rnd is ticked.
   The badge, `data-rnd` and search term are added after render by
   `markRnd()` in `render.js` (laneHTML is frozen); Customer preview hides
-  `rnd` tiles. Excel and PDF add an Internal R&D column only when the
+  `rnd` tiles. An **Internal R&D** filter chip beside Customer facing
+  (`initRndFilter()`, layered after the frozen board.js filters; the two
+  chips exclude each other) shows in the editor, and on the board when
+  `/api/roadmap` returns `seesRnd` (editor or R&D role). Excel and PDF add an Internal R&D column only when the
   payload has `rnd` items. `verify_shared_assets.py` probes both views.
 - `month` — `"YYYY-MM"`, on trains and items. The train's month (or, for a
   released train, its release month) is what the public roadmap shows for
