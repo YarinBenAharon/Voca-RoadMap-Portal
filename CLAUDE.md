@@ -162,7 +162,7 @@ meta      { product, vendor, title, lede, updated, currentRelease, latestBuild, 
 categories[] { id, label, short }            // filter segments and dot colors
 trains[]  { id, ver, quarter, month, phase: now|next|later, status, head, note,
             maint: { title, note, drops: [{ ver, when }] },
-            items: [{ name, desc, cat, patch, br, cf, audience, month, requires, requestor, pm }] }
+            items: [{ name, desc, cat, patch, br, cf, rnd, audience, month, requires, requestor, pm }] }
 evaluation[] { t, d }
 cloud     { note, latestVersion, regions: [{ id, name, flag, version,
                                              lastDeploy, nextVersion, nextDate, publish }] }
@@ -194,6 +194,15 @@ Fields with non-obvious behavior:
 - `cf` — "customer facing". On the internal board it drives the star badge
   and the filter toggle and hides nothing. On the public roadmap only `cf:true`
   items appear.
+- `rnd` — "Internal R&D". Such items reach only editors and the
+  `internal_rnd_group` role: `publicView(data, { rnd })` drops them for
+  everyone else, so the board, Excel and PDF lose them together, and
+  `customerView` drops them even if `cf` is set. `validate.js` rejects
+  `rnd` with `cf`; the edit form clears and locks cf when rnd is ticked.
+  The badge, `data-rnd` and search term are added after render by
+  `markRnd()` in `render.js` (laneHTML is frozen); Customer preview hides
+  `rnd` tiles. Excel and PDF add an Internal R&D column only when the
+  payload has `rnd` items. `verify_shared_assets.py` probes both views.
 - `month` — `"YYYY-MM"`, on trains and items. The train's month (or, for a
   released train, its release month) is what the public roadmap shows for
   every item in it, as "March 2027". An item's own month overrides it, for a
@@ -231,6 +240,9 @@ drive the whole design:
   therefore grants nothing. The GitHub provider is disabled by a 404 route rule.
 - Authorization is the custom **`editor`** role, granted per person through
   Role Management invitations in the Azure portal (25-user platform cap).
+  A second custom role, **`internal_rnd_group`** (`auth.isRnd`, matched
+  case-insensitively), adds read access to Internal R&D items; it grants no
+  editing.
 
 **Every route requires sign-in, except the public roadmap.** Rules at the top
 of `staticwebapp.config.json` allow `anonymous` on `/public*`,

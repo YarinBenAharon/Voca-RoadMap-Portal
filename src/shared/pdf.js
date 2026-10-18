@@ -153,9 +153,13 @@ function roadmapPdfPages(data, stamp){
   const title = m.product + ' Release Roadmap';
   const FS = 8, LH = 10, PAD = 4, X0 = PDF_M, X1 = PDF_W - PDF_M, BOTTOM = PDF_H - PDF_M - 18;
 
-  /* column widths sum to the 770pt content width */
-  const cols = [['Capability', 150, 'name'], ['BR', 64, 'br'], ['Description', 316, 'desc'],
-                ['Area', 86, 'area'], ['Used by', 104,'audience'], ['Customer facing', 50, 'cf']];
+  /* column widths sum to the 770pt content width. Internal R&D items reach
+     only editors and the R&D group (the API strips them otherwise), so their
+     column appears only then, taken out of Description. */
+  const rnd = trains.some(t => (t.items || []).some(it => it.rnd === true));
+  const cols = [['Capability', 150, 'name'], ['BR', 64, 'br'], ['Description', rnd ? 270 : 316, 'desc'],
+                ['Area', 86, 'area'], ['Used by', 104,'audience'], ['Customer facing', 50, 'cf']]
+               .concat(rnd ? [['Internal R&D', 46, 'rnd']] : []);
 
   const c = pdfCanvas();
   let y = 0;
@@ -207,6 +211,7 @@ function roadmapPdfPages(data, stamp){
     return cols.map(([, w, key]) => {
       const v = key === 'name' ? it.name : key === 'br' ? it.br : key === 'desc' ? pdfPlain(it.desc)
               : key === 'area' ? catLabel(data, it.cat) : key === 'audience' ? it.audience
+              : key === 'rnd' ? (it.rnd === true ? 'Yes' : 'No')
               : (it.cf ? 'Yes' : 'No');
       return pdfWrap(v || '', FS, key === 'name', w - 2 * PAD);
     });

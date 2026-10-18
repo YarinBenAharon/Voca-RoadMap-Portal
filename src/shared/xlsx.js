@@ -23,17 +23,21 @@ function plainText(html){
 
 function roadmapSheets(data){
   const trains = data.trains || [];
+  /* the API strips Internal R&D items for anyone not entitled to them, so the
+     column appears only for editors and the R&D group, when there are any */
+  const rnd = trains.some(t => (t.items || []).some(it => it.rnd === true));
   const head = ['Release train', 'Target quarter', 'Confidence', 'Capability', 'BR',
-                'Description', 'Area', 'Used by','Customer facing', 'Delivered in build'];
+                'Description', 'Area', 'Used by','Customer facing'].concat(rnd ? ['Internal R&D'] : [], ['Delivered in build']);
   const rows = [head], bands = [null];
   trains.forEach((t, ti) => (t.items || []).forEach(it => {
     rows.push([t.ver, t.quarter, t.status, it.name, it.br || '',
-               plainText(it.desc), catLabel(data, it.cat), it.audience || '', it.cf ? 'Yes' : 'No', it.patch || '']);
+               plainText(it.desc), catLabel(data, it.cat), it.audience || '', it.cf ? 'Yes' : 'No']
+               .concat(rnd ? [it.rnd === true ? 'Yes' : 'No'] : [], [it.patch || '']));
     bands.push(ti % TRAIN_FILLS.length);
   }));
   return [
     { name: 'Roadmap', rows, bands,
-      widths: [13, 20, 15, 42, 22, 90, 26, 30, 15, 17],
+      widths: [13, 20, 15, 42, 22, 90, 26, 30, 15].concat(rnd ? [14] : [], [17]),
       wrap: [head.indexOf('Description')] }
   ];
 }

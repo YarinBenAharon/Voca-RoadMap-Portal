@@ -47,6 +47,10 @@ function validateRoadmap(data){
         fail('"' + it.name + '": target month must look like 2027-03.');
       if (it.requires != null && typeof it.requires !== 'string')
         fail('"' + it.name + '": requires must be text.');
+      if (it.rnd != null && typeof it.rnd !== 'boolean')
+        fail('"' + it.name + '": rnd (Internal R&D) must be true or false.');
+      if (it.rnd === true && it.cf === true)
+        fail('"' + it.name + '": an Internal R&D item cannot be customer facing.');
     });
   });
 
