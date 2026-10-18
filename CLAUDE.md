@@ -172,8 +172,9 @@ Fields with non-obvious behavior:
 
 - `br`, `requestor`, `pm` — internal Jira reference, requesting customer and
   responsible PM. **Every viewer sees them read-only** in the board's detail
-  panel (Jira, Requested by, Responsible PM, and "Customer facing: No,
-  internal"), at the owner's request; only editors can change them.
+  panel (Jira, Requested by, Responsible PM, and "Customer facing: No", which
+  `relabelDrawer` shortens from the frozen "No, internal" so that "internal"
+  is never confused with Internal R&D), at the owner's request; only editors can change them.
   - **Rendering** — `laneHTML` (frozen) still emits their `data-` attributes
     and the tile badges only when `editable` is true. The public page renders
     with `editable:false`, then `withInternalFields()` in `index.html` adds the
