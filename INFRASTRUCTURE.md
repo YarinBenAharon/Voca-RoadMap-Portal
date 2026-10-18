@@ -55,7 +55,9 @@ back to its original content. Back up the container if the roadmap matters.
 Sign-in uses the pre-configured Microsoft Entra ID provider, so **any**
 Microsoft account can complete a login. That grants nothing on its own.
 Editing requires the custom **`editor`** role, granted per person under
-**Settings → Role management**.
+**Settings → Role management**. The custom **`internal_rnd_group`** role,
+granted the same way, lets a viewer also see items flagged Internal R&D
+(`rnd:true`). Both roles count against the 25-user cap.
 
 > Invitations must be issued to the person's **UPN**, which in this tenant is
 > not the same as their email address. See `DEPLOYMENT.md` section 6.

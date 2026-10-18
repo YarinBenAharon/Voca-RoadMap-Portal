@@ -77,7 +77,7 @@
 /* customer preview strips internal chrome */
 body.preview .ed-tools,body.preview .iconb,body.preview .tile-br,
 body.preview .internal,body.preview .dedit,body.preview .lane-add,
-body.preview .tile-people{display:none!important}
+body.preview .tile-people,body.preview .tile[data-rnd="1"]{display:none!important}
 body.preview .region.is-internal{display:none!important}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E1020;color:#fff;font-size:13px;padding:11px 20px;border-radius:100px;z-index:200;opacity:0;pointer-events:none;transition:opacity .18s;max-width:80vw;text-align:center}
@@ -185,6 +185,7 @@ function withCf(d){
     if (i.audience === undefined) i.audience = o.audience || '';
     if (i.month === undefined) i.month = '';
     if (i.requires === undefined) i.requires = '';
+    if (i.rnd === undefined) i.rnd = false;
   }));
   return d;
 }
@@ -296,7 +297,7 @@ function datalist(id, field){
 function editItem(trainId, idx){
   const t = data.trains.find(x => x.id === trainId);
   const isNew = idx == null;
-  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, audience:'', requires:'', month:'', requestor:'', pm:'' } : t.items[idx];
+  const it = isNew ? { name:'', desc:'', cat:data.categories[0].id, patch:'', br:'', cf:false, rnd:false, audience:'', requires:'', month:'', requestor:'', pm:'' } : t.items[idx];
   const cats = data.categories.map(c =>
     '<option value="'+esc(c.id)+'"'+(c.id===it.cat?' selected':'')+'>'+esc(c.label)+'</option>').join('');
   const trainOpts = data.trains.map(x =>
@@ -326,8 +327,12 @@ function editItem(trainId, idx){
       '<div class="field"><label>Jira reference</label><input name="br" value="'+esc(it.br)+'" placeholder="BR-6963">' +
         '<div class="hint">Internal only. Never reaches the published file.</div></div>' +
     '</div>' +
-    '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="cf" style="width:auto"'+(it.cf?' checked':'')+'>Customer facing feature</label>' +
-      '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>' +
+    '<div class="frow">' +
+      '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="cf" style="width:auto"'+(it.cf&&!it.rnd?' checked':'')+(it.rnd?' disabled':'')+'>Customer facing feature</label>' +
+        '<div class="hint">Tagged on the card and included in the Customer facing filter.</div></div>' +
+      '<div class="field"><label style="display:flex;align-items:center;gap:9px"><input type="checkbox" name="rnd" style="width:auto"'+(it.rnd?' checked':'')+'>Internal R&amp;D</label>' +
+        '<div class="hint">Visible only to editors and the Internal R&amp;D group, never customer facing.</div></div>' +
+    '</div>' +
     '<div class="frow">' +
       '<div class="field"><label>Requested by</label>' +
         '<input name="requestor" list="dl-req" value="'+esc(it.requestor||'')+'" placeholder="Customer or account name">' +
@@ -340,8 +345,9 @@ function editItem(trainId, idx){
     m => {
       const name = val(m,'name');
       if (!name){ toast('Give the capability a name'); return false; }
+      const rnd = m.querySelector('[name="rnd"]').checked;
       const rec = { name, desc:val(m,'desc'), cat:val(m,'cat'), patch:val(m,'patch'), br:val(m,'br'),
-                    cf:m.querySelector('[name="cf"]').checked, audience:val(m,'audience'),
+                    cf:!rnd && m.querySelector('[name="cf"]').checked, rnd, audience:val(m,'audience'),
                     requires:val(m,'requires'), month:val(m,'month'),
                     requestor:val(m,'requestor'), pm:val(m,'pm') };
       const dest = val(m,'train');
@@ -350,6 +356,11 @@ function editItem(trainId, idx){
       closeDrawer(); touch();
     },
     isNew ? '' : '<button class="mbtn" id="delItem" style="margin-right:auto">Delete</button>');
+
+  /* Internal R&D is never customer facing: ticking it clears and locks cf */
+  const mEl = document.getElementById('modal');
+  const mRnd = mEl.querySelector('[name="rnd"]'), mCf = mEl.querySelector('[name="cf"]');
+  if (mRnd && mCf) mRnd.onchange = () => { mCf.disabled = mRnd.checked; if (mRnd.checked) mCf.checked = false; };
 
   const d = document.getElementById('delItem');
   if (d) d.onclick = () => {
@@ -581,6 +592,7 @@ function render(){
   const note = document.querySelector('.sec-head .sub');
   if (note) note.insertAdjacentHTML('beforeend', ' <button class="iconb" data-act="nedit" title="Edit the regions note">✎</button>');
 
+  markRnd(data);
   initBoard();
   const sc = document.getElementById('scroller');
   if (sc && scrollMemo){ sc.style.scrollBehavior = 'auto'; sc.scrollLeft = scrollMemo; sc.style.scrollBehavior = ''; }
@@ -593,7 +605,7 @@ initDrawer({
   editFooter: d =>
     '<div class="dedit">' +
       '<button class="tbtn" data-act="iedit" data-t="'+d.t+'" data-i="'+d.i+'">Edit</button>' +
-      '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark as internal':'Mark customer facing')+'</button>' +
+      (d.rnd==='1' ? '' : '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark as internal':'Mark customer facing')+'</button>') +
       '<button class="tbtn" data-act="iup" data-t="'+d.t+'" data-i="'+d.i+'">Move up</button>' +
       '<button class="tbtn" data-act="idown" data-t="'+d.t+'" data-i="'+d.i+'">Move down</button>' +
       '<button class="tbtn del" data-act="idel" data-t="'+d.t+'" data-i="'+d.i+'">Delete</button>' +
@@ -611,6 +623,7 @@ document.addEventListener('click', e => {
   if (a === 'idown')  moveItem(t, i, 1);
   if (a === 'icf'){
     const tr = data.trains.find(x => x.id === t);
+    if (tr && tr.items[i].rnd){ toast('Internal R&D items cannot be customer facing'); return; }
     if (tr){ tr.items[i].cf = !tr.items[i].cf; closeDrawer(); touch();
       toast(tr.items[i].cf ? 'Marked customer facing' : 'Marked internal'); }
   }

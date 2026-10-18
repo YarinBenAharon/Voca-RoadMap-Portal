@@ -38,6 +38,8 @@ const DATA = arg('--data');
 const USERS = {
   pm:   { label: 'Voca PM',      note: 'editor: can edit and publish', userId: 'dev-pm',
           userDetails: 'voca.pm@audiocodes.com', roles: ['editor'] },
+  rnd:  { label: 'Internal R&D', note: 'viewer who also sees Internal R&D items', userId: 'dev-rnd',
+          userDetails: 'rnd@audiocodes.com',     roles: ['internal_rnd_group'] },
   user: { label: 'Regular user', note: 'AudioCodes viewer, read-only',  userId: 'dev-user',
           userDetails: 'viewer@audiocodes.com',  roles: [] }
 };
@@ -117,7 +119,7 @@ function loginPage(res, back){
 h1{font-size:20px;margin:0 0 6px}p{font-size:13px;color:#7C8397;margin:0 0 22px}
 .u{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:inherit;border:1px solid #E3E8F0;border-radius:14px;padding:14px 18px;margin-bottom:10px}
 .u:hover{border-color:#6C5CE0;background:#F7F6FE}.u b{font-size:15px}.u span{font-size:13px;color:#464C61}.u i{font-size:12px;color:#7C8397;font-style:normal}</style></head>
-<body><div class="box"><h1>Test sign-in</h1><p>Local test server only. Pick who to sign in as.</p>${opt('pm')}${opt('user')}</div></body></html>`,
+<body><div class="box"><h1>Test sign-in</h1><p>Local test server only. Pick who to sign in as.</p>${opt('pm')}${opt('rnd')}${opt('user')}</div></body></html>`,
   { 'Content-Type': 'text/html; charset=utf-8' });
 }
 

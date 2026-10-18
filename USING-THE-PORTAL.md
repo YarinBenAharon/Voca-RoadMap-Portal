@@ -37,8 +37,9 @@ That single idea explains almost everything else in this guide:
 | --- | :---: | :---: | :---: |
 | Not signed in | no, sent to the Microsoft sign-in | no | no |
 | Signed in with a non-AudioCodes account | no, told to use an AudioCodes account | no | no |
-| Signed in with an AudioCodes account | yes | no | no |
-| Signed in, editor role | yes | yes | yes |
+| Signed in with an AudioCodes account | yes, without Internal R&D items | no | no |
+| Signed in, internal_rnd_group role | yes, including Internal R&D items | no | no |
+| Signed in, editor role | yes, everything | yes | yes |
 
 Signing in with your AudioCodes (@audiocodes.com) account lets you view. Editing
 requires being granted the **editor** role individually. Ask the portal owner
@@ -159,6 +160,14 @@ Separately, capabilities can be flagged **Customer facing** (the star badge).
 On the internal board the flag hides nothing; it drives the "Customer facing"
 filter. On the **public roadmap** (`/public`, for customers and resellers, no
 sign-in), **only** capabilities flagged Customer facing appear.
+
+Capabilities flagged **Internal R&D** (orange badge; tick it in the edit form)
+are visible only to editors and the R&D group (the `internal_rnd_group`
+role). Everyone else gets them removed by the server, from the board, the
+Excel and the PDF alike. Internal R&D items are never customer facing: ticking
+it clears and locks Customer facing, and **Customer preview** hides them. For
+editors and the R&D group, the Excel and PDF get an extra **Internal R&D**
+column.
 
 For the public roadmap, also fill in:
 

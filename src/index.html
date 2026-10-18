@@ -169,6 +169,7 @@
     document.getElementById('dlXlsx').addEventListener('click', () => downloadRoadmapXlsx(data));
     document.getElementById('dlPdf').addEventListener('click', () => downloadRoadmapPdf(data));
     withInternalFields(data);
+    markRnd(data);
     initBoard();
     initDrawer({ showBr: true });
     relabelDrawer();

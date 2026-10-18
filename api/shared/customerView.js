@@ -67,7 +67,7 @@ function customerView(data, now){
   SECTIONS.forEach(s => { buckets[s.id] = []; });
 
   (data.trains || []).forEach(t => (t.items || []).forEach(it => {
-    if (it.cf !== true) return;
+    if (it.cf !== true || it.rnd === true) return;     /* Internal R&D never goes public */
     let at = monthIndex(it.month);
     if (at == null) at = monthIndex(t.month);
     const sec = sectionOf(t, it, at, nowIdx);

@@ -9,13 +9,24 @@
    requestor holds customer names. That is acceptable only because the domain
    check keeps the payload inside AudioCodes; do not relax that check without
    stripping requestor here again.
+
+   Internal R&D items (rnd:true) are removed unless opts.rnd is set (the
+   caller has the internal_rnd_group role). The board, Excel and PDF are all
+   built from this payload, so this one filter covers all three.
    ========================================================================= */
 
-function publicView(data){
+function publicView(data, opts){
   const out = JSON.parse(JSON.stringify(data));
+  const rnd = !!(opts && opts.rnd);
 
   if (out.cloud && Array.isArray(out.cloud.regions)){
     out.cloud.regions = out.cloud.regions.filter(r => r.publish !== false);
+  }
+
+  if (!rnd && Array.isArray(out.trains)){
+    out.trains.forEach(t => {
+      if (Array.isArray(t.items)) t.items = t.items.filter(it => !(it && it.rnd === true));
+    });
   }
 
   return out;

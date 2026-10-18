@@ -186,6 +186,25 @@ function relabelDrawer(){
       if (k.textContent === 'Area') k.textContent = 'Product Area';
       else if (k.textContent === 'For') k.textContent = 'Used by';
     });
+    const meta = document.querySelector('#drawer .dmeta');
+    if (meta && e.target.closest('.tile').dataset.rnd === '1')
+      meta.insertAdjacentHTML('afterbegin', '<div><span class="k">Visibility</span><span class="v">Internal R&amp;D only</span></div>');
+  });
+}
+
+/* Internal R&D items (rnd:true) reach only editors and the internal_rnd_group
+   role (api/shared/publicView.js). laneHTML is frozen, so their badge, the
+   data-rnd flag and the search term are added to the rendered tiles here. */
+const RND_BADGE = '<span class="tile-rnd" title="Visible only to Internal R&amp;D and editors">Internal R&amp;D</span>';
+function markRnd(data){
+  document.querySelectorAll('#board .tile').forEach(el => {
+    const t  = (data.trains || []).find(x => x.id === el.dataset.t);
+    const it = t && (t.items || [])[Number(el.dataset.i)];
+    if (!it || it.rnd !== true) return;
+    el.dataset.rnd = '1';
+    el.dataset.k += ' internal r&d rnd';
+    const meta = el.querySelector('.tile-meta');
+    if (meta) meta.insertAdjacentHTML('afterbegin', RND_BADGE);
   });
 }
 
@@ -283,6 +302,6 @@ function buildBodyHTML(data, opts){
 }
 
 if (typeof module !== 'undefined' && module.exports){
-  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
+  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, markRnd, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
                      yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

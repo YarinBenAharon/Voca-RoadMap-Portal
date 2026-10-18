@@ -33,9 +33,11 @@ module.exports = async function (context, req) {
 
     /* Only AudioCodes accounts and editors get this far. Editors get the
        working copy; AudioCodes viewers get every item field (shown read-only)
-       but not the internal regions. */
+       but not the internal regions, and Internal R&D items only with the
+       internal_rnd_group role. */
     const editor = auth.isEditor(req);
-    const shown  = d => (editor ? d : publicView(d));
+    const rnd    = auth.isRnd(req);
+    const shown  = d => (editor ? d : publicView(d, { rnd }));
 
     const payload = {
       data:        shown(rec ? rec.data : seed),

@@ -95,6 +95,20 @@ def main():
               'auth.isAudioCodes(req)' in api and "'audiocodes-only'" in api)
         check('publicView drops internal regions',
               "publish !== false" in stripper)
+        # Internal R&D items: only editors (no publicView) and internal_rnd_group
+        rnd = json.loads(subprocess.run(['node', '-e',
+            "const {publicView}=require('./api/shared/publicView');"
+            "const d=JSON.parse(JSON.stringify(require('./api/shared/seed.json')));"
+            "d.trains.forEach(t=>t.items.forEach((it,i)=>{if(i===0)it.rnd=true;}));"
+            "const n=x=>x.trains.reduce((a,t)=>a+t.items.filter(i=>i.rnd===true).length,0);"
+            "process.stdout.write(JSON.stringify({all:n(d),viewer:n(publicView(d)),rnd:n(publicView(d,{rnd:true}))}))"],
+            capture_output=True, text=True, check=True, encoding='utf-8',
+            cwd=pathlib.Path(__file__).resolve().parent.parent).stdout)
+        check('publicView drops Internal R&D items for viewers (%d of %d)' % (rnd['all'] - rnd['viewer'], rnd['all']),
+              rnd['all'] > 0 and rnd['viewer'] == 0)
+        check('publicView keeps them for internal_rnd_group', rnd['rnd'] == rnd['all'])
+        check('api/roadmap passes the R&D role to publicView',
+              'auth.isRnd(req)' in api and 'publicView(d, { rnd })' in api)
     except Exception as err:                      # noqa: BLE001 - reported, not raised
         check('payload check (%s)' % err, False)
 
@@ -110,6 +124,7 @@ const now = new Date(), m = now.getUTCFullYear() + '-' + String(now.getUTCMonth(
 const hidden = [];
 d.trains.forEach(t => t.items.forEach((it, i) => {
   if (i === 0){ it.cf = false; it.name = 'HIDDEN-' + t.id; hidden.push(it.name); } else it.cf = true;
+  if (i === 1){ it.rnd = true; it.name = 'RND-' + t.id; hidden.push(it.name); }
   Object.assign(it, { month: m, br: 'LEAK-BR', requestor: 'LEAK-REQ', pm: 'LEAK-PM', patch: '' });
 }));
 d.cloud.regions.forEach(r => { r.name = 'LEAK-REGION'; });
@@ -123,7 +138,7 @@ process.stdout.write(JSON.stringify({ text: JSON.stringify(out), hidden,
         check('customerView returns items (%d)' % res['n'], res['n'] > 0)
         check('no br, requestor, pm or region values',
               not re.search(r'LEAK-|"(br|requestor|pm|patch|cf)"\s*:', text))
-        check('no cf:false items', not any(h in text for h in res['hidden']))
+        check('no cf:false or Internal R&D items', not any(h in text for h in res['hidden']))
         blocked = subprocess.run(['node', '-e',
             "const {customerView}=require('./api/shared/customerView');"
             "const d=JSON.parse(JSON.stringify(require('./api/shared/seed.json')));d.meta.publicBlocked=true;"

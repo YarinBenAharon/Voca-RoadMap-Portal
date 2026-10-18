@@ -24,6 +24,16 @@ function isEditor(req){
   return !!(p && Array.isArray(p.userRoles) && p.userRoles.indexOf('editor') !== -1);
 }
 
+/* Internal R&D group: sees items marked rnd:true, which every other viewer
+   is denied (publicView). Granted like editor, by Role management invitation. */
+const RND_ROLE = 'internal_rnd_group';
+
+function isRnd(req){
+  const p = principal(req);
+  return !!(p && Array.isArray(p.userRoles) &&
+            p.userRoles.some(r => String(r).toLowerCase() === RND_ROLE));
+}
+
 function nameOf(req){
   const p = principal(req);
   return (p && p.userDetails) || null;
@@ -43,4 +53,4 @@ function isAudioCodes(req){
   return AUDIOCODES_DOMAINS.indexOf(domain) !== -1;
 }
 
-module.exports = { principal, isEditor, nameOf, isAudioCodes, AUDIOCODES_DOMAINS };
+module.exports = { principal, isEditor, isRnd, nameOf, isAudioCodes, AUDIOCODES_DOMAINS, RND_ROLE };
