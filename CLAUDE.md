@@ -329,7 +329,7 @@ Unchanged from the original, and worth preserving:
   wholesale, which is why scroll is restored by hand.
 - **Actions are event-delegated.** One document-level `click` handler switches
   on `data-act` (`iedit`, `iadd`, `iup`, `idown`, `icf`, `idel`, `tedit`,
-  `tup`, `tdown`, `maint`, `eedit`, `eadd`, `redit`, `radd`) plus `data-t` and
+  `irnd`, `tup`, `tdown`, `maint`, `eedit`, `eadd`, `redit`, `radd`) plus `data-t` and
   `data-i`. Add affordances by emitting a `data-act` button and a branch, not
   by wiring `onclick` into render output.
 - **All editing goes through `openModal(title, bodyHTML, onSave, extraFooter)`.**
