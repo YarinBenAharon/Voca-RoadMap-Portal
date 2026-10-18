@@ -161,7 +161,8 @@ On the internal board the flag hides nothing; it drives the "Customer facing"
 filter. On the **public roadmap** (`/public`, for customers and resellers, no
 sign-in), **only** capabilities flagged Customer facing appear.
 
-Capabilities flagged **Internal R&D** (orange badge; tick it in the edit form)
+Capabilities flagged **Internal R&D** (orange badge; tick it in the edit form, or
+use **Mark Internal R&D** in the detail panel)
 are visible only to editors and the R&D group (the `internal_rnd_group`
 role). Everyone else gets them removed by the server, from the board, the
 Excel and the PDF alike. Internal R&D items are never customer facing: ticking
