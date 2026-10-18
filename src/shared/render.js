@@ -208,6 +208,55 @@ function markRnd(data){
   });
 }
 
+/* "Internal R&D" filter chip beside Customer facing, for editors and the R&D
+   group. board.js (frozen) owns the area, search and Customer facing filters;
+   this runs after its handlers (registered later, so called later) and hides
+   the non-R&D tiles on top. The two chips exclude each other, since an R&D
+   item is never customer facing. Call after initBoard(), and after markRnd(). */
+function initRndFilter(){
+  const cfBtn = document.getElementById('cfToggle'), board = document.getElementById('board');
+  if (!cfBtn || !board) return;
+  cfBtn.insertAdjacentHTML('afterend', '<button class="cf-toggle rnd-toggle" id="rndToggle" aria-pressed="false" ' +
+    'title="Show only Internal R&amp;D features">Internal R&amp;D <span class="cf-n"></span></button>');
+  const btn = document.getElementById('rndToggle'), finder = document.getElementById('finder');
+  const tiles = [].slice.call(board.querySelectorAll('.tile'));
+  const none = document.getElementById('noresult');
+
+  function apply(){
+    const on = !!window.__rndOnly, cat = window.__cat || 'all';
+    const term = finder ? finder.value.trim().toLowerCase() : '';
+    let n = 0, any = false;
+    tiles.forEach(t => {
+      const isRnd = t.dataset.rnd === '1';
+      if (isRnd && (cat === 'all' || t.dataset.cat === cat) && (!term || (t.dataset.k || '').indexOf(term) !== -1)) n++;
+      if (on && !isRnd) t.classList.add('hidden');
+      if (!t.classList.contains('hidden')) any = true;
+    });
+    btn.querySelector('.cf-n').textContent = n;
+    btn.setAttribute('aria-pressed', String(on));
+    if (!on) return;
+    board.querySelectorAll('.lane').forEach(l => {
+      const k = l.querySelectorAll('.tile:not(.hidden)').length;
+      const c = l.querySelector('[data-count]'); if (c) c.textContent = k;
+      const e = l.querySelector('.lane-empty'); if (e) e.hidden = k !== 0;
+      const m = l.querySelector('.lane-maint'); if (m) m.style.display = 'none';
+    });
+    if (none) none.classList.toggle('show', !any);
+  }
+
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', apply));
+  if (finder) finder.addEventListener('input', apply);
+  cfBtn.addEventListener('click', () => { if (window.__cfOnly) window.__rndOnly = false; apply(); });
+  btn.addEventListener('click', () => {
+    window.__rndOnly = !window.__rndOnly;
+    /* let board.js re-run first: it turns Customer facing off, or unhides tiles */
+    if (window.__rndOnly && window.__cfOnly) cfBtn.click();
+    else if (finder) finder.dispatchEvent(new Event('input'));
+    else apply();
+  });
+  apply();
+}
+
 /* ── published body  (shared by the live site and the standalone export) ──
    The markup below is the body of buildPublishHTML() moved here verbatim so
    the hosted page and the exported file are generated from one source.     */
@@ -302,6 +351,6 @@ function buildBodyHTML(data, opts){
 }
 
 if (typeof module !== 'undefined' && module.exports){
-  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, markRnd, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
+  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, markRnd, initRndFilter, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
                      yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

@@ -74,6 +74,10 @@
 /* Internal R&D badge on tiles (markRnd in render.js), editors and the R&D group only. */
 .tile-rnd{display:inline-flex;align-items:center;font-size:10.5px;font-weight:600;color:#9A4A00;background:#FFF1DC;
   border:1px solid #F5CF9A;border-radius:100px;padding:1px 8px;white-space:nowrap}
+/* its filter chip (initRndFilter), styled like Customer facing in the badge's orange */
+.rnd-toggle{margin-left:8px}
+.rnd-toggle .cf-n{background:#FFF1DC;color:#9A4A00}
+.rnd-toggle[aria-pressed="true"]{background:#9A4A00;border-color:#9A4A00}
 
 /* Regions: no "Latest build" box beside the heading. */
 .sec-head .latest{display:none}

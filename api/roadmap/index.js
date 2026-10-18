@@ -43,7 +43,8 @@ module.exports = async function (context, req) {
       data:        shown(rec ? rec.data : seed),
       publishedAt: rec ? rec.publishedAt : null,
       publishedBy: (editor && rec) ? rec.publishedBy : null,
-      isSeed:      !rec
+      isSeed:      !rec,
+      seesRnd:     editor || rnd          /* the board offers the Internal R&D filter chip */
     };
     if (editor && req.query && req.query.withSeed === '1') payload.seed = seed;
 
