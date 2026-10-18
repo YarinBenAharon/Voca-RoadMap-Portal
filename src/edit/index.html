@@ -606,7 +606,7 @@ initDrawer({
   editFooter: d =>
     '<div class="dedit">' +
       '<button class="tbtn" data-act="iedit" data-t="'+d.t+'" data-i="'+d.i+'">Edit</button>' +
-      (d.rnd==='1' ? '' : '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark as internal':'Mark customer facing')+'</button>') +
+      (d.rnd==='1' ? '' : '<button class="tbtn" data-act="icf" data-t="'+d.t+'" data-i="'+d.i+'">'+(d.cf==='1'?'Mark not customer facing':'Mark customer facing')+'</button>') +
       '<button class="tbtn" data-act="iup" data-t="'+d.t+'" data-i="'+d.i+'">Move up</button>' +
       '<button class="tbtn" data-act="idown" data-t="'+d.t+'" data-i="'+d.i+'">Move down</button>' +
       '<button class="tbtn del" data-act="idel" data-t="'+d.t+'" data-i="'+d.i+'">Delete</button>' +
@@ -626,7 +626,7 @@ document.addEventListener('click', e => {
     const tr = data.trains.find(x => x.id === t);
     if (tr && tr.items[i].rnd){ toast('Internal R&D items cannot be customer facing'); return; }
     if (tr){ tr.items[i].cf = !tr.items[i].cf; closeDrawer(); touch();
-      toast(tr.items[i].cf ? 'Marked customer facing' : 'Marked internal'); }
+      toast(tr.items[i].cf ? 'Marked customer facing' : 'Marked not customer facing'); }
   }
   if (a === 'idel'){
     const tr = data.trains.find(x => x.id === t);

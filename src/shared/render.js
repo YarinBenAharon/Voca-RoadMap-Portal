@@ -185,10 +185,13 @@ function relabelDrawer(){
     document.querySelectorAll('#drawer .dmeta .k').forEach(function(k){
       if (k.textContent === 'Area') k.textContent = 'Product Area';
       else if (k.textContent === 'For') k.textContent = 'Used by';
+      /* "internal" is not a feature state; keep it apart from Internal R&D */
+      else if (k.textContent === 'Customer facing' && k.nextElementSibling &&
+               k.nextElementSibling.textContent === 'No, internal') k.nextElementSibling.textContent = 'No';
     });
     const meta = document.querySelector('#drawer .dmeta');
     if (meta && e.target.closest('.tile').dataset.rnd === '1')
-      meta.insertAdjacentHTML('afterbegin', '<div><span class="k">Visibility</span><span class="v">Internal R&amp;D only</span></div>');
+      meta.insertAdjacentHTML('afterbegin', '<div><span class="k">Internal R&amp;D</span><span class="v">Yes</span></div>');
   });
 }
 

@@ -141,8 +141,8 @@ first.
 The board is for AudioCodes accounts only. Anyone signed in with another
 Microsoft account is told so and gets no roadmap.
 
-- **Jira / BR, Requested by, Responsible PM** and **Customer facing: No,
-  internal** are shown to every viewer, read-only, in the detail panel that
+- **Jira / BR, Requested by, Responsible PM** and **Customer facing: No**
+  are shown to every viewer, read-only, in the detail panel that
   opens when they select a capability. They are searchable too. Tiles on the
   board do not show requester or PM badges; only the editor does.
 - **Downloads** (Excel and PDF) include the BR, but never *Requested by* or
