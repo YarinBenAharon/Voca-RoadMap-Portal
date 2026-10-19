@@ -139,9 +139,35 @@
 </main>`;
   }
 
-  fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(v => loaderShown().then(() => { if (v.blocked){ underConstruction(); return; } view = v; render(); }))
+  /* /public/?preview, opened by the editor's Preview public roadmap: this
+     browser's editor draft (or the published roadmap if there is none) as
+     customers would see it, even while Block public roadmap is on.
+     /api/public-preview answers editors only; anyone else gets the real page. */
+  const LS_DRAFT = 'voca_roadmap_editor_v2';             /* the editor's LS_KEY */
+  const previewing = new URLSearchParams(location.search).has('preview');
+  function previewBanner(p){
+    const what = p.draft ? 'your editor draft, as customers would see it once published' : 'the published roadmap';
+    const note = p.blocked ? ' Block public roadmap is on, so customers see the under-construction page.' : '';
+    app.insertAdjacentHTML('afterbegin', `<div class="pv-bar" role="status"><b>Preview</b> of ${what}. Not the live page.${note}</div>`);
+  }
+  function loadPreview(){
+    let draft = '';
+    try { draft = localStorage.getItem(LS_DRAFT) || ''; } catch(e){}
+    return fetch('/api/public-preview', { method: 'POST', cache: 'no-store',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: draft || '{}' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+  function loadPublic(){
+    return fetch('/api/public-roadmap', { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+
+  (previewing ? loadPreview().catch(loadPublic) : loadPublic())
+    .then(v => loaderShown().then(() => {
+      if (v.blocked){ underConstruction(); return; }
+      view = v; render();
+      if (v.preview){ document.title = 'Preview: ' + document.title; previewBanner(v.preview); }
+    }))
     .catch(() => loaderShown().then(() => {
       app.innerHTML = TOPBAR + '<div class="boot"><h2>The roadmap could not be loaded</h2>' +
         '<p>Please try again in a moment.</p><button class="retry" onclick="location.reload()">Try again</button></div>';

@@ -260,6 +260,45 @@ function initRndFilter(){
   apply();
 }
 
+/* The bar under the board (.progress) only shows the scroll position in the
+   frozen board.js. This makes it a scrollbar: drag the thumb, or press the
+   track to jump there. board.js's scroll listener keeps the thumb in step.
+   Self-contained, because publishHtml.js inlines it into the exported file.
+   Call after initBoard(), on every render. */
+function initProgressDrag(){
+  const sc = document.getElementById('scroller'), track = document.querySelector('.progress');
+  if (!sc || !track || track.dataset.drag) return;
+  track.dataset.drag = '1';
+  const thumb = track.querySelector('i');
+  let grab = null;                     /* pointer offset inside the thumb, px */
+  function follow(x){
+    const r = track.getBoundingClientRect(), max = sc.scrollWidth - sc.clientWidth;
+    const free = r.width * (1 - sc.clientWidth / Math.max(sc.scrollWidth, 1));
+    if (max <= 0 || free <= 0) return;
+    sc.scrollLeft = Math.max(0, Math.min(1, (x - r.left - grab) / free)) * max;
+  }
+  function end(){
+    if (grab === null) return;
+    grab = null;
+    sc.style.scrollBehavior = ''; sc.style.scrollSnapType = '';
+    track.classList.remove('dragging');
+  }
+  track.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || !thumb) return;
+    const t = thumb.getBoundingClientRect();
+    grab = (e.clientX >= t.left && e.clientX <= t.right) ? e.clientX - t.left : t.width / 2;
+    /* smooth scrolling and snapping would both fight the pointer */
+    sc.style.scrollBehavior = 'auto'; sc.style.scrollSnapType = 'none';
+    track.classList.add('dragging');
+    track.setPointerCapture(e.pointerId);
+    follow(e.clientX);
+    e.preventDefault();
+  });
+  track.addEventListener('pointermove', e => { if (grab !== null) follow(e.clientX); });
+  track.addEventListener('pointerup', end);
+  track.addEventListener('pointercancel', end);
+}
+
 /* ── published body  (shared by the live site and the standalone export) ──
    The markup below is the body of buildPublishHTML() moved here verbatim so
    the hosted page and the exported file are generated from one source.     */
@@ -354,6 +393,6 @@ function buildBodyHTML(data, opts){
 }
 
 if (typeof module !== 'undefined' && module.exports){
-  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, markRnd, initRndFilter, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
+  module.exports = { DISCLAIMER, INTERNAL_NOTICE, withTrialRegionFirst, relabelDrawer, markRnd, initRndFilter, initProgressDrag, esc, phaseClass, cmpVer, regionStatus, fmtDate, catLabel,
                      yearOf, initials, axisHTML, laneHTML, regionsHTML, buildBodyHTML };
 }

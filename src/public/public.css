@@ -66,6 +66,11 @@
 .pcard-req b{color:var(--ink);font-weight:600}
 .pcard-for{font-size:12px;color:var(--muted);margin-top:auto}
 
+/* /public/?preview from the editor: a strip above the top bar, never on the live page */
+.pv-bar{background:#FFF1DC;color:#9A4A00;border-bottom:1px solid #F5CF9A;font-size:13px;line-height:1.5;
+  text-align:center;padding:8px var(--gutter)}
+.pv-bar b{font-weight:600}
+
 .pnone{max-width:1280px;margin:48px auto;padding:0 var(--gutter);color:var(--muted)}
 #sections{padding-bottom:56px}
 

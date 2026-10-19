@@ -188,6 +188,12 @@ Customers then see an "Our roadmap is being updated" page instead, and no
 roadmap data is sent to them. Untick it and publish again to bring it back.
 The switch turns orange while it is on.
 
+To see the public roadmap before customers do, click **Public preview** in the
+editor's top bar. It opens `/public` in a new tab with your draft, as it would
+look once published, under an orange "Preview" strip. It works while **Block
+public roadmap** is on, too. Only editors get the preview; anyone else who
+opens the link sees the normal public page.
+
 The public roadmap shows four sections: Recently released (last 12 months),
 In progress, Upcoming (next 3 months) and Planned (4 to 6 months out).
 Direction trains and anything further out are left off. It updates as soon

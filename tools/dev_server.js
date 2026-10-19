@@ -79,7 +79,7 @@ if (DATA && !fs.existsSync(storeFile(devStore.CURRENT_JSON))){
 }
 
 const FUNCS = {};
-['roadmap', 'public-roadmap', 'publish', 'snapshots', 'draft'].forEach(n => {
+['roadmap', 'public-roadmap', 'public-preview', 'publish', 'snapshots', 'draft'].forEach(n => {
   const f = path.join(ROOT, 'api', n, 'index.js');
   if (fs.existsSync(f)) FUNCS[n] = require(f);
 });
@@ -140,7 +140,7 @@ async function callFunction(name, req, res, url, key){
 }
 
 /* ── routing, after staticwebapp.config.json ─────────────────────────── */
-const EDITOR_ONLY = [/^\/edit/, /^\/api\/publish/, /^\/api\/snapshots/, /^\/api\/draft/];
+const EDITOR_ONLY = [/^\/edit/, /^\/api\/publish/, /^\/api\/snapshots/, /^\/api\/draft/, /^\/api\/public-preview/];
 const ANONYMOUS   = [/^\/public/, /^\/api\/public-roadmap$/, /^\/shared\/(base\.css|render\.js|pdf\.js|brand\/)/];
 
 http.createServer(async (req, res) => {

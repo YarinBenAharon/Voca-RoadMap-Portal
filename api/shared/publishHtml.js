@@ -49,6 +49,7 @@ ${render.buildBodyHTML(data, { session: false, logos: LOGOS })}
 <script>
 ${BOARD_JS}
 initBoard();
+(${render.initProgressDrag})();
 initDrawer({ showBr:false });
 (${render.relabelDrawer})();
 <\/script>

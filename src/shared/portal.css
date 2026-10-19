@@ -79,5 +79,13 @@
 .rnd-toggle .cf-n{background:#FFF1DC;color:#9A4A00}
 .rnd-toggle[aria-pressed="true"]{background:#9A4A00;border-color:#9A4A00}
 
+/* The bar under the board works as a scrollbar (initProgressDrag in render.js).
+   It stays 4px tall; the invisible ::before widens the target to 20px. */
+.progress{position:relative;overflow:visible;cursor:pointer;touch-action:none;user-select:none}
+.progress::before{content:'';position:absolute;left:0;right:0;top:-8px;bottom:-8px}
+.progress i{position:relative;cursor:grab}
+.progress.dragging i{transition:none;cursor:grabbing}
+.progress.dragging{cursor:grabbing}
+
 /* Regions: no "Latest build" box beside the heading. */
 .sec-head .latest{display:none}
