@@ -61,7 +61,9 @@ order and name); the editor adds a ✎ at the end of the Regions note
 (`cloud.note`, `editCloudNote`), appended after render because the section
 head is in the frozen `regionsHTML`; the detail panel's "Area" label reads "Product Area" and "For" reads "Used by"
 (`relabelDrawer` in `render.js`, run after `initDrawer`, because the labels are
-in the frozen `board.js`); the top bar has no Roadmap / Regions links and its badge
+in the frozen `board.js`); the bar under the board (`.progress`), display-only in
+`board.js`, is a working scrollbar: drag the thumb or press the track
+(`initProgressDrag` in `render.js`, on the board, in the editor and in the exported file); the top bar has no Roadmap / Regions links and its badge
 reads "AudioCodes users only", followed by a **Public roadmap** link to `/public`
 (live page only, not the standalone export); on the board page the top bar stays
 pinned while scrolling, with the filter bar sticking below it (`index.html`); the top bar
@@ -110,6 +112,7 @@ src/                            app_location — everything served to browsers
 api/                            managed Azure Functions, Node 20
 ├── roadmap/                    GET  /api/roadmap        AudioCodes accounts and editors
 ├── public-roadmap/             GET  /api/public-roadmap anyone, no sign-in (customerView)
+├── public-preview/             POST /api/public-preview editor only, the draft as /public, block ignored
 ├── publish/                    POST /api/publish        editor only
 ├── snapshots/                  GET  /api/snapshots      editor only
 ├── draft/                      GET/PUT/DELETE /api/draft  editor only, per user
@@ -296,6 +299,14 @@ under-construction page (animated Voca logo, "Our roadmap is being updated",
 contact your account manager). `verify_shared_assets.py` checks that a
 blocked feed is exactly `{"blocked":true}`. Turning it off deletes the key.
 
+**Public preview** (editor top bar) opens `/public/?preview` in a new tab.
+In that mode `public.js` POSTs the editor's localStorage draft (`LS_KEY`,
+kept current by `touch()`; none means the published copy) to
+`/api/public-preview`, editor only, which returns `customerView()` of it with
+the block ignored, plus `preview: { draft, blocked }` for the orange strip.
+If that call fails (anyone not an editor), the page falls back to the normal
+feed, so the URL shows nothing extra to customers.
+
 Sections are computed on the server from the current month:
 
 | Section | Items |
@@ -343,7 +354,8 @@ Unchanged from the original, and worth preserving:
   to that rule, or preview starts lying about what customers see.
 
 The editor top bar is deliberately minimal: **Add train**, **Header**,
-**Customer preview**, the publish state, **Publish**, and the session control.
+**Public preview** (owner request; the status text was cut to 17ch and the
+AudioCodes logo hides below 1280px to pay for it), **Customer preview**, the publish state, **Publish**, and the session control.
 
 **The constraint is horizontal space, not capability.** The bar scrolls
 sideways once it overflows, and users were having to drag it left to reach

@@ -102,13 +102,14 @@ body.preview .region.is-internal{display:none!important}
 /* ══ PORTAL CHROME ═══════════════════════════════════════ */
 .ed-pub{font-size:12px;color:#8B94B4;white-space:nowrap;display:flex;align-items:center;gap:4px;min-width:0}
 /* the status text gives way first when the bar runs out of room; full text on hover */
-.ed-pub .ed-pub-t{overflow:hidden;text-overflow:ellipsis;max-width:26ch}
+/* 17ch (was 26ch) to make room for Public preview; the bar's wrap is capped at 1280px */
+.ed-pub .ed-pub-t{overflow:hidden;text-overflow:ellipsis;max-width:17ch}
 /* the two switches share one column, so the bar fits a laptop screen */
 .ed-tgls{display:flex;flex-direction:column;gap:2px}
 .ed-tgls .tgl{font-size:11.5px;line-height:1.35}
 .ed-tgls .tgl input{width:12px;height:12px}
 .ed-right{gap:12px;min-width:0}
-@media(max-width:1200px){ .ed-brand .ed-ac{display:none} .ed-pub .ed-pub-t{max-width:16ch} }
+@media(max-width:1280px){ .ed-brand .ed-ac{display:none} .ed-pub .ed-pub-t{max-width:16ch} }
 .ed-link{font-family:inherit;font-size:12px;color:#8FC7FF;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .ed-link:hover{color:#fff}
 .sess{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#B9C6D2;white-space:nowrap}
@@ -129,6 +130,7 @@ body.preview .region.is-internal{display:none!important}
     <span class="ed-brand"><picture><source srcset="/shared/brand/static/voca-mixed.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/voca-mixed.webp" alt="Voca" width="68" height="18"></picture><picture class="ed-ac"><source srcset="/shared/brand/static/audiocodes-white.png" media="(prefers-reduced-motion: reduce)"><img src="/shared/brand/webp/audiocodes-white.webp" alt="AudioCodes" width="101" height="14"></picture><span class="ed-sep"></span>Roadmap editor</span>
     <button class="ed-btn" id="bAddTrain">Add train</button>
     <button class="ed-btn" id="bMeta">Header</button>
+    <button class="ed-btn" id="bPubPreview" title="Open /public with this draft in a new tab, even while Block public roadmap is on">Public preview</button>
     <div class="ed-right">
       <div class="ed-tgls">
         <label class="tgl block" id="lBlock" title="While on and published, /public shows an under-construction page and the public feed carries no roadmap data"><input type="checkbox" id="tBlock"> Block public roadmap</label>
@@ -594,6 +596,7 @@ function render(){
 
   markRnd(data);
   initBoard();
+  initProgressDrag();
   initRndFilter();
   const sc = document.getElementById('scroller');
   if (sc && scrollMemo){ sc.style.scrollBehavior = 'auto'; sc.scrollLeft = scrollMemo; sc.style.scrollBehavior = ''; }
@@ -676,6 +679,8 @@ document.getElementById('bPublish').onclick = async () => {
 };
 document.getElementById('bAddTrain').onclick = () => editTrain(null);
 document.getElementById('bMeta').onclick = editMeta;
+/* /public/?preview reads the draft from localStorage, which touch() keeps current */
+document.getElementById('bPubPreview').onclick = () => window.open('/public/?preview', '_blank', 'noopener');
 document.getElementById('tPreview').onchange = e => document.body.classList.toggle('preview', e.target.checked);
 /* saved with the roadmap like any edit; takes effect on /public at Publish */
 document.getElementById('tBlock').onchange = e => {
