@@ -307,7 +307,9 @@ function buildBodyHTML(data, opts){
   /* live page only: the standalone exported file has no /public to point at */
   const publicLink = (opts && opts.session)
     ? '<a class="pub-link" href="/public/" target="_blank" rel="noopener" title="The customer-facing roadmap, no sign-in needed">' +
-      'Public roadmap<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7.5 8.5"/></svg></a>'
+      'Public roadmap<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7.5 8.5"/></svg></a>' +
+      '<a class="req-link" href="/request/" target="_blank" rel="noopener" title="Submit a feature request for Voca CIC">' +
+      '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Request a Feature</a>'
     : '';
   /* only the live page loads xlsx.js and pdf.js; the published standalone file has no download */
   const dlIcon = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 2v8M4.5 6.8 8 10.3l3.5-3.5M2.5 13.5h11"/></svg>';

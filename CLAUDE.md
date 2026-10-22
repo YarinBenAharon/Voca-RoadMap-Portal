@@ -65,7 +65,10 @@ in the frozen `board.js`); the bar under the board (`.progress`), display-only i
 `board.js`, is a working scrollbar: drag the thumb or press the track
 (`initProgressDrag` in `render.js`, on the board, in the editor and in the exported file); the top bar has no Roadmap / Regions links and its badge
 reads "AudioCodes users only", followed by a **Public roadmap** link to `/public`
-(live page only, not the standalone export); on the board page the top bar stays
+and a filled **Request a Feature** pill to `/request/`, both opening a new tab
+(live page only, not the standalone export); `/request/` (sign-in like the board)
+is the feature request portal, for now an under-construction page styled by
+`public/public.css` like the blocked `/public`; on the board page the top bar stays
 pinned while scrolling, with the filter bar sticking below it (`index.html`); the top bar
 shows the animated Voca logo on the left, then the AudioCodes logo beside it,
 instead of the "ac" mark; the editor bar shows smaller copies (AudioCodes
@@ -92,6 +95,8 @@ src/                            app_location — everything served to browsers
 ├── public/                     the public roadmap, no sign-in (see Public roadmap)
 │   ├── index.html, public.js   fetches /api/public-roadmap; sections, filters, PDF
 │   └── public.css              on top of base.css
+├── request/                    feature request portal, under construction for now
+│   └── index.html, request.css on top of base.css and public.css
 ├── 403.html                    signed in but no editor role
 ├── edit/index.html             the editor, gated on the "editor" role
 ├── staticwebapp.config.json    routes, role gating, headers

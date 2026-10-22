@@ -1,0 +1,8 @@
+/* =========================================================================
+   The feature request page, on top of base.css and public.css, which give
+   it the top bar and the under-construction look (.uc).
+   ========================================================================= */
+
+.uc .uc-back{margin-top:18px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text);
+  text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:100px;padding:7px 16px}
+.uc .uc-back:hover{color:var(--ink);border-color:#B9C7DC}
